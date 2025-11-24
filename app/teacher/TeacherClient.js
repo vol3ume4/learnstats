@@ -315,7 +315,7 @@ export default function TeacherClient() {
 
       {topicId && (
         <div className="card">
-          <h3 className="section-title">Current Patterns</h3>
+          <h3 className="section-title">Current Patterns for Topic</h3>
           {savedPatterns.length === 0 ? (
             <p style={{ color: 'var(--text-secondary)' }}>No patterns found for this topic.</p>
           ) : (
