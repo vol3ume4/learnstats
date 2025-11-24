@@ -2,7 +2,7 @@ import client from "@/lib/db";
 
 export async function POST(request) {
   try {
-    const { topicId, patterns } = await request.json();
+    const { topicId, patterns, userId } = await request.json();
 
     console.log("### RAW RECEIVED PATTERNS:", patterns);
 
@@ -54,12 +54,12 @@ export async function POST(request) {
       try {
         await client.query(
           `
-          INSERT INTO patterns (topic_id, pattern, teacher_preferred_approach)
-          VALUES ($1, $2, $3)
+          INSERT INTO patterns (topic_id, pattern, teacher_preferred_approach, created_by, gemini_generated)
+          VALUES ($1, $2, $3, $4, true)
           ON CONFLICT (topic_id, pattern)
           DO NOTHING
           `,
-          [topicId, pattern, teacher_preferred_approach]
+          [topicId, pattern, teacher_preferred_approach, userId]
         );
       } catch (err) {
         console.error("Insert failed for pattern:", pattern, err);

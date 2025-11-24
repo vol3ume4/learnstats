@@ -181,6 +181,7 @@ export default function TeacherClient() {
       body: JSON.stringify({
         topicId,
         patterns: selectedPatterns,
+        userId,
       }),
     });
 
@@ -316,6 +317,47 @@ export default function TeacherClient() {
         <h3 className="section-title">3. Generate Pattern Suggestions</h3>
         <div className="form-group">
           <button onClick={generatePatterns} className="btn">Generate Patterns</button>
+        </div>
+
+        <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+          <h4 style={{ marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Manual Entry</h4>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              type="text"
+              className="input"
+              placeholder="Enter custom pattern..."
+              id="manual-pattern-input"
+            />
+            <button
+              className="btn btn-secondary"
+              onClick={async () => {
+                const input = document.getElementById('manual-pattern-input');
+                const val = input.value.trim();
+                if (!val) return;
+                if (!topicId) return alert("Select a topic first.");
+
+                setLoading("Adding pattern...");
+                try {
+                  const res = await fetch("/api/teacher/add-pattern", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ topicId, pattern: val, userId }),
+                  });
+                  if (!res.ok) throw new Error("Failed to add pattern");
+
+                  input.value = "";
+                  await loadSavedPatterns(topicId);
+                  alert("Pattern added manually.");
+                } catch (err) {
+                  console.error(err);
+                  alert("Error adding pattern");
+                }
+                setLoading("");
+              }}
+            >
+              Add
+            </button>
+          </div>
         </div>
 
         {existingPatterns.length > 0 && (
