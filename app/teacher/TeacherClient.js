@@ -313,6 +313,28 @@ export default function TeacherClient() {
         )}
       </div>
 
+      {topicId && (
+        <div className="card">
+          <h3 className="section-title">Current Patterns</h3>
+          {savedPatterns.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)' }}>No patterns found for this topic.</p>
+          ) : (
+            <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-main)' }}>
+              {savedPatterns.map((p) => (
+                <li key={p.id} style={{ marginBottom: '0.5rem' }}>
+                  <span style={{ marginRight: '0.5rem' }}>{p.pattern}</span>
+                  {p.gemini_generated ? (
+                    <span style={{ fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0284c7' }}>AI</span>
+                  ) : (
+                    <span style={{ fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px', background: '#f3f4f6', color: '#4b5563' }}>Manual</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       <div className="card">
         <h3 className="section-title">3. Generate Pattern Suggestions</h3>
         <div className="form-group">
@@ -361,16 +383,7 @@ export default function TeacherClient() {
           </button>
         </div>
 
-        {existingPatterns.length > 0 && (
-          <div style={{ marginTop: '1.5rem' }}>
-            <h4 style={{ marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Existing Patterns</h4>
-            <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-main)' }}>
-              {existingPatterns.map((p, i) => (
-                <li key={i} style={{ marginBottom: '0.25rem' }}>{typeof p === "string" ? p : p.pattern}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+
 
         {generatedPatterns.length > 0 && (
           <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
