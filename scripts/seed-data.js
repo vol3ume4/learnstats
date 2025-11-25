@@ -8,8 +8,8 @@ const client = new Client({
 
 const DATA = [
     {
-        name: "1. Introduction to Data",
-        patterns: [
+        "name": "1. Introduction to Data",
+        "patterns": [
             "Types of Data (Nominal, Ordinal, Interval, Ratio)",
             "Discrete vs Continuous Variables",
             "Structured vs Unstructured Data",
@@ -17,8 +17,8 @@ const DATA = [
         ]
     },
     {
-        name: "2. Descriptive Statistics",
-        patterns: [
+        "name": "2. Descriptive Statistics",
+        "patterns": [
             "Measures of Central Tendency (Mean, Median, Mode)",
             "Measures of Variability (Range, Variance, Std Dev)",
             "Quartiles and IQR",
@@ -26,53 +26,70 @@ const DATA = [
         ]
     },
     {
-        name: "3. Probability Basics",
-        patterns: [
-            "Independent vs Dependent Events",
-            "Conditional Probability",
-            "Bayes' Theorem",
-            "Random Variables"
+        "name": "3. Probability Basics",
+        "patterns": [
+            "Definitions: Experiment, Sample Space, & Events",
+            "Simple Probability (Classical Approach)",
+            "Probability vs. Odds",
+            "Union of Events (Addition Rule)",
+            "Intersection of Independent Events (Multiplication Rule)",
+            "Conditional Probability & Dependent Events",
+            "Bayes' Theorem & Inverse Probability"
         ]
     },
     {
-        name: "4. Binomial Distribution",
-        patterns: [
-            "Bernoulli Trials",
-            "Binomial Probability Formula",
-            "Mean and Variance of Binomial Distribution",
-            "Real-world Applications"
+        "name": "4. Binomial Distribution",
+        "patterns": [
+            "Identify Binomial Scenarios (Bernoulli Trials)",
+            "Calculate Exact Probability (PMF) given n, p, x",
+            "Calculate Cumulative Probability (CDF) given n, p, x",
+            "Inverse Problems: Find n, p, or x given Probability",
+            "Calculate Mean and Variance",
+            "Normal Approximation to Binomial"
         ]
     },
     {
-        name: "5. Poisson Distribution",
-        patterns: [
-            "Poisson Process Assumptions",
-            "Poisson Probability Formula",
-            "Mean and Variance (Lambda)",
-            "Modeling Rare Events"
+        "name": "5. Poisson Distribution",
+        "patterns": [
+            "Identify Poisson Scenarios (vs. Binomial)",
+            "Calculate Exact Probability (PMF) given lambda, x",
+            "Calculate Cumulative Probability (CDF) given lambda, x",
+            "Inverse Problems: Find lambda or x given Probability",
+            "Calculate Mean and Variance",
+            "Poisson Approximation to Binomial"
         ]
     },
     {
-        name: "6. Normal Distribution",
-        patterns: [
+        "name": "6. Normal Distribution",
+        "patterns": [
             "Properties of the Bell Curve",
             "Standard Normal Distribution (Z-Scores)",
             "Empirical Rule (68-95-99.7)",
-            "Reading Z-Tables"
+            "Reading Z-Tables (Manual Lookup)",
+            "Normal Distribution Calculations (CDF, SF, PPF, ISF)"
         ]
     },
     {
-        name: "7. Central Limit Theorem",
-        patterns: [
-            "Sampling Distributions",
-            "Standard Error",
-            "Law of Large Numbers",
-            "Applications of CLT"
+        "name": "7. Sampling Distribution of the Mean (CLT)",
+        "patterns": [
+            "Identify Sampling Distribution Scenarios",
+            "Calculate Standard Error of the Mean",
+            "Calculate Probability for the Mean (Z-score)",
+            "Find Sample Size (n) for Desired Precision"
         ]
     },
     {
-        name: "8. Confidence Intervals",
-        patterns: [
+        "name": "8. Sampling Distribution of the Proportion (CLT)",
+        "patterns": [
+            "Identify Proportion Scenarios",
+            "Calculate Standard Error of the Proportion",
+            "Calculate Probability for the Proportion (Z-score)",
+            "Find Sample Size (n) for Desired Precision"
+        ]
+    },
+    {
+        "name": "9. Confidence Intervals",
+        "patterns": [
             "Calculating Confidence Intervals",
             "Margin of Error",
             "Confidence Levels (95%, 99%)",
@@ -80,8 +97,8 @@ const DATA = [
         ]
     },
     {
-        name: "9. Hypothesis Testing",
-        patterns: [
+        "name": "10. Hypothesis Testing",
+        "patterns": [
             "Null and Alternative Hypotheses",
             "Type I and Type II Errors",
             "P-Values and Significance Levels",
@@ -90,8 +107,8 @@ const DATA = [
         ]
     },
     {
-        name: "10. Regression Analysis",
-        patterns: [
+        "name": "11. Regression Analysis",
+        "patterns": [
             "Simple Linear Regression",
             "Correlation Coefficients (Pearson, Spearman)",
             "Coefficient of Determination (R-Squared)",
