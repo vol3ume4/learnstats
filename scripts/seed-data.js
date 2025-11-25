@@ -151,6 +151,32 @@ const DATA = [
             "Chi-Square Test of Independence",
             "Interpreting Chi-Square Test Results"
         ]
+    },
+    {
+        "name": "16. F-Distribution",
+        "patterns": [
+            "Understanding the F-Distribution",
+            "F-Distribution Calculations (CDF, PPF)",
+            "Finding Critical F-Values"
+        ]
+    },
+    {
+        "name": "17. One-Way ANOVA",
+        "patterns": [
+            "Understanding One-Way ANOVA (Concepts)",
+            "One-Way ANOVA Calculations",
+            "Post-Hoc Tests (After Rejecting H₀)",
+            "Interpreting One-Way ANOVA Results"
+        ]
+    },
+    {
+        "name": "18. Two-Way ANOVA",
+        "patterns": [
+            "Understanding Two-Way ANOVA (Concepts)",
+            "Two-Way ANOVA Calculations",
+            "Interpreting Interaction Effects",
+            "Post-Hoc Tests for Two-Way ANOVA"
+        ]
     }
 ];
 
