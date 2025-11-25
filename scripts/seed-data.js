@@ -88,7 +88,16 @@ const DATA = [
         ]
     },
     {
-        "name": "9. Confidence Intervals",
+        "name": "9. Student's t-Distribution",
+        "patterns": [
+            "Properties of the t-Distribution",
+            "t-Distribution Calculations (CDF, PPF)",
+            "Decision: When to use Z vs t?",
+            "Finding Critical t-values"
+        ]
+    },
+    {
+        "name": "10. Confidence Intervals",
         "patterns": [
             "Calculating Confidence Intervals",
             "Margin of Error",
@@ -97,7 +106,7 @@ const DATA = [
         ]
     },
     {
-        "name": "10. Hypothesis Testing",
+        "name": "11. Hypothesis Testing",
         "patterns": [
             "Null and Alternative Hypotheses",
             "Type I and Type II Errors",
@@ -107,7 +116,7 @@ const DATA = [
         ]
     },
     {
-        "name": "11. Regression Analysis",
+        "name": "12. Regression Analysis",
         "patterns": [
             "Simple Linear Regression",
             "Correlation Coefficients (Pearson, Spearman)",
