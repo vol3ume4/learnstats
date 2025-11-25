@@ -116,17 +116,26 @@ const DATA = [
         ]
     },
     {
-        "name": "12. Hypothesis Testing",
+        "name": "12. Hypothesis Testing for the Mean",
         "patterns": [
-            "Null and Alternative Hypotheses",
-            "Type I and Type II Errors",
-            "P-Values and Significance Levels",
-            "One-Sample and Two-Sample T-Tests",
-            "ANOVA (Analysis of Variance)"
+            "Understanding HT for the Mean (Concepts)",
+            "One-Sample Z-Test (Large sample, sigma known)",
+            "One-Sample t-Test (Small sample or sigma unknown)",
+            "Two-Sample t-Test (Independent samples)",
+            "Paired t-Test (Dependent samples)"
         ]
     },
     {
-        "name": "13. Regression Analysis",
+        "name": "13. Hypothesis Testing for the Proportion",
+        "patterns": [
+            "Understanding HT for Proportions",
+            "One-Sample Z-Test for Proportion",
+            "Two-Sample Z-Test for Proportions",
+            "Interpreting Results and Common Pitfalls"
+        ]
+    },
+    {
+        "name": "14. Regression Analysis",
         "patterns": [
             "Simple Linear Regression",
             "Correlation Coefficients (Pearson, Spearman)",
