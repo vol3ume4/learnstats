@@ -110,26 +110,6 @@ const DATA = [
         "name": "11. Confidence Intervals for the Proportion",
         "patterns": [
             "Understanding CI for Proportion (Concept)",
-            "CI for Proportion - Large Sample",
-            "CI for Proportion - Small Sample (Wilson Score)",
-            "Interpreting CI for Proportion"
-        ]
-    },
-    {
-        "name": "12. Hypothesis Testing for the Mean",
-        "patterns": [
-            "Understanding HT for the Mean (Concepts)",
-            "One-Sample Z-Test (Large sample, sigma known)",
-            "One-Sample t-Test (Small sample or sigma unknown)",
-            "Two-Sample t-Test (Independent samples)",
-            "Paired t-Test (Dependent samples)"
-        ]
-    },
-    {
-        "name": "13. Hypothesis Testing for the Proportion",
-        "patterns": [
-            "Understanding HT for Proportions",
-            "One-Sample Z-Test for Proportion",
             "Two-Sample Z-Test for Proportions",
             "Interpreting Results and Common Pitfalls"
         ]
