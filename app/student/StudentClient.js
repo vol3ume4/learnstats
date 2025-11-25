@@ -35,8 +35,20 @@ export default function StudentClient() {
   const [loading, setLoading] = useState("");
   const [savedDrafts, setSavedDrafts] = useState([]);
 
+  // Streak tracking
+  const [streak, setStreak] = useState(0);
+
   const router = useRouter();
   const authCheckRan = useRef(false);
+
+  // Streak goals by difficulty
+  const STREAK_GOALS = {
+    "Easy": 3,
+    "Medium": 4,
+    "Hard": 5
+  };
+
+  const streakGoal = STREAK_GOALS[difficulty] || 3;
 
   // ---------- AUTH LOAD ----------
   useEffect(() => {
@@ -93,8 +105,6 @@ export default function StudentClient() {
       setTopics(data);
     } catch (err) {
       console.error("Error loading topics:", err);
-      // Don't alert immediately to avoid spamming if it's a network blip, 
-      // but log it clearly.
     }
   }
 
@@ -197,6 +207,14 @@ export default function StudentClient() {
     const data = await res.json();
     setEvaluation(data);
     setAttemptId(data.attemptId);
+
+    // Update streak
+    if (data.correct) {
+      setStreak(streak + 1);
+    } else {
+      setStreak(0);
+    }
+
     setLoading("");
   }
 
@@ -355,6 +373,7 @@ export default function StudentClient() {
               setPatternId(null);
               setCurrentQuestion(null);
               setEvaluation("");
+              setStreak(0);
               await loadPatterns(id);
             }}
           >
@@ -377,6 +396,7 @@ export default function StudentClient() {
                   setPatternId(Number(e.target.value));
                   setCurrentQuestion(null);
                   setEvaluation("");
+                  setStreak(0);
                 }}
               >
                 <option>Select a pattern...</option>
@@ -397,7 +417,10 @@ export default function StudentClient() {
               <select
                 className="select"
                 style={{ maxWidth: '200px' }}
-                onChange={(e) => setDifficulty(e.target.value)}
+                onChange={(e) => {
+                  setDifficulty(e.target.value);
+                  setStreak(0);
+                }}
                 value={difficulty}
               >
                 <option>Easy</option>
@@ -408,6 +431,48 @@ export default function StudentClient() {
               <button onClick={getNextQuestion} className="btn" disabled={!!loading}>
                 Get Question
               </button>
+            </div>
+
+            {/* Streak Progress */}
+            <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--background)', borderRadius: 'var(--radius-md)' }}>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                Goal: {streakGoal} in a row to show consistency!
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {Array.from({ length: streakGoal }).map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      border: '2px solid var(--primary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: i < streak ? 'var(--primary)' : 'transparent',
+                      color: i < streak ? 'white' : 'var(--primary)',
+                      fontWeight: 'bold',
+                      fontSize: '1.2rem',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    {i < streak ? '✓' : ''}
+                  </div>
+                ))}
+              </div>
+              {streak > 0 && streak < streakGoal && (
+                <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '500' }}>
+                  {streak === 1 && '✓ Good start! Keep going!'}
+                  {streak === 2 && '✓ ✓ You\'re on a roll!'}
+                  {streak === streakGoal - 1 && `✓ ${Array(streak).fill('✓').join(' ')} Almost there! One more!`}
+                </div>
+              )}
+              {streak === streakGoal && (
+                <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--success)', fontWeight: '600' }}>
+                  🎉 You're consistent at this level! {difficulty !== 'Hard' && 'Ready to try the next level?'}
+                </div>
+              )}
             </div>
           </>
         )}
