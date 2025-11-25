@@ -1,12 +1,19 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/student");
+  }, [router]);
+
   return (
-    <div style={{ padding: 40 }}>
-      <h1>LearnStats</h1>
-      <p>Select a mode:</p>
-      <ul>
-        <li><a href="/student">Student Mode</a></li>
-        <li><a href="/teacher">Teacher Mode</a></li>
-      </ul>
+    <div className="container" style={{ textAlign: 'center', paddingTop: '4rem' }}>
+      <h1 className="page-title">LearnStats</h1>
+      <p style={{ color: 'var(--text-secondary)' }}>Redirecting to Student Mode...</p>
     </div>
   );
 }
