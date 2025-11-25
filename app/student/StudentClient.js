@@ -321,6 +321,13 @@ export default function StudentClient() {
           <StudentHelp />
           <button
             className="btn btn-secondary"
+            onClick={() => router.push("/student/dashboard")}
+            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+          >
+            📊 My Dashboard
+          </button>
+          <button
+            className="btn btn-secondary"
             onClick={async () => {
               await supabase.auth.signOut();
               router.push("/login");
