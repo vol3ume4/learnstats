@@ -5,6 +5,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
+import StudentHelp from "./StudentHelp";
 
 export default function StudentClient() {
   // ---------- ALL HOOKS AT TOP ----------
@@ -216,16 +217,19 @@ export default function StudentClient() {
     <div className="container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 className="page-title" style={{ margin: 0, textAlign: 'left' }}>Student Mode</h1>
-        <button
-          className="btn btn-secondary"
-          onClick={async () => {
-            await supabase.auth.signOut();
-            router.push("/login");
-          }}
-          style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
-        >
-          Sign Out
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <StudentHelp />
+          <button
+            className="btn btn-secondary"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              router.push("/login");
+            }}
+            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
 
       {loading && (
