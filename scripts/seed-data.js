@@ -97,16 +97,26 @@ const DATA = [
         ]
     },
     {
-        "name": "10. Confidence Intervals",
+        "name": "10. Confidence Intervals for the Mean",
         "patterns": [
-            "Calculating Confidence Intervals",
-            "Margin of Error",
-            "Confidence Levels (95%, 99%)",
-            "Interpreting Confidence Intervals"
+            "Understanding CI for the Mean (Concept)",
+            "CI for Mean - Large Sample (n >= 30), sigma Known",
+            "CI for Mean - Large Sample (n >= 30), sigma Unknown",
+            "CI for Mean - Small Sample (n < 30), sigma Unknown",
+            "Interpreting CI for the Mean"
         ]
     },
     {
-        "name": "11. Hypothesis Testing",
+        "name": "11. Confidence Intervals for the Proportion",
+        "patterns": [
+            "Understanding CI for Proportion (Concept)",
+            "CI for Proportion - Large Sample",
+            "CI for Proportion - Small Sample (Wilson Score)",
+            "Interpreting CI for Proportion"
+        ]
+    },
+    {
+        "name": "12. Hypothesis Testing",
         "patterns": [
             "Null and Alternative Hypotheses",
             "Type I and Type II Errors",
@@ -116,7 +126,7 @@ const DATA = [
         ]
     },
     {
-        "name": "12. Regression Analysis",
+        "name": "13. Regression Analysis",
         "patterns": [
             "Simple Linear Regression",
             "Correlation Coefficients (Pearson, Spearman)",
