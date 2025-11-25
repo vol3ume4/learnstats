@@ -33,6 +33,7 @@ export default function StudentClient() {
   const [usedHintPython, setUsedHintPython] = useState(false);
   const [studentRemark, setStudentRemark] = useState("");
   const [loading, setLoading] = useState("");
+  const [savedDrafts, setSavedDrafts] = useState([]);
 
   const router = useRouter();
   const authCheckRan = useRef(false);
@@ -76,6 +77,13 @@ export default function StudentClient() {
   useEffect(() => {
     loadTopics();
   }, []);
+
+  // ---------- LOAD DRAFTS ----------
+  useEffect(() => {
+    if (userId) {
+      loadDrafts();
+    }
+  }, [userId]);
 
   async function loadTopics() {
     try {
@@ -212,6 +220,80 @@ export default function StudentClient() {
     if (data.success) alert("Remark saved.");
   }
 
+  // ---------- DRAFT FUNCTIONS ----------
+  async function loadDrafts() {
+    const res = await fetch("/api/student/get-drafts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId })
+    });
+    const data = await res.json();
+    setSavedDrafts(data);
+  }
+
+  async function saveDraft() {
+    if (!currentQuestion) {
+      alert("No question to save.");
+      return;
+    }
+
+    const res = await fetch("/api/student/save-draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        topicId,
+        patternId,
+        difficulty,
+        questionData: {
+          question: currentQuestion,
+          answer,
+          showHintStats,
+          showHintPython,
+          usedHintStats,
+          usedHintPython
+        }
+      })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert("Question saved for later!");
+      loadDrafts();
+    }
+  }
+
+  async function resumeDraft(draft) {
+    setTopicId(draft.topic_id);
+    setPatternId(draft.pattern_id);
+    setDifficulty(draft.difficulty);
+    setCurrentQuestion(draft.question_data.question);
+    setAnswer(draft.question_data.answer || "");
+    setShowHintStats(draft.question_data.showHintStats || false);
+    setShowHintPython(draft.question_data.showHintPython || false);
+    setUsedHintStats(draft.question_data.usedHintStats || false);
+    setUsedHintPython(draft.question_data.usedHintPython || false);
+
+    // Load patterns for the topic
+    await loadPatterns(draft.topic_id);
+
+    // Delete the draft after resuming
+    await deleteDraft(draft.id);
+  }
+
+  async function deleteDraft(draftId) {
+    const res = await fetch("/api/student/delete-draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ draftId })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      loadDrafts();
+    }
+  }
+
   // ---------- UI ----------
   return (
     <div className="container">
@@ -236,6 +318,29 @@ export default function StudentClient() {
         <div className="alert alert-info loading-banner">
           <span className="spinner"></span>
           {loading}
+        </div>
+      )}
+
+      {savedDrafts.length > 0 && (
+        <div className="alert alert-info" style={{ marginBottom: '1.5rem' }}>
+          <strong>📌 You have {savedDrafts.length} saved question{savedDrafts.length > 1 ? 's' : ''}!</strong>
+          <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {savedDrafts.map((draft) => (
+              <div key={draft.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', background: 'white', borderRadius: 'var(--radius-sm)' }}>
+                <span style={{ fontSize: '0.9rem' }}>
+                  {draft.topic_name} → {draft.pattern_name} ({draft.difficulty})
+                </span>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button onClick={() => resumeDraft(draft)} className="btn" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+                    Resume
+                  </button>
+                  <button onClick={() => deleteDraft(draft.id)} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -334,7 +439,10 @@ export default function StudentClient() {
                 onChange={(e) => setAnswer(e.target.value)}
               />
 
-              <div className="flex-row" style={{ marginTop: '0.5rem' }}>
+              <div className="flex-row" style={{ marginTop: '0.5rem', gap: '0.5rem' }}>
+                <button onClick={saveDraft} className="btn btn-secondary" disabled={!!loading}>
+                  💾 Save for Later
+                </button>
                 <button onClick={submitAnswer} className="btn" disabled={!!loading}>
                   Submit Answer
                 </button>
