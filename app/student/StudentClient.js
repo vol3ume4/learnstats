@@ -229,7 +229,8 @@ export default function StudentClient() {
       </div>
 
       {loading && (
-        <div className="alert alert-info">
+        <div className="alert alert-info loading-banner">
+          <span className="spinner"></span>
           {loading}
         </div>
       )}
@@ -295,7 +296,7 @@ export default function StudentClient() {
                 <option>Hard</option>
               </select>
 
-              <button onClick={getNextQuestion} className="btn">
+              <button onClick={getNextQuestion} className="btn" disabled={!!loading}>
                 Get Question
               </button>
             </div>
@@ -330,7 +331,7 @@ export default function StudentClient() {
               />
 
               <div className="flex-row" style={{ marginTop: '0.5rem' }}>
-                <button onClick={submitAnswer} className="btn">
+                <button onClick={submitAnswer} className="btn" disabled={!!loading}>
                   Submit Answer
                 </button>
               </div>
