@@ -263,7 +263,8 @@ export default function TeacherClient() {
       </div>
 
       {loading && (
-        <div className="alert alert-info">
+        <div className="alert alert-info loading-banner">
+          <span className="spinner"></span>
           {loading}
         </div>
       )}
@@ -338,7 +339,7 @@ export default function TeacherClient() {
       <div className="card">
         <h3 className="section-title">3. Generate Pattern Suggestions</h3>
         <div className="form-group">
-          <button onClick={generatePatterns} className="btn">Generate Patterns</button>
+          <button onClick={generatePatterns} className="btn" disabled={!!loading}>Generate Patterns</button>
         </div>
 
       </div>
@@ -472,7 +473,7 @@ export default function TeacherClient() {
               <option>Hard</option>
             </select>
 
-            <button onClick={generateQuestions} className="btn">
+            <button onClick={generateQuestions} className="btn" disabled={!!loading}>
               Generate Questions
             </button>
           </div>
