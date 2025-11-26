@@ -28,15 +28,23 @@ export async function POST(request) {
     const patternApproach = patternRes.rows[0]?.teacher_preferred_approach || "";
 
     // ---------------------------------------------------------
-    // 2. Build combined preferred approach
+    // 2. Build combined preferred approach (only if provided)
     // ---------------------------------------------------------
-    const combinedApproach = `
-Teacher preferred solution approach for this topic:
-${topicApproach || "(none provided)"}
+    let combinedApproach = "";
 
-Teacher preferred solution approach for this specific pattern:
-${patternApproach || "(none provided)"}
-`;
+    if (topicApproach || patternApproach) {
+      combinedApproach = "TEACHER GUIDANCE:\n";
+
+      if (topicApproach) {
+        combinedApproach += `\nTopic-level approach:\n${topicApproach}\n`;
+      }
+
+      if (patternApproach) {
+        combinedApproach += `\nPattern-specific approach:\n${patternApproach}\n`;
+      }
+
+      combinedApproach += "\nPlease incorporate this guidance when generating questions.\n";
+    }
 
     // ---------------------------------------------------------
     // 3. Prepare Gemini model

@@ -303,8 +303,7 @@ export default function TeacherClient() {
           <>
             <h3 className="section-title" style={{ marginTop: "1.5rem" }}>2. Recommended Teaching Method (Optional)</h3>
             <div style={{ padding: '0.75rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              <strong>⚠️ This is shared guidance</strong> visible to ALL teachers and students for this topic.
-              <br />Only update if you want to improve the recommended teaching approach for everyone.
+              💡 Share your preferred teaching approach for this topic. What you enter here will be used for all questions on this topic—it's not teacher-specific.
             </div>
             <div className="form-group">
               <textarea
@@ -462,8 +461,7 @@ export default function TeacherClient() {
           <div className="form-group">
             <label className="label">Recommended Approach for This Pattern (Optional)</label>
             <div style={{ padding: '0.75rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              <strong>⚠️ This is shared guidance</strong> visible to ALL teachers and students for this specific pattern.
-              <br />Only update if you want to add specific tips for solving this type of problem.
+              💡 Share your preferred approach to solving this problem pattern. What you enter here will be used for all questions of this pattern—it's not teacher-specific.
             </div>
             <textarea
               className="input"
