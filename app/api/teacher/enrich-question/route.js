@@ -129,19 +129,38 @@ Output JSON:
             }
 
         } else {
-            // Teacher mode: Just enrich with given topic/pattern
+            // Teacher mode: Validate and enrich with given topic/pattern
             if (image) {
                 prompt = `
-You are an expert statistics tutor.
-Extract the statistics question from this image and solve it.
+You are an expert statistics tutor with strict quality standards.
+
+STEP 1: VALIDATE - Check if this image contains a valid, logically consistent statistics question.
+
+REJECT if:
+- Not a statistics question
+- Logically inconsistent (e.g., "probability of heads when rolling a die" - dice don't have heads!)
+- Incomplete or unclear
+- Contains contradictions
+- Doesn't match the topic: ${topicName || "General Statistics"}
+
+If invalid, return:
+{
+  "is_valid_question": false,
+  "message": "Explain why this is invalid with specific details"
+}
+
+STEP 2: If valid, extract and solve.
 
 Context:
 Topic: ${topicName || "General Statistics"}
 Pattern: ${patternName || "General"}
 Difficulty: ${difficulty || "Medium"}
 
+Refine the question to fix typos and improve clarity, but ONLY if the logic is sound.
+
 Output JSON:
 {
+  "is_valid_question": true,
   "question_text": "...",
   "correct_answer": "...",
   "hint_stats": "...",
@@ -161,16 +180,35 @@ Output JSON:
 
             } else {
                 prompt = `
-You are an expert statistics tutor.
-Refine this question and solve it: "${text}"
+You are an expert statistics tutor with strict quality standards.
+
+STEP 1: VALIDATE - Check if this is a valid, logically consistent statistics question: "${text}"
+
+REJECT if:
+- Not a statistics question
+- Logically inconsistent (e.g., "probability of heads when rolling a die" - dice don't have heads!)
+- Incomplete or unclear
+- Contains contradictions
+- Doesn't match the topic: ${topicName || "General Statistics"}
+
+If invalid, return:
+{
+  "is_valid_question": false,
+  "message": "Explain why this is invalid with specific details"
+}
+
+STEP 2: If valid, refine and solve.
 
 Context:
 Topic: ${topicName || "General Statistics"}
 Pattern: ${patternName || "General"}
 Difficulty: ${difficulty || "Medium"}
 
+Refine the question to fix typos and improve clarity, but ONLY if the logic is sound.
+
 Output JSON:
 {
+  "is_valid_question": true,
   "question_text": "...",
   "correct_answer": "...",
   "hint_stats": "...",

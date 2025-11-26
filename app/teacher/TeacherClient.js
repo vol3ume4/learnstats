@@ -297,6 +297,13 @@ export default function TeacherClient() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
+      // Check if question was rejected by validation
+      if (data.is_valid_question === false) {
+        alert(`❌ Question Validation Failed\n\n${data.message}\n\nPlease revise your question and try again.`);
+        setEnriching(false);
+        return;
+      }
+
       setEnrichedData(data);
     } catch (err) {
       alert("Error processing question: " + err.message);
