@@ -438,6 +438,34 @@ export default function TeacherClient() {
 
           {/* ACTION SELECTOR - "I want to..." */}
           <div className="card" style={{ background: 'var(--primary)', color: 'white', marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.9rem', opacity: 0.9 }}>
+              I want to...
+            </label>
+            <select
+              className="select"
+              style={{
+                width: '100%',
+                fontSize: '1.1rem',
+                padding: '0.75rem',
+                border: 'none',
+                borderRadius: 'var(--radius-sm)',
+                cursor: 'pointer',
+                background: 'white',
+                color: '#111827' // Enforce dark text for the select box itself
+              }}
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+            >
+              <option value="view_patterns" style={{ color: 'black' }}>📂 View & Manage Patterns</option>
+              <option value="generate_patterns" style={{ color: 'black' }}>🤖 Generate New Patterns with AI</option>
+              <option value="add_pattern_manual" style={{ color: 'black' }}>✍️ Add a Pattern Manually</option>
+              <option value="generate_questions" style={{ color: 'black' }}>⚡ Generate Questions with AI</option>
+              <option value="add_question_manual" style={{ color: 'black' }}>📝 Add a Question Manually</option>
+            </select>
+          </div>
+
+          {/* --- VIEW 1: VIEW PATTERNS --- */}
+          {activeTab === 'view_patterns' && (
             <div className="card">
               <h3 className="section-title">Existing Patterns</h3>
 
@@ -482,221 +510,221 @@ export default function TeacherClient() {
             </div>
           )}
 
-            {/* --- VIEW 2: GENERATE PATTERNS --- */}
-            {activeTab === 'generate_patterns' && (
-              <div className="card">
-                <h3 className="section-title">Generate Patterns with AI</h3>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                  AI will analyze the topic <strong>"{topicName}"</strong> and suggest common question patterns found in textbooks.
-                </p>
+          {/* --- VIEW 2: GENERATE PATTERNS --- */}
+          {activeTab === 'generate_patterns' && (
+            <div className="card">
+              <h3 className="section-title">Generate Patterns with AI</h3>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                AI will analyze the topic <strong>"{topicName}"</strong> and suggest common question patterns found in textbooks.
+              </p>
 
-                <button onClick={generatePatterns} className="btn" disabled={!!loading} style={{ width: '100%', padding: '1rem' }}>
-                  {loading ? "Generating..." : "🚀 Generate Suggestions"}
-                </button>
+              <button onClick={generatePatterns} className="btn" disabled={!!loading} style={{ width: '100%', padding: '1rem' }}>
+                {loading ? "Generating..." : "🚀 Generate Suggestions"}
+              </button>
 
-                {generatedPatterns.length > 0 && (
-                  <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-                    <h4 style={{ marginBottom: '1rem' }}>Select Patterns to Keep</h4>
-                    <div className="flex-col">
-                      {generatedPatterns.map((p, i) => (
-                        <label key={i} style={{ display: 'flex', gap: '0.75rem', padding: '0.5rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            onChange={(e) => {
-                              if (e.target.checked) setSelectedPatterns([...selectedPatterns, p.pattern]);
-                              else setSelectedPatterns(selectedPatterns.filter((x) => x !== p.pattern));
-                            }}
-                          />
-                          <span>{p.pattern}</span>
-                        </label>
-                      ))}
-                    </div>
-                    <button onClick={savePatterns} className="btn" style={{ marginTop: '1.5rem', width: '100%' }}>
-                      💾 Save Selected Patterns
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* --- VIEW 3: MANUAL PATTERN --- */}
-            {activeTab === 'add_pattern_manual' && (
-              <div className="card">
-                <h3 className="section-title">Add Pattern Manually</h3>
-                <div className="form-group">
-                  <label className="label">Pattern Name</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="e.g., Calculate probability of X > k"
-                    id="manual-pattern-input"
-                  />
-                </div>
-                <button
-                  className="btn"
-                  onClick={async () => {
-                    const input = document.getElementById('manual-pattern-input');
-                    const val = input.value.trim();
-                    if (!val) return;
-                    setLoading("Adding...");
-                    try {
-                      await fetch("/api/teacher/add-pattern", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ topicId, pattern: val, userId }),
-                      });
-                      input.value = "";
-                      await loadSavedPatterns(topicId);
-                      alert("Pattern added successfully.");
-                      setActiveTab('view_patterns'); // Go back to list
-                    } catch (err) {
-                      alert("Error adding pattern");
-                    }
-                    setLoading("");
-                  }}
-                  disabled={!!loading}
-                >
-                  {loading ? "Adding..." : "Add Pattern"}
-                </button>
-              </div>
-            )}
-
-            {/* --- VIEW 4: GENERATE QUESTIONS --- */}
-            {activeTab === 'generate_questions' && (
-              <div className="card">
-                <h3 className="section-title">Generate Questions</h3>
-
-                <div className="form-group">
-                  <label className="label">1. Select Pattern Context</label>
-                  <select
-                    className="select"
-                    onChange={(e) => {
-                      const id = Number(e.target.value);
-                      setPatternId(id);
-                      const pObj = savedPatterns.find((p) => p.id === id);
-                      setPatternApproach(pObj?.teacher_preferred_approach || "");
-                    }}
-                    value={patternId || ""}
-                  >
-                    <option value="">Select a pattern...</option>
-                    {savedPatterns.map((p) => (
-                      <option key={p.id} value={p.id}>{p.pattern}</option>
+              {generatedPatterns.length > 0 && (
+                <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                  <h4 style={{ marginBottom: '1rem' }}>Select Patterns to Keep</h4>
+                  <div className="flex-col">
+                    {generatedPatterns.map((p, i) => (
+                      <label key={i} style={{ display: 'flex', gap: '0.75rem', padding: '0.5rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          onChange={(e) => {
+                            if (e.target.checked) setSelectedPatterns([...selectedPatterns, p.pattern]);
+                            else setSelectedPatterns(selectedPatterns.filter((x) => x !== p.pattern));
+                          }}
+                        />
+                        <span>{p.pattern}</span>
+                      </label>
                     ))}
-                  </select>
-                </div>
-
-                {patternId && (
-                  <>
-                    <div className="form-group">
-                      <label className="label">2. Difficulty</label>
-                      <select
-                        className="select"
-                        value={difficulty}
-                        onChange={(e) => setDifficulty(e.target.value)}
-                      >
-                        <option>Easy</option>
-                        <option>Medium</option>
-                        <option>Hard</option>
-                      </select>
-                    </div>
-
-                    <button onClick={generateQuestions} className="btn" disabled={!!loading} style={{ width: '100%', marginTop: '0.5rem' }}>
-                      {loading ? "Generating..." : "⚡ Generate Questions"}
-                    </button>
-                  </>
-                )}
-
-                {generatedQuestions.length > 0 && (
-                  <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-                    <h4 style={{ marginBottom: '1rem' }}>Review Generated Questions</h4>
-                    <div className="flex-col">
-                      {generatedQuestions.map((q, i) => {
-                        const checked = selectedQuestions.includes(i);
-                        return (
-                          <div key={i} style={{
-                            padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
-                            background: checked ? '#eff6ff' : 'transparent', borderColor: checked ? 'var(--primary)' : 'var(--border)'
-                          }}>
-                            <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer' }}>
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => setSelectedQuestions(checked ? selectedQuestions.filter(x => x !== i) : [...selectedQuestions, i])}
-                                style={{ marginTop: '0.25rem' }}
-                              />
-                              <div>
-                                <strong>{q.question_text}</strong>
-                                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                                  Answer: {q.correct_answer}
-                                </div>
-                              </div>
-                            </label>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <button onClick={saveQuestions} className="btn" style={{ marginTop: '1.5rem', width: '100%' }}>
-                      💾 Save Selected Questions
-                    </button>
                   </div>
-                )}
+                  <button onClick={savePatterns} className="btn" style={{ marginTop: '1.5rem', width: '100%' }}>
+                    💾 Save Selected Patterns
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* --- VIEW 3: MANUAL PATTERN --- */}
+          {activeTab === 'add_pattern_manual' && (
+            <div className="card">
+              <h3 className="section-title">Add Pattern Manually</h3>
+              <div className="form-group">
+                <label className="label">Pattern Name</label>
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="e.g., Calculate probability of X > k"
+                  id="manual-pattern-input"
+                />
               </div>
-            )}
+              <button
+                className="btn"
+                onClick={async () => {
+                  const input = document.getElementById('manual-pattern-input');
+                  const val = input.value.trim();
+                  if (!val) return;
+                  setLoading("Adding...");
+                  try {
+                    await fetch("/api/teacher/add-pattern", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ topicId, pattern: val, userId }),
+                    });
+                    input.value = "";
+                    await loadSavedPatterns(topicId);
+                    alert("Pattern added successfully.");
+                    setActiveTab('view_patterns'); // Go back to list
+                  } catch (err) {
+                    alert("Error adding pattern");
+                  }
+                  setLoading("");
+                }}
+                disabled={!!loading}
+              >
+                {loading ? "Adding..." : "Add Pattern"}
+              </button>
+            </div>
+          )}
 
-            {/* --- VIEW 5: MANUAL QUESTION --- */}
-            {activeTab === 'add_question_manual' && (
-              <div className="card">
-                <h3 className="section-title">Add Question Manually</h3>
+          {/* --- VIEW 4: GENERATE QUESTIONS --- */}
+          {activeTab === 'generate_questions' && (
+            <div className="card">
+              <h3 className="section-title">Generate Questions</h3>
 
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-                  <button className={`btn ${manualMode === 'text' ? '' : 'btn-secondary'}`} onClick={() => setManualMode('text')} style={{ flex: 1 }}>📝 Text Input</button>
-                  <button className={`btn ${manualMode === 'image' ? '' : 'btn-secondary'}`} onClick={() => setManualMode('image')} style={{ flex: 1 }}>📷 Image Upload</button>
-                </div>
-
-                {manualMode === 'text' ? (
-                  <textarea
-                    className="input"
-                    placeholder="Type your question here..."
-                    value={manualText}
-                    onChange={(e) => setManualText(e.target.value)}
-                    style={{ minHeight: '120px' }}
-                  />
-                ) : (
-                  <div style={{ border: '2px dashed var(--border)', padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
-                    <input type="file" accept="image/*" onChange={handleImageUpload} />
-                    {manualImage && <img src={manualImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', marginTop: '1rem' }} />}
-                  </div>
-                )}
-
-                <button
-                  className="btn"
-                  onClick={enrichQuestion}
-                  disabled={enriching || (manualMode === 'text' ? !manualText : !manualImage)}
-                  style={{ marginTop: '1.5rem', width: '100%' }}
+              <div className="form-group">
+                <label className="label">1. Select Pattern Context</label>
+                <select
+                  className="select"
+                  onChange={(e) => {
+                    const id = Number(e.target.value);
+                    setPatternId(id);
+                    const pObj = savedPatterns.find((p) => p.id === id);
+                    setPatternApproach(pObj?.teacher_preferred_approach || "");
+                  }}
+                  value={patternId || ""}
                 >
-                  {enriching ? "Processing..." : "✨ Process & Enrich with AI"}
-                </button>
-
-                {enrichedData && (
-                  <div style={{ marginTop: '2rem', padding: '1.5rem', border: '1px solid var(--success)', borderRadius: 'var(--radius-md)', background: '#f0fdf4' }}>
-                    <h4 style={{ color: 'var(--success)', marginBottom: '1rem', marginTop: 0 }}>Review & Save</h4>
-                    <div className="form-group">
-                      <label className="label">Question</label>
-                      <textarea className="input" value={enrichedData.question_text} onChange={(e) => setEnrichedData({ ...enrichedData, question_text: e.target.value })} />
-                    </div>
-                    <div className="form-group">
-                      <label className="label">Answer</label>
-                      <input className="input" value={enrichedData.correct_answer} onChange={(e) => setEnrichedData({ ...enrichedData, correct_answer: e.target.value })} />
-                    </div>
-                    <button className="btn" onClick={saveManualQuestion} disabled={!!loading} style={{ width: '100%' }}>
-                      💾 Save Question
-                    </button>
-                  </div>
-                )}
+                  <option value="">Select a pattern...</option>
+                  {savedPatterns.map((p) => (
+                    <option key={p.id} value={p.id}>{p.pattern}</option>
+                  ))}
+                </select>
               </div>
-            )}
-          </div>
-      )}
+
+              {patternId && (
+                <>
+                  <div className="form-group">
+                    <label className="label">2. Difficulty</label>
+                    <select
+                      className="select"
+                      value={difficulty}
+                      onChange={(e) => setDifficulty(e.target.value)}
+                    >
+                      <option>Easy</option>
+                      <option>Medium</option>
+                      <option>Hard</option>
+                    </select>
+                  </div>
+
+                  <button onClick={generateQuestions} className="btn" disabled={!!loading} style={{ width: '100%', marginTop: '0.5rem' }}>
+                    {loading ? "Generating..." : "⚡ Generate Questions"}
+                  </button>
+                </>
+              )}
+
+              {generatedQuestions.length > 0 && (
+                <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                  <h4 style={{ marginBottom: '1rem' }}>Review Generated Questions</h4>
+                  <div className="flex-col">
+                    {generatedQuestions.map((q, i) => {
+                      const checked = selectedQuestions.includes(i);
+                      return (
+                        <div key={i} style={{
+                          padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
+                          background: checked ? '#eff6ff' : 'transparent', borderColor: checked ? 'var(--primary)' : 'var(--border)'
+                        }}>
+                          <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer' }}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => setSelectedQuestions(checked ? selectedQuestions.filter(x => x !== i) : [...selectedQuestions, i])}
+                              style={{ marginTop: '0.25rem' }}
+                            />
+                            <div>
+                              <strong>{q.question_text}</strong>
+                              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                                Answer: {q.correct_answer}
+                              </div>
+                            </div>
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <button onClick={saveQuestions} className="btn" style={{ marginTop: '1.5rem', width: '100%' }}>
+                    💾 Save Selected Questions
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* --- VIEW 5: MANUAL QUESTION --- */}
+          {activeTab === 'add_question_manual' && (
+            <div className="card">
+              <h3 className="section-title">Add Question Manually</h3>
+
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                <button className={`btn ${manualMode === 'text' ? '' : 'btn-secondary'}`} onClick={() => setManualMode('text')} style={{ flex: 1 }}>📝 Text Input</button>
+                <button className={`btn ${manualMode === 'image' ? '' : 'btn-secondary'}`} onClick={() => setManualMode('image')} style={{ flex: 1 }}>📷 Image Upload</button>
+              </div>
+
+              {manualMode === 'text' ? (
+                <textarea
+                  className="input"
+                  placeholder="Type your question here..."
+                  value={manualText}
+                  onChange={(e) => setManualText(e.target.value)}
+                  style={{ minHeight: '120px' }}
+                />
+              ) : (
+                <div style={{ border: '2px dashed var(--border)', padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} />
+                  {manualImage && <img src={manualImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', marginTop: '1rem' }} />}
+                </div>
+              )}
+
+              <button
+                className="btn"
+                onClick={enrichQuestion}
+                disabled={enriching || (manualMode === 'text' ? !manualText : !manualImage)}
+                style={{ marginTop: '1.5rem', width: '100%' }}
+              >
+                {enriching ? "Processing..." : "✨ Process & Enrich with AI"}
+              </button>
+
+              {enrichedData && (
+                <div style={{ marginTop: '2rem', padding: '1.5rem', border: '1px solid var(--success)', borderRadius: 'var(--radius-md)', background: '#f0fdf4' }}>
+                  <h4 style={{ color: 'var(--success)', marginBottom: '1rem', marginTop: 0 }}>Review & Save</h4>
+                  <div className="form-group">
+                    <label className="label">Question</label>
+                    <textarea className="input" value={enrichedData.question_text} onChange={(e) => setEnrichedData({ ...enrichedData, question_text: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label className="label">Answer</label>
+                    <input className="input" value={enrichedData.correct_answer} onChange={(e) => setEnrichedData({ ...enrichedData, correct_answer: e.target.value })} />
+                  </div>
+                  <button className="btn" onClick={saveManualQuestion} disabled={!!loading} style={{ width: '100%' }}>
+                    💾 Save Question
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      );
+      )}
+    </div>
+  );
 }
