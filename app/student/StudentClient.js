@@ -14,6 +14,7 @@ export default function StudentClient() {
 
   const [topics, setTopics] = useState([]);
   const [topicId, setTopicId] = useState(null);
+  const [expandedGroup, setExpandedGroup] = useState("1. Foundations & Data"); // Default open first group
 
   const [patterns, setPatterns] = useState([]);
   const [patternId, setPatternId] = useState(null);
@@ -373,350 +374,291 @@ export default function StudentClient() {
               </div>
             ))}
           </div>
-        </div>
+          <div className="form-group">
+            <select
+              className="select"
+              onChange={(e) => {
+                setPatternId(Number(e.target.value));
+                setCurrentQuestion(null);
+                setEvaluation("");
+                setStreak(0);
+              }}
+            >
+              <option>Select a pattern...</option>
+              {patterns.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.pattern}
+                </option>
+              ))}
+            </select>
+          </div>
+        </>
       )}
 
-      <div className="card">
-        <h3 className="section-title">1. Select Topic</h3>
-        <div className="form-group">
-          <select
-            className="select"
-            onChange={async (e) => {
-              const id = Number(e.target.value);
-              setTopicId(id);
-              setPatternId(null);
-              setCurrentQuestion(null);
-              setEvaluation("");
-              setStreak(0);
-              await loadPatterns(id);
-            }}
-          >
-            <option>Select a topic...</option>
+      {patternId && (
+        <>
+          <h3 className="section-title" style={{ marginTop: '1.5rem' }}>3. Select Difficulty</h3>
+          <div className="flex-row">
+            <select
+              className="select"
+              style={{ maxWidth: '200px' }}
+              onChange={(e) => {
+                setDifficulty(e.target.value);
+                setStreak(0);
+              }}
+              value={difficulty}
+            >
+              <option>Easy</option>
+              <option>Medium</option>
+              <option>Hard</option>
+            </select>
 
-            {/* Group: Foundations */}
-            <optgroup label="1. Foundations & Data">
-              {topics.filter(t => ["Scales of Measurement", "Data Visualization", "Descriptive Statistics"].some(k => t.name.includes(k))).map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </optgroup>
-
-            {/* Group: Probability */}
-            <optgroup label="2. Probability Core">
-              {topics.filter(t => ["Probability Basics", "Conditional Probability", "Bayes"].some(k => t.name.includes(k))).map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </optgroup>
-
-            {/* Group: Distributions */}
-            <optgroup label="3. Probability Distributions">
-              {topics.filter(t => ["Binomial", "Poisson", "Normal", "Uniform", "t-Distribution", "Geometric", "Exponential"].some(k => t.name.includes(k))).map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </optgroup>
-
-            {/* Group: Inference */}
-            <optgroup label="4. Inference & Hypothesis Testing">
-              {topics.filter(t => ["Sampling", "Confidence", "z-test", "t-test", "ANOVA", "Chi-Square", "Regression", "Hypothesis"].some(k => t.name.includes(k))).map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </optgroup>
-
-            {/* Catch-all for anything else */}
-            <optgroup label="Other Topics">
-              {topics.filter(t => !["Scales", "Data", "Descriptive", "Probability", "Bayes", "Binomial", "Poisson", "Normal", "Uniform", "t-Distribution", "Geometric", "Exponential", "Sampling", "Confidence", "z-test", "t-test", "ANOVA", "Chi-Square", "Regression", "Hypothesis"].some(k => t.name.includes(k))).map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </optgroup>
-
-          </select>
-        </div>
-
-        {topicId && (
-          <>
-            <h3 className="section-title" style={{ marginTop: '1.5rem' }}>2. Select Pattern</h3>
-            <div className="form-group">
-              <select
-                className="select"
-                onChange={(e) => {
-                  setPatternId(Number(e.target.value));
-                  setCurrentQuestion(null);
-                  setEvaluation("");
-                  setStreak(0);
-                }}
-              >
-                <option>Select a pattern...</option>
-                {patterns.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.pattern}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </>
-        )}
-
-        {patternId && (
-          <>
-            <h3 className="section-title" style={{ marginTop: '1.5rem' }}>3. Select Difficulty</h3>
-            <div className="flex-row">
-              <select
-                className="select"
-                style={{ maxWidth: '200px' }}
-                onChange={(e) => {
-                  setDifficulty(e.target.value);
-                  setStreak(0);
-                }}
-                value={difficulty}
-              >
-                <option>Easy</option>
-                <option>Medium</option>
-                <option>Hard</option>
-              </select>
-
-              <button onClick={getNextQuestion} className="btn" disabled={!!loading}>
-                Get Question
-              </button>
-            </div>
-
-            {/* Streak Progress */}
-            <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--background)', borderRadius: 'var(--radius-md)' }}>
-              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
-                Goal: {streakGoal} in a row to show consistency!
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {Array.from({ length: streakGoal }).map((_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      border: '2px solid var(--primary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: i < streak ? 'var(--primary)' : 'transparent',
-                      color: i < streak ? 'white' : 'var(--primary)',
-                      fontWeight: 'bold',
-                      fontSize: '1.2rem',
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    {i < streak ? '✓' : ''}
-                  </div>
-                ))}
-              </div>
-              {streak > 0 && streak < streakGoal && (
-                <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '500' }}>
-                  {streak === 1 && '✓ Good start! Keep going!'}
-                  {streak === 2 && '✓ ✓ You\'re on a roll!'}
-                  {streak === streakGoal - 1 && `✓ ${Array(streak).fill('✓').join(' ')} Almost there! One more!`}
-                </div>
-              )}
-              {streak === streakGoal && (
-                <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--success)', fontWeight: '600' }}>
-                  🎉 You're consistent at this level! {difficulty !== 'Hard' && 'Ready to try the next level?'}
-                </div>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-
-      {currentQuestion && (
-        <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
-          <h3 className="section-title">Question</h3>
-
-          <div style={{
-            background: "var(--background)",
-            padding: "1.5rem",
-            borderRadius: "var(--radius-md)",
-            marginBottom: "1.5rem",
-            whiteSpace: "pre-wrap",
-            fontSize: "1.1rem",
-            lineHeight: "1.6"
-          }}>
-            {currentQuestion.source === 'student_contribution' && (
-              <div style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '999px',
-                background: '#dbeafe',
-                color: '#1e40af',
-                fontSize: '0.75rem',
-                fontWeight: 'bold',
-                marginBottom: '1rem'
-              }}>
-                👤 Community Question
-              </div>
-            )}
-            {currentQuestion.source === 'image_upload' && (
-              <div style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '999px',
-                background: '#f3e8ff',
-                color: '#6b21a8',
-                fontSize: '0.75rem',
-                fontWeight: 'bold',
-                marginBottom: '1rem'
-              }}>
-                📷 From Image
-              </div>
-            )}
-            {currentQuestion.source === 'manual_entry' && (
-              <div style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '999px',
-                background: '#fef3c7',
-                color: '#92400e',
-                fontSize: '0.75rem',
-                fontWeight: 'bold',
-                marginBottom: '1rem'
-              }}>
-                ✍️ Teacher Added
-              </div>
-            )}
-            <div>{currentQuestion.question_text}</div>
+            <button onClick={getNextQuestion} className="btn" disabled={!!loading}>
+              Get Question
+            </button>
           </div>
 
-          {!evaluation && (
-            <div className="flex-col">
-              <input
-                className="input"
-                type="text"
-                placeholder="Type your answer here..."
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-              />
-
-              <div className="flex-row" style={{ marginTop: '0.5rem', gap: '0.5rem' }}>
-                <button onClick={saveDraft} className="btn btn-secondary" disabled={!!loading}>
-                  💾 Save for Later
-                </button>
-                <button onClick={submitAnswer} className="btn" disabled={!!loading}>
-                  Submit Answer
-                </button>
+          {/* Streak Progress */}
+          <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--background)', borderRadius: 'var(--radius-md)' }}>
+            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+              Goal: {streakGoal} in a row to show consistency!
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {Array.from({ length: streakGoal }).map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    border: '2px solid var(--primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: i < streak ? 'var(--primary)' : 'transparent',
+                    color: i < streak ? 'white' : 'var(--primary)',
+                    fontWeight: 'bold',
+                    fontSize: '1.2rem',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  {i < streak ? '✓' : ''}
+                </div>
+              ))}
+            </div>
+            {streak > 0 && streak < streakGoal && (
+              <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '500' }}>
+                {streak === 1 && '✓ Good start! Keep going!'}
+                {streak === 2 && '✓ ✓ You\'re on a roll!'}
+                {streak === streakGoal - 1 && `✓ ${Array(streak).fill('✓').join(' ')} Almost there! One more!`}
               </div>
-            </div>
-          )}
-
-          <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-            <div className="flex-row" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
-              <button
-                className={`btn ${showHintStats ? 'btn-secondary' : 'btn-outline'}`}
-                onClick={() => {
-                  setShowHintStats(!showHintStats);
-                  setUsedHintStats(true);
-                }}
-                style={{ fontSize: '0.9rem' }}
-              >
-                {showHintStats ? "Hide Hint (Stats)" : "Show Hint (Stats)"}
-              </button>
-
-              <button
-                className={`btn ${showHintPython ? 'btn-secondary' : 'btn-outline'}`}
-                onClick={() => {
-                  setShowHintPython(!showHintPython);
-                  setUsedHintPython(true);
-                }}
-                style={{ fontSize: '0.9rem' }}
-              >
-                {showHintPython ? "Hide Hint (Python)" : "Show Hint (Python)"}
-              </button>
-
-              <button
-                className="btn btn-secondary"
-                onClick={() => setShowSolution(true)}
-                style={{ fontSize: '0.9rem', marginLeft: 'auto' }}
-              >
-                Show Full Solution
-              </button>
-
-              <button
-                className="btn"
-                onClick={getNextQuestion}
-                style={{ fontSize: '0.9rem' }}
-              >
-                Next Question →
-              </button>
-            </div>
+            )}
+            {streak === streakGoal && (
+              <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--success)', fontWeight: '600' }}>
+                🎉 You're consistent at this level! {difficulty !== 'Hard' && 'Ready to try the next level?'}
+              </div>
+            )}
           </div>
-
-          {showHintStats && currentQuestion.hint_stats && (
-            <div className="alert alert-info" style={{ marginTop: '1rem' }}>
-              <strong>Hint (Stats):</strong>
-              <br />
-              {currentQuestion.hint_stats}
-            </div>
-          )}
-
-          {showHintPython && currentQuestion.hint_python && (
-            <div className="alert alert-success" style={{ marginTop: '1rem', background: '#f0fdf4', borderColor: '#bbf7d0', color: '#166534' }}>
-              <strong>Hint (Python):</strong>
-              <br />
-              {currentQuestion.hint_python}
-            </div>
-          )}
-
-          {evaluation && (
-            <div style={{ marginTop: "2rem" }}>
-              {evaluation.correct !== undefined && (
-                <div className={evaluation.correct ? "alert alert-success" : "alert alert-error"}>
-                  <strong>Correct: </strong>
-                  {evaluation.correct ? "Yes" : "No"}
-                  <br />
-                  <strong>Remark: </strong>
-                  {evaluation.remark}
-                </div>
-              )}
-
-              <div className="form-group">
-                <label className="label">Add a personal remark (optional):</label>
-                <textarea
-                  className="input"
-                  placeholder="Note down what you learned..."
-                  value={studentRemark}
-                  onChange={(e) => setStudentRemark(e.target.value)}
-                  style={{ minHeight: "80px", resize: "vertical" }}
-                />
-                <div style={{ marginTop: '0.5rem' }}>
-                  <button onClick={saveRemark} className="btn btn-secondary">
-                    Save Remark
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {showSolution && (
-            <div style={{
-              marginTop: "2rem",
-              background: "#f8fafc",
-              padding: "1.5rem",
-              borderRadius: "var(--radius-md)",
-              border: "1px solid var(--border)"
-            }}>
-              <h4 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Full Solution</h4>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <strong>Statistical Approach:</strong>
-                <div style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', color: 'var(--text-secondary)' }}>
-                  {currentQuestion.solution_stats || "Not provided."}
-                </div>
-              </div>
-
-              <div>
-                <strong>Python Implementation:</strong>
-                <div style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', fontFamily: 'monospace', background: '#1e293b', color: '#e2e8f0', padding: '1rem', borderRadius: 'var(--radius-sm)' }}>
-                  {currentQuestion.solution_python || "Not provided."}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        </>
       )}
     </div>
+
+      {
+    currentQuestion && (
+      <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
+        <h3 className="section-title">Question</h3>
+
+        <div style={{
+          background: "var(--background)",
+          padding: "1.5rem",
+          borderRadius: "var(--radius-md)",
+          marginBottom: "1.5rem",
+          whiteSpace: "pre-wrap",
+          fontSize: "1.1rem",
+          lineHeight: "1.6"
+        }}>
+          {currentQuestion.source === 'student_contribution' && (
+            <div style={{
+              display: 'inline-block',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '999px',
+              background: '#dbeafe',
+              color: '#1e40af',
+              fontSize: '0.75rem',
+              fontWeight: 'bold',
+              marginBottom: '1rem'
+            }}>
+              👤 Community Question
+            </div>
+          )}
+          {currentQuestion.source === 'image_upload' && (
+            <div style={{
+              display: 'inline-block',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '999px',
+              background: '#f3e8ff',
+              color: '#6b21a8',
+              fontSize: '0.75rem',
+              fontWeight: 'bold',
+              marginBottom: '1rem'
+            }}>
+              📷 From Image
+            </div>
+          )}
+          {currentQuestion.source === 'manual_entry' && (
+            <div style={{
+              display: 'inline-block',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '999px',
+              background: '#fef3c7',
+              color: '#92400e',
+              fontSize: '0.75rem',
+              fontWeight: 'bold',
+              marginBottom: '1rem'
+            }}>
+              ✍️ Teacher Added
+            </div>
+          )}
+          <div>{currentQuestion.question_text}</div>
+        </div>
+
+        {!evaluation && (
+          <div className="flex-col">
+            <input
+              className="input"
+              type="text"
+              placeholder="Type your answer here..."
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+            />
+
+            <div className="flex-row" style={{ marginTop: '0.5rem', gap: '0.5rem' }}>
+              <button onClick={saveDraft} className="btn btn-secondary" disabled={!!loading}>
+                💾 Save for Later
+              </button>
+              <button onClick={submitAnswer} className="btn" disabled={!!loading}>
+                Submit Answer
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+          <div className="flex-row" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
+            <button
+              className={`btn ${showHintStats ? 'btn-secondary' : 'btn-outline'}`}
+              onClick={() => {
+                setShowHintStats(!showHintStats);
+                setUsedHintStats(true);
+              }}
+              style={{ fontSize: '0.9rem' }}
+            >
+              {showHintStats ? "Hide Hint (Stats)" : "Show Hint (Stats)"}
+            </button>
+
+            <button
+              className={`btn ${showHintPython ? 'btn-secondary' : 'btn-outline'}`}
+              onClick={() => {
+                setShowHintPython(!showHintPython);
+                setUsedHintPython(true);
+              }}
+              style={{ fontSize: '0.9rem' }}
+            >
+              {showHintPython ? "Hide Hint (Python)" : "Show Hint (Python)"}
+            </button>
+
+            <button
+              className="btn btn-secondary"
+              onClick={() => setShowSolution(true)}
+              style={{ fontSize: '0.9rem', marginLeft: 'auto' }}
+            >
+              Show Full Solution
+            </button>
+
+            <button
+              className="btn"
+              onClick={getNextQuestion}
+              style={{ fontSize: '0.9rem' }}
+            >
+              Next Question →
+            </button>
+          </div>
+        </div>
+
+        {showHintStats && currentQuestion.hint_stats && (
+          <div className="alert alert-info" style={{ marginTop: '1rem' }}>
+            <strong>Hint (Stats):</strong>
+            <br />
+            {currentQuestion.hint_stats}
+          </div>
+        )}
+
+        {showHintPython && currentQuestion.hint_python && (
+          <div className="alert alert-success" style={{ marginTop: '1rem', background: '#f0fdf4', borderColor: '#bbf7d0', color: '#166534' }}>
+            <strong>Hint (Python):</strong>
+            <br />
+            {currentQuestion.hint_python}
+          </div>
+        )}
+
+        {evaluation && (
+          <div style={{ marginTop: "2rem" }}>
+            {evaluation.correct !== undefined && (
+              <div className={evaluation.correct ? "alert alert-success" : "alert alert-error"}>
+                <strong>Correct: </strong>
+                {evaluation.correct ? "Yes" : "No"}
+                <br />
+                <strong>Remark: </strong>
+                {evaluation.remark}
+              </div>
+            )}
+
+            <div className="form-group">
+              <label className="label">Add a personal remark (optional):</label>
+              <textarea
+                className="input"
+                placeholder="Note down what you learned..."
+                value={studentRemark}
+                onChange={(e) => setStudentRemark(e.target.value)}
+                style={{ minHeight: "80px", resize: "vertical" }}
+              />
+              <div style={{ marginTop: '0.5rem' }}>
+                <button onClick={saveRemark} className="btn btn-secondary">
+                  Save Remark
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showSolution && (
+          <div style={{
+            marginTop: "2rem",
+            background: "#f8fafc",
+            padding: "1.5rem",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border)"
+          }}>
+            <h4 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Full Solution</h4>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <strong>Statistical Approach:</strong>
+              <div style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', color: 'var(--text-secondary)' }}>
+                {currentQuestion.solution_stats || "Not provided."}
+              </div>
+            </div>
+
+            <div>
+              <strong>Python Implementation:</strong>
+              <div style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', fontFamily: 'monospace', background: '#1e293b', color: '#e2e8f0', padding: '1rem', borderRadius: 'var(--radius-sm)' }}>
+                {currentQuestion.solution_python || "Not provided."}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+    </div >
   );
 }
