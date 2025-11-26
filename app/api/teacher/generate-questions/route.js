@@ -56,7 +56,7 @@ export async function POST(request) {
     // 4. The prompt
     // ---------------------------------------------------------
     const prompt = `
-Generate 3 STATISTICS practice questions that strictly follow the pattern,
+Generate 5 STATISTICS practice questions that strictly follow the pattern,
 match the difficulty level, and follow the teacher's preferred approaches.
 
 PATTERN: "${patternText}"
@@ -65,22 +65,26 @@ DIFFICULTY: ${difficulty}
 ${combinedApproach}
 
 ====================================================
-DIFFICULTY GUIDELINES
+DIFFICULTY GUIDELINES (STRICT)
 ====================================================
 EASY:
-- Direct statistical computation
-- All numbers explicitly provided
-- One-step, no interpretation
+- Direct statistical computation (plug-and-chug).
+- All numbers explicitly provided in the text.
+- One-step calculation.
+- No interpretation required.
 
 MEDIUM:
-- Real-world scenario
-- Student must identify the statistical concept
-- May involve 1–2 steps, still numeric
+- Real-world scenario context.
+- Student must identify the correct statistical concept/formula.
+- May involve 1–2 steps.
+- Still results in a numeric answer.
 
 HARD:
-- Real-world context with few hints
-- Student must infer the correct statistical method
-- Multi-step but final answer must be numeric
+- Complex real-world context with few hints.
+- Student must infer the correct statistical method from ambiguity.
+- Multi-step calculation.
+- Requires deep understanding of the concept.
+- Final answer must still be numeric.
 
 ====================================================
 QUESTION RULES
@@ -116,7 +120,7 @@ No quotes.
 ====================================================
 OUTPUT FORMAT (STRICT)
 ====================================================
-Return ONLY a JSON array of 3 objects:
+Return ONLY a JSON array of 5 objects:
 
 [
   {

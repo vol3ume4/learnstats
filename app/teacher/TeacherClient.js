@@ -31,6 +31,10 @@ export default function TeacherClient() {
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
 
+  // Question Management State
+  const [viewQuestionsList, setViewQuestionsList] = useState([]);
+  const [editingQuestion, setEditingQuestion] = useState(null);
+
   const [loading, setLoading] = useState("");
 
   // Manual Entry State
@@ -240,6 +244,74 @@ export default function TeacherClient() {
     setGeneratedQuestions([]);
     setSelectedQuestions([]);
     setLoading("");
+  }
+
+  // ---------- QUESTION MANAGEMENT ----------
+  async function fetchQuestions() {
+    if (!topicId || !patternId || !difficulty) return;
+
+    setLoading("Fetching questions...");
+    try {
+      const res = await fetch("/api/teacher/get-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topicId, patternId, difficulty }),
+      });
+      const data = await res.json();
+      setViewQuestionsList(data);
+    } catch (err) {
+      alert("Error fetching questions");
+    } finally {
+      setLoading("");
+    }
+  }
+
+  async function updateQuestion() {
+    if (!editingQuestion) return;
+
+    setLoading("Updating question...");
+    try {
+      const res = await fetch("/api/teacher/update-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingQuestion),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Question updated!");
+        setEditingQuestion(null);
+        fetchQuestions();
+      } else {
+        alert("Update failed: " + data.error);
+      }
+    } catch (err) {
+      alert("Error updating question");
+    } finally {
+      setLoading("");
+    }
+  }
+
+  async function deleteQuestion(id) {
+    if (!confirm("Are you sure you want to delete this question?")) return;
+
+    setLoading("Deleting question...");
+    try {
+      const res = await fetch("/api/teacher/delete-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchQuestions();
+      } else {
+        alert("Delete failed: " + data.error);
+      }
+    } catch (err) {
+      alert("Error deleting question");
+    } finally {
+      setLoading("");
+    }
   }
 
   // ---------- MANUAL ENTRY HANDLERS ----------
@@ -457,6 +529,7 @@ export default function TeacherClient() {
               onChange={(e) => setActiveTab(e.target.value)}
             >
               <option value="view_patterns" style={{ color: 'black' }}>📂 View & Manage Question Patterns</option>
+              <option value="view_questions" style={{ color: 'black' }}>❓ View & Manage Questions</option>
               <option value="generate_patterns" style={{ color: 'black' }}>🤖 Generate New Question Patterns with AI</option>
               <option value="add_pattern_manual" style={{ color: 'black' }}>✍️ Add a Question Pattern Manually</option>
               <option value="generate_questions" style={{ color: 'black' }}>⚡ Generate Questions with AI</option>
@@ -506,6 +579,101 @@ export default function TeacherClient() {
                     </li>
                   ))}
                 </ul>
+              )}
+            </div>
+          )}
+
+          {/* --- VIEW 1.5: VIEW QUESTIONS --- */}
+          {activeTab === 'view_questions' && (
+            <div className="card">
+              <h3 className="section-title">View & Manage Questions</h3>
+
+              <div className="form-group">
+                <label className="label">1. Select Question Pattern</label>
+                <select
+                  className="select"
+                  onChange={(e) => {
+                    const id = Number(e.target.value);
+                    setPatternId(id);
+                    setViewQuestionsList([]); // Clear previous list
+                  }}
+                  value={patternId || ""}
+                >
+                  <option value="">Select a question pattern...</option>
+                  {savedPatterns.map((p) => (
+                    <option key={p.id} value={p.id}>{p.pattern}</option>
+                  ))}
+                </select>
+              </div>
+
+              {patternId && (
+                <div className="form-group">
+                  <label className="label">2. Select Difficulty</label>
+                  <select
+                    className="select"
+                    value={difficulty}
+                    onChange={(e) => {
+                      setDifficulty(e.target.value);
+                      setViewQuestionsList([]); // Clear previous list
+                    }}
+                  >
+                    <option>Easy</option>
+                    <option>Medium</option>
+                    <option>Hard</option>
+                  </select>
+                </div>
+              )}
+
+              {patternId && (
+                <button onClick={fetchQuestions} className="btn" disabled={!!loading} style={{ marginBottom: '1.5rem' }}>
+                  {loading ? "Loading..." : "🔍 Fetch Questions"}
+                </button>
+              )}
+
+              {/* LIST OF QUESTIONS */}
+              {viewQuestionsList.length > 0 && (
+                <div className="flex-col">
+                  {viewQuestionsList.map((q) => (
+                    <div key={q.id} style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}>
+                      {editingQuestion?.id === q.id ? (
+                        <div className="flex-col" style={{ gap: '0.5rem' }}>
+                          <label className="label">Question Text</label>
+                          <textarea
+                            className="input"
+                            value={editingQuestion.question_text}
+                            onChange={(e) => setEditingQuestion({ ...editingQuestion, question_text: e.target.value })}
+                            style={{ minHeight: '80px' }}
+                          />
+
+                          <label className="label">Correct Answer</label>
+                          <input
+                            className="input"
+                            value={editingQuestion.correct_answer}
+                            onChange={(e) => setEditingQuestion({ ...editingQuestion, correct_answer: e.target.value })}
+                          />
+
+                          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                            <button onClick={updateQuestion} className="btn btn-sm">💾 Save</button>
+                            <button onClick={() => setEditingQuestion(null)} className="btn btn-secondary btn-sm">Cancel</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div style={{ fontWeight: '500', marginBottom: '0.5rem' }}>{q.question_text}</div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Answer: {q.correct_answer}</div>
+                          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                            <button onClick={() => setEditingQuestion(q)} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem' }}>✏️ Edit</button>
+                            <button onClick={() => deleteQuestion(q.id)} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem', color: '#ef4444', borderColor: '#ef4444' }}>🗑️ Delete</button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {patternId && viewQuestionsList.length === 0 && !loading && (
+                <p style={{ color: 'var(--text-secondary)' }}>No questions found for this selection. Try generating some!</p>
               )}
             </div>
           )}
