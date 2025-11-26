@@ -321,10 +321,10 @@ export default function StudentClient() {
           <StudentHelp />
           <button
             className="btn btn-secondary"
-            onClick={() => router.push("/student/contribute")}
+            onClick={() => router.push("/student/share")}
             style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
           >
-            ➕ Contribute
+            ➕ Share Question
           </button>
           <button
             className="btn btn-secondary"

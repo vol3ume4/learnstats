@@ -150,42 +150,20 @@ export default function StudentContribute() {
             alert("Error: " + err.message);
         } finally {
             setProcessing(false);
-        }
-    }
-
-    return (
-        <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h1 className="page-title" style={{ margin: 0 }}>Contribute a Question</h1>
-                <button className="btn btn-secondary" onClick={() => router.push("/student")}>
-                    ← Back
-                </button>
-            </div>
-
-            <div className="card">
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                    Found an interesting statistics problem? Share it with the community!
-                    Our AI will automatically classify and solve it for you.
-                </p>
-
-                {/* Toggles */}
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-                    <button
-                        className={`btn ${manualMode === 'text' ? '' : 'btn-secondary'}`}
-                        onClick={() => setManualMode('text')}
                     >
                         📝 Text Input
-                    </button>
-                    <button
-                        className={`btn ${manualMode === 'image' ? '' : 'btn-secondary'}`}
-                        onClick={() => setManualMode('image')}
-                    >
-                        📷 Image Upload
-                    </button>
-                </div>
+                    </button >
+                <button
+                    className={`btn ${manualMode === 'image' ? '' : 'btn-secondary'}`}
+                    onClick={() => setManualMode('image')}
+                >
+                    📷 Image Upload
+                </button>
+                </div >
 
-                {/* Inputs */}
-                {manualMode === 'text' ? (
+                {/* Inputs */ }
+            {
+                manualMode === 'text' ? (
                     <div className="form-group">
                         <textarea
                             className="input"
@@ -196,22 +174,23 @@ export default function StudentContribute() {
                         />
                     </div>
                 ) : (
-                    <div className="form-group">
-                        <div style={{ border: '2px dashed var(--border)', padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                style={{ marginBottom: '1rem' }}
-                            />
-                            {manualImage && (
-                                <div style={{ marginTop: '1rem' }}>
-                                    <img src={manualImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: 'var(--radius-sm)' }} />
-                                </div>
-                            )}
-                        </div>
+                <div className="form-group">
+                    <div style={{ border: '2px dashed var(--border)', padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            style={{ marginBottom: '1rem' }}
+                        />
+                        {manualImage && (
+                            <div style={{ marginTop: '1rem' }}>
+                                <img src={manualImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: 'var(--radius-sm)' }} />
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
+            )
+            }
 
                 <button
                     className="btn"
@@ -225,7 +204,7 @@ export default function StudentContribute() {
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '1rem', textAlign: 'center' }}>
                     AI will validate, classify, and solve your question automatically.
                 </p>
-            </div>
-        </div>
+            </div >
+        </div >
     );
-}
+        }
