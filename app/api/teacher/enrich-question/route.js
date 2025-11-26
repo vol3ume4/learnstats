@@ -5,7 +5,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export async function POST(request) {
     try {
-        const { text, image, topicName, patternName, difficulty, existingPatterns } = await request.json();
+        const { text, image, topicName, patternName, difficulty, existingPatterns, existingTopics, mode } = await request.json();
 
         if (!text && !image) {
             return NextResponse.json(
@@ -19,73 +19,140 @@ export async function POST(request) {
         let prompt = "";
         let imagePart = null;
 
-        const patternContext = existingPatterns && existingPatterns.length > 0
-            ? `Existing Patterns: ${existingPatterns.join(", ")}. Try to classify the question into one of these if applicable.`
-            : "";
+        const isStudentMode = mode === "student";
 
-        if (image) {
-            // Image processing prompt
-            prompt = `
-        You are an expert statistics tutor. 
-        1. Extract the statistics question text from this image.
-        2. Identify which Pattern it belongs to from the list below (or suggest a new short name).
-        3. Solve it and provide the following details in JSON format.
-        
-        Context:
-        Topic: ${topicName || "General Statistics"}
-        Pattern Context: ${patternName || "Unknown"}
-        ${patternContext}
-        Difficulty: ${difficulty || "Medium"}
+        if (isStudentMode) {
+            // Student mode: Full classification
+            const topicsList = existingTopics && existingTopics.length > 0
+                ? existingTopics.join(", ")
+                : "Probability, Descriptive Statistics, Inferential Statistics, Hypothesis Testing, Regression";
 
-        Output JSON format:
-        {
-          "question_text": "The extracted question text...",
-          "detected_pattern": "The matched pattern name from the list or a new name",
-          "correct_answer": "The final numeric or categorical answer",
-          "hint_stats": "A conceptual hint without giving the answer",
-          "hint_python": "A hint on which Python libraries or functions to use",
-          "solution_stats": "Step-by-step statistical derivation",
-          "solution_python": "Complete Python code to solve the problem"
-        }
-      `;
+            const patternsList = existingPatterns && existingPatterns.length > 0
+                ? existingPatterns.join(", ")
+                : "General";
 
-            // Remove header if present (e.g., "data:image/png;base64,")
-            const base64Data = image.split(",")[1] || image;
+            if (image) {
+                prompt = `
+You are an expert statistics tutor.
 
-            imagePart = {
-                inlineData: {
-                    data: base64Data,
-                    mimeType: "image/png", // Assuming PNG or JPEG, Gemini handles standard types
-                },
-            };
+STEP 1: Check if this image contains a valid statistics question. If not (e.g., random text, doodles), return:
+{
+  "is_valid_question": false,
+  "message": "This doesn't appear to be a statistics question. Please upload a clear question."
+}
+
+STEP 2: If valid, extract and classify the question:
+- Extract the question text
+- Classify into one of these TOPICS: ${topicsList}
+- Classify into one of these PATTERNS: ${patternsList}
+- Solve it completely
+
+Output JSON:
+{
+  "is_valid_question": true,
+  "question_text": "...",
+  "detected_topic": "...",
+  "detected_pattern": "...",
+  "correct_answer": "...",
+  "hint_stats": "...",
+  "hint_python": "...",
+  "solution_stats": "...",
+  "solution_python": "..."
+}
+                `;
+
+                const base64Data = image.split(",")[1] || image;
+                imagePart = {
+                    inlineData: {
+                        data: base64Data,
+                        mimeType: "image/png",
+                    },
+                };
+
+            } else {
+                prompt = `
+You are an expert statistics tutor.
+
+STEP 1: Check if this is a valid statistics question: "${text}"
+If not (e.g., "test", "hello", random text), return:
+{
+  "is_valid_question": false,
+  "message": "This doesn't appear to be a statistics question. Please enter a proper question."
+}
+
+STEP 2: If valid, refine and classify:
+- Refine the question text
+- Classify into one of these TOPICS: ${topicsList}
+- Classify into one of these PATTERNS: ${patternsList}
+- Solve it completely
+
+Output JSON:
+{
+  "is_valid_question": true,
+  "question_text": "...",
+  "detected_topic": "...",
+  "detected_pattern": "...",
+  "correct_answer": "...",
+  "hint_stats": "...",
+  "hint_python": "...",
+  "solution_stats": "...",
+  "solution_python": "..."
+}
+                `;
+            }
 
         } else {
-            // Text processing prompt
-            prompt = `
-        You are an expert statistics tutor.
-        1. Refine the following question text to be clear and professional.
-        2. Identify which Pattern it belongs to from the list below (or suggest a new short name).
-        3. Solve it and provide the details in JSON format.
+            // Teacher mode: Just enrich with given topic/pattern
+            if (image) {
+                prompt = `
+You are an expert statistics tutor.
+Extract the statistics question from this image and solve it.
 
-        Raw Question: "${text}"
+Context:
+Topic: ${topicName || "General Statistics"}
+Pattern: ${patternName || "General"}
+Difficulty: ${difficulty || "Medium"}
 
-        Context:
-        Topic: ${topicName || "General Statistics"}
-        Pattern Context: ${patternName || "Unknown"}
-        ${patternContext}
-        Difficulty: ${difficulty || "Medium"}
+Output JSON:
+{
+  "question_text": "...",
+  "correct_answer": "...",
+  "hint_stats": "...",
+  "hint_python": "...",
+  "solution_stats": "...",
+  "solution_python": "..."
+}
+                `;
 
-        Output JSON format:
-        {
-          "question_text": "The refined question text...",
-          "detected_pattern": "The matched pattern name from the list or a new name",
-          "correct_answer": "The final numeric or categorical answer",
-          "hint_stats": "A conceptual hint without giving the answer",
-          "hint_python": "A hint on which Python libraries or functions to use",
-          "solution_stats": "Step-by-step statistical derivation",
-          "solution_python": "Complete Python code to solve the problem"
-        }
-      `;
+                const base64Data = image.split(",")[1] || image;
+                imagePart = {
+                    inlineData: {
+                        data: base64Data,
+                        mimeType: "image/png",
+                    },
+                };
+
+            } else {
+                prompt = `
+You are an expert statistics tutor.
+Refine this question and solve it: "${text}"
+
+Context:
+Topic: ${topicName || "General Statistics"}
+Pattern: ${patternName || "General"}
+Difficulty: ${difficulty || "Medium"}
+
+Output JSON:
+{
+  "question_text": "...",
+  "correct_answer": "...",
+  "hint_stats": "...",
+  "hint_python": "...",
+  "solution_stats": "...",
+  "solution_python": "..."
+}
+                `;
+            }
         }
 
         const result = await model.generateContent(
