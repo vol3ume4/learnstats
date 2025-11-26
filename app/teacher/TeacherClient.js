@@ -29,6 +29,13 @@ export default function TeacherClient() {
 
   const [loading, setLoading] = useState("");
 
+  // Manual Entry State
+  const [manualMode, setManualMode] = useState("text");
+  const [manualText, setManualText] = useState("");
+  const [manualImage, setManualImage] = useState(null);
+  const [enrichedData, setEnrichedData] = useState(null);
+  const [enriching, setEnriching] = useState(false);
+
   const router = useRouter();
   const authCheckRan = useRef(false);
   const topicsLoaded = useRef(false);
@@ -208,24 +215,9 @@ export default function TeacherClient() {
         patternId,
         patternText: patternObj.pattern,
         difficulty,
-        topicApproach,
-        patternApproach,
-      }),
-    });
 
-    const data = await res.json();
-    setGeneratedQuestions(data);
-    setSelectedQuestions([]);
-
-    setLoading("");
-  }
-
-  // ---------- SAVE QUESTIONS ----------
-  async function saveQuestions() {
-    if (!patternId) return alert("Choose a pattern before saving.");
-
-    const selected = selectedQuestions.map(i => generatedQuestions[i]);
-    if (selected.length === 0) {
+        const selected = selectedQuestions.map(i => generatedQuestions[i]);
+        if(selected.length === 0) {
       return alert("Select at least one question before saving.");
     }
 
