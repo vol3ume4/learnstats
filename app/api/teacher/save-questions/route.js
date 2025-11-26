@@ -6,16 +6,16 @@ function cleanText(x) {
     .normalize("NFKC")
     .replace(/\u0000/g, "")
     .replace(/[\uFFFD]/g, "")
-    .replace(/[^\t\n\r\x20-\x7E]+/g, " "); 
+    .replace(/[^\t\n\r\x20-\x7E]+/g, " ");
 }
 
 export async function POST(request) {
   try {
-    const { topicId, patternId, difficulty, questions } = await request.json();
+    const { topicId, patternId, difficulty, questions, source, created_by, is_verified } = await request.json();
 
-    if (!topicId || !patternId || !questions || questions.length === 0) {
+    if (!topicId || !questions || questions.length === 0) {
       return Response.json(
-        { error: "Missing topicId, patternId, or questions" },
+        { error: "Missing topicId or questions" },
         { status: 400 }
       );
     }
@@ -28,14 +28,15 @@ export async function POST(request) {
          question_text, correct_answer,
          hint_stats, hint_python,
          solution_stats, solution_python,
-         solution)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+         solution,
+         source, created_by, is_verified)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
         ON CONFLICT (topic_id, pattern_id, question_text) 
         DO NOTHING
         `,
         [
           topicId,
-          patternId,
+          patternId || null, // Allow null if schema permits
           difficulty,
 
           cleanText(q.question_text),
@@ -47,7 +48,11 @@ export async function POST(request) {
           cleanText(q.solution_stats),
           cleanText(q.solution_python),
 
-          cleanText(q.solution)
+          cleanText(q.solution),
+
+          source || 'ai_generated',
+          created_by || null,
+          is_verified !== undefined ? is_verified : true // Default to true for now
         ]
       );
     }
