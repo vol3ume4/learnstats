@@ -20,7 +20,7 @@ export async function POST(request) {
           a.id,
           a.question_id,
           a.user_answer,
-          a.correct,
+          a.is_correct as correct,
           a.student_remark,
           a.used_hint_stats,
           a.used_hint_python,
