@@ -154,20 +154,6 @@ export default function StudentShare() {
                     is_verified: true
                 }),
             });
-
-            const saveData = await saveRes.json();
-            if (!saveData.success) {
-                throw new Error("Failed to save question");
-            }
-
-            alert(`✅ Question shared successfully!\nTopic: ${data.detected_topic}\nPattern: ${data.detected_pattern || 'General'}`);
-
-            setManualText("");
-            setManualImage(null);
-            router.push("/student");
-
-        } catch (err) {
-            console.error("Share error:", err);
             alert("Error: " + err.message);
         } finally {
             setProcessing(false);
