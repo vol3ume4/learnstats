@@ -66,6 +66,31 @@ export default function StudentShare() {
         }
     }, [topics]);
 
+    useEffect(() => {
+        // Add paste event listener for screenshots
+        const handlePaste = (e) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setManualImage(reader.result);
+                        setManualMode('image'); // Auto-switch to image mode
+                    };
+                    reader.readAsDataURL(blob);
+                    e.preventDefault();
+                    break;
+                }
+            }
+        };
+
+        document.addEventListener('paste', handlePaste);
+        return () => document.removeEventListener('paste', handlePaste);
+    }, []);
+
     function handleImageUpload(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -189,25 +214,12 @@ export default function StudentShare() {
                             value={manualText}
                             onChange={(e) => setManualText(e.target.value)}
                             style={{ minHeight: '120px' }}
-                        />
-                    </div>
-                ) : (
-                    <div className="form-group">
-                        <div style={{ border: '2px dashed var(--border)', padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                style={{ marginBottom: '1rem' }}
-                            />
-                            {manualImage && (
-                                <div style={{ marginTop: '1rem' }}>
-                                    <img src={manualImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: 'var(--radius-sm)' }} />
                                 </div>
-                            )}
-                        </div>
-                    </div>
                 )}
+            </div>
+        </div>
+    )
+}
 
                 <button
                     className="btn"
@@ -221,7 +233,7 @@ export default function StudentShare() {
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '1rem', textAlign: 'center' }}>
                     AI will validate, classify, and solve your question automatically.
                 </p>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
