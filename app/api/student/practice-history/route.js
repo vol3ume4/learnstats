@@ -31,7 +31,7 @@ export async function POST(request) {
           t.name as topic_name,
           p.pattern as pattern_name,
           a.difficulty
-        FROM attempts a
+        FROM practice_history a
         INNER JOIN questions q ON a.question_id = q.id
         INNER JOIN topics t ON a.topic_id = t.id
         INNER JOIN patterns p ON a.pattern_id = p.id

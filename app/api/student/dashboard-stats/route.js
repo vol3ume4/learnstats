@@ -18,7 +18,7 @@ export async function POST(request) {
             // Get total questions practiced
             const questionsQuery = `
         SELECT COUNT(DISTINCT question_id) as total_questions
-        FROM attempts
+        FROM practice_history
         WHERE user_id = $1
       `;
             const questionsResult = await client.query(questionsQuery, [userId]);
@@ -30,7 +30,7 @@ export async function POST(request) {
           t.name,
           COUNT(DISTINCT a.pattern_id) as patterns_practiced
         FROM topics t
-        INNER JOIN attempts a ON a.topic_id = t.id
+        INNER JOIN practice_history a ON a.topic_id = t.id
         WHERE a.user_id = $1
         GROUP BY t.id, t.name
         ORDER BY t.name
