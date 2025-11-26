@@ -475,7 +475,7 @@ export default function StudentClient() {
                   setStreak(0);
                 }}
               >
-                <option value="">Select Pattern...</option>
+                <option value="">Select Question Pattern...</option>
                 {patterns.map((p) => (
                   <option key={p.id} value={p.id}>{p.pattern}</option>
                 ))}
