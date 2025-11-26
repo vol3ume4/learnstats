@@ -39,47 +39,5 @@ export default function SignupPage() {
       setLoading(false);
     }
   }
-
-  return (
-    <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-      <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
-        <h1 className="page-title" style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Create Account</h1>
-
-        <div className="form-group">
-          <label className="label">Email</label>
-          <input
-            className="input"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="label">Password</label>
-          <input
-            className="input"
-            type="password"
-            placeholder="Choose a password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        <button
-          className="btn"
-          onClick={handleSignup}
-          style={{ width: '100%' }}
-          disabled={loading}
-        >
-          {loading ? "Creating Account..." : "Sign Up"}
-        </button>
-
-        <p style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-          Already have an account? <a href="/login" style={{ color: 'var(--primary)', fontWeight: '500' }}>Login</a>
-        </p>
-      </div>
-    </div>
   );
 }

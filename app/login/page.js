@@ -44,41 +44,45 @@ export default function LoginPage() {
       <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
         <h1 className="page-title" style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Welcome Back</h1>
 
-        <div className="form-group">
-          <label className="label">Email</label>
-          <input
-            className="input"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="label">Password</label>
-          <input
-            className="input"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
-            <a href="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none' }}>
-              Forgot Password?
-            </a>
+        <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+          <div className="form-group">
+            <label className="label">Email</label>
+            <input
+              className="input"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
           </div>
-        </div>
 
-        <button
-          className="btn"
-          onClick={handleLogin}
-          style={{ width: '100%' }}
-          disabled={loading}
-        >
-          {loading ? "Signing in..." : "Login"}
-        </button>
+          <div className="form-group">
+            <label className="label">Password</label>
+            <input
+              className="input"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+            <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
+              <a href="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none' }}>
+                Forgot Password?
+              </a>
+            </div>
+          </div>
+
+          <button
+            className="btn"
+            type="submit"
+            style={{ width: '100%' }}
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Login"}
+          </button>
+        </form>
 
         <p style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
           Don't have an account? <a href="/signup" style={{ color: 'var(--primary)', fontWeight: '500' }}>Sign up</a>
