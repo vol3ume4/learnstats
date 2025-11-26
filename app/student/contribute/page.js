@@ -107,12 +107,19 @@ export default function StudentContribute() {
                 return;
             }
 
-            // Find matching topic and pattern IDs
-            const matchedTopic = topics.find(t => t.name.toLowerCase() === data.detected_topic.toLowerCase());
-            const matchedPattern = patterns.find(p => p.pattern.toLowerCase() === data.detected_pattern.toLowerCase());
+            // Find matching topic and pattern IDs (fuzzy matching)
+            const matchedTopic = topics.find(t =>
+                t.name.toLowerCase().includes(data.detected_topic.toLowerCase()) ||
+                data.detected_topic.toLowerCase().includes(t.name.toLowerCase())
+            );
+
+            const matchedPattern = patterns.find(p =>
+                p.pattern.toLowerCase().includes(data.detected_pattern.toLowerCase()) ||
+                data.detected_pattern.toLowerCase().includes(p.pattern.toLowerCase())
+            );
 
             if (!matchedTopic) {
-                alert(`Topic "${data.detected_topic}" not found. Please contact admin to add this topic.`);
+                alert(`Topic "${data.detected_topic}" could not be matched to existing topics. Please try again or contact admin.`);
                 setProcessing(false);
                 return;
             }
