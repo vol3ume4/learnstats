@@ -101,113 +101,131 @@ export default function StudentContribute() {
             if (data.error) throw new Error(data.error);
 
             // Check if valid question
-            method: "POST",
+            if (!data.is_valid_question) {
+                alert(data.message || "This doesn't appear to be a valid statistics question.");
+                setProcessing(false);
+                return;
+            }
+
+            // Find matching topic and pattern IDs (exact matching - Gemini returns exact strings)
+            const matchedTopic = topics.find(t => t.name === data.detected_topic);
+            const matchedPattern = patterns.find(p => p.pattern === data.detected_pattern);
+
+            if (!matchedTopic) {
+                alert(`Topic "${data.detected_topic}" not found in database. This is unexpected - please contact admin.`);
+                setProcessing(false);
+                return;
+            }
+
+            // Save directly
+            await fetch("/api/teacher/save-questions", {
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                topicId: matchedTopic.id,
-                patternId: matchedPattern?.id || null,
-                difficulty: "Medium",
-                questions: [{
-                    question_text: data.question_text,
-                    correct_answer: data.correct_answer,
-                    hint_stats: data.hint_stats,
-                    hint_python: data.hint_python,
-                    solution_stats: data.solution_stats,
-                    solution_python: data.solution_python
-                }],
-                source: "student_contribution",
-                created_by: userId,
-                is_verified: true
-            }),
+                body: JSON.stringify({
+                    topicId: matchedTopic.id,
+                    patternId: matchedPattern?.id || null,
+                    difficulty: "Medium",
+                    questions: [{
+                        question_text: data.question_text,
+                        correct_answer: data.correct_answer,
+                        hint_stats: data.hint_stats,
+                        hint_python: data.hint_python,
+                        solution_stats: data.solution_stats,
+                        solution_python: data.solution_python
+                    }],
+                    source: "student_contribution",
+                    created_by: userId,
+                    is_verified: true
+                }),
             });
 
-        alert(`✅ Question shared successfully!\nTopic: ${data.detected_topic}\nPattern: ${data.detected_pattern}`);
+            alert(`✅ Question shared successfully!\nTopic: ${data.detected_topic}\nPattern: ${data.detected_pattern || 'General'}`);
 
-        // Reset form
-        setManualText("");
-        setManualImage(null);
-        router.push("/student");
+            // Reset form
+            setManualText("");
+            setManualImage(null);
+            router.push("/student");
 
-    } catch (err) {
-        alert("Error: " + err.message);
-    } finally {
-        setProcessing(false);
+        } catch (err) {
+            alert("Error: " + err.message);
+        } finally {
+            setProcessing(false);
+        }
     }
-}
 
-return (
-    <div className="container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-            <h1 className="page-title" style={{ margin: 0 }}>Contribute a Question</h1>
-            <button className="btn btn-secondary" onClick={() => router.push("/student")}>
-                ← Back
-            </button>
-        </div>
-
-        <div className="card">
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                Found an interesting statistics problem? Share it with the community!
-                Our AI will automatically classify and solve it for you.
-            </p>
-
-            {/* Toggles */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-                <button
-                    className={`btn ${manualMode === 'text' ? '' : 'btn-secondary'}`}
-                    onClick={() => setManualMode('text')}
-                >
-                    📝 Text Input
-                </button>
-                <button
-                    className={`btn ${manualMode === 'image' ? '' : 'btn-secondary'}`}
-                    onClick={() => setManualMode('image')}
-                >
-                    📷 Image Upload
+    return (
+        <div className="container">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h1 className="page-title" style={{ margin: 0 }}>Contribute a Question</h1>
+                <button className="btn btn-secondary" onClick={() => router.push("/student")}>
+                    ← Back
                 </button>
             </div>
 
-            {/* Inputs */}
-            {manualMode === 'text' ? (
-                <div className="form-group">
-                    <textarea
-                        className="input"
-                        placeholder="Type or paste your statistics question here..."
-                        value={manualText}
-                        onChange={(e) => setManualText(e.target.value)}
-                        style={{ minHeight: '120px' }}
-                    />
+            <div className="card">
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                    Found an interesting statistics problem? Share it with the community!
+                    Our AI will automatically classify and solve it for you.
+                </p>
+
+                {/* Toggles */}
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <button
+                        className={`btn ${manualMode === 'text' ? '' : 'btn-secondary'}`}
+                        onClick={() => setManualMode('text')}
+                    >
+                        📝 Text Input
+                    </button>
+                    <button
+                        className={`btn ${manualMode === 'image' ? '' : 'btn-secondary'}`}
+                        onClick={() => setManualMode('image')}
+                    >
+                        📷 Image Upload
+                    </button>
                 </div>
-            ) : (
-                <div className="form-group">
-                    <div style={{ border: '2px dashed var(--border)', padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            style={{ marginBottom: '1rem' }}
+
+                {/* Inputs */}
+                {manualMode === 'text' ? (
+                    <div className="form-group">
+                        <textarea
+                            className="input"
+                            placeholder="Type or paste your statistics question here..."
+                            value={manualText}
+                            onChange={(e) => setManualText(e.target.value)}
+                            style={{ minHeight: '120px' }}
                         />
-                        {manualImage && (
-                            <div style={{ marginTop: '1rem' }}>
-                                <img src={manualImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: 'var(--radius-sm)' }} />
-                            </div>
-                        )}
                     </div>
-                </div>
-            )}
+                ) : (
+                    <div className="form-group">
+                        <div style={{ border: '2px dashed var(--border)', padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                style={{ marginBottom: '1rem' }}
+                            />
+                            {manualImage && (
+                                <div style={{ marginTop: '1rem' }}>
+                                    <img src={manualImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: 'var(--radius-sm)' }} />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
-            <button
-                className="btn"
-                onClick={processAndShare}
-                disabled={processing || (manualMode === 'text' ? !manualText : !manualImage)}
-                style={{ width: '100%', fontSize: '1.1rem', padding: '1rem' }}
-            >
-                {processing ? "🤖 Processing & Sharing..." : "🚀 Share with Community"}
-            </button>
+                <button
+                    className="btn"
+                    onClick={processAndShare}
+                    disabled={processing || (manualMode === 'text' ? !manualText : !manualImage)}
+                    style={{ width: '100%', fontSize: '1.1rem', padding: '1rem' }}
+                >
+                    {processing ? "🤖 Processing & Sharing..." : "🚀 Share with Community"}
+                </button>
 
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '1rem', textAlign: 'center' }}>
-                AI will validate, classify, and solve your question automatically.
-            </p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '1rem', textAlign: 'center' }}>
+                    AI will validate, classify, and solve your question automatically.
+                </p>
+            </div>
         </div>
-    </div>
-);
+    );
 }
