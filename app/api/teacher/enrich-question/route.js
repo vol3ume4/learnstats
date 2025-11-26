@@ -22,13 +22,13 @@ export async function POST(request) {
         const isStudentMode = mode === "student";
 
         if (isStudentMode) {
-            // Student mode: Full classification
+            // Student mode: Full classification with EXACT matching
             const topicsList = existingTopics && existingTopics.length > 0
-                ? existingTopics.join(", ")
-                : "Probability, Descriptive Statistics, Inferential Statistics, Hypothesis Testing, Regression";
+                ? existingTopics.join("\n- ")
+                : "Probability, Descriptive Statistics, Inferential Statistics";
 
             const patternsList = existingPatterns && existingPatterns.length > 0
-                ? existingPatterns.join(", ")
+                ? existingPatterns.join("\n- ")
                 : "General";
 
             if (image) {
@@ -41,18 +41,20 @@ STEP 1: Check if this image contains a valid statistics question. If not (e.g., 
   "message": "This doesn't appear to be a statistics question. Please upload a clear question."
 }
 
-STEP 2: If valid, extract and classify the question:
-- Extract the question text
-- Classify into one of these TOPICS: ${topicsList}
-- Classify into one of these PATTERNS: ${patternsList}
-- Solve it completely
+STEP 2: If valid, extract and classify the question.
+
+CRITICAL: You MUST select detected_topic from this EXACT list (copy the exact string, including any special characters):
+- ${topicsList}
+
+And detected_pattern from this EXACT list (copy the exact string):
+- ${patternsList}
 
 Output JSON:
 {
   "is_valid_question": true,
   "question_text": "...",
-  "detected_topic": "...",
-  "detected_pattern": "...",
+  "detected_topic": "EXACT topic name from the list above",
+  "detected_pattern": "EXACT pattern name from the list above",
   "correct_answer": "...",
   "hint_stats": "...",
   "hint_python": "...",
@@ -80,18 +82,20 @@ If not (e.g., "test", "hello", random text), return:
   "message": "This doesn't appear to be a statistics question. Please enter a proper question."
 }
 
-STEP 2: If valid, refine and classify:
-- Refine the question text
-- Classify into one of these TOPICS: ${topicsList}
-- Classify into one of these PATTERNS: ${patternsList}
-- Solve it completely
+STEP 2: If valid, refine and classify.
+
+CRITICAL: You MUST select detected_topic from this EXACT list (copy the exact string, including any special characters):
+- ${topicsList}
+
+And detected_pattern from this EXACT list (copy the exact string):
+- ${patternsList}
 
 Output JSON:
 {
   "is_valid_question": true,
   "question_text": "...",
-  "detected_topic": "...",
-  "detected_pattern": "...",
+  "detected_topic": "EXACT topic name from the list above",
+  "detected_pattern": "EXACT pattern name from the list above",
   "correct_answer": "...",
   "hint_stats": "...",
   "hint_python": "...",
