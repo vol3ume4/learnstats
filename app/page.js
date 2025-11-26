@@ -1,19 +1,99 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 
 export default function Home() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    router.push("/student");
+    async function checkAdmin() {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      // Check if user is admin
+      try {
+        const res = await fetch("/api/admin/stats", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id })
+        });
+
+        if (res.status !== 403) {
+          setIsAdmin(true);
+        }
+      } catch (error) {
+        // Not admin, that's fine
+      }
+
+      setLoading(false);
+    }
+    checkAdmin();
   }, [router]);
 
+  if (loading) {
+    return (
+      <div className="container" style={{ textAlign: 'center', paddingTop: '4rem' }}>
+        <h1 className="page-title">LearnStats</h1>
+        <p style={{ color: 'var(--text-secondary)' }}>Loading...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="container" style={{ textAlign: 'center', paddingTop: '4rem' }}>
-      <h1 className="page-title">LearnStats</h1>
-      <p style={{ color: 'var(--text-secondary)' }}>Redirecting to Student Mode...</p>
+    <div className="container" style={{ maxWidth: '600px', paddingTop: '4rem' }}>
+      <h1 className="page-title" style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        LearnStats
+      </h1>
+      <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '3rem', fontSize: '1.1rem' }}>
+        Stats Made Unscary
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <button
+          className="btn"
+          onClick={() => router.push("/student")}
+          style={{ padding: '1.5rem', fontSize: '1.1rem' }}
+        >
+          📚 Student Mode
+        </button>
+
+        <button
+          className="btn btn-secondary"
+          onClick={() => router.push("/teacher")}
+          style={{ padding: '1.5rem', fontSize: '1.1rem' }}
+        >
+          👨‍🏫 Teacher Mode
+        </button>
+
+        {isAdmin && (
+          <button
+            className="btn"
+            onClick={() => router.push("/admin")}
+            style={{ padding: '1.5rem', fontSize: '1.1rem', background: '#8b5cf6' }}
+          >
+            🔐 Admin Dashboard
+          </button>
+        )}
+
+        <button
+          className="btn btn-secondary"
+          onClick={async () => {
+            await supabase.auth.signOut();
+            router.push("/login");
+          }}
+          style={{ marginTop: '2rem', fontSize: '0.9rem' }}
+        >
+          Sign Out
+        </button>
+      </div>
     </div>
   );
 }
