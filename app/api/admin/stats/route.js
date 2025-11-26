@@ -10,26 +10,6 @@ export async function POST(request) {
         const { userId } = await request.json();
 
         if (!userId) {
-            return NextResponse.json({ error: "Missing userId" }, { status: 400 });
-        }
-
-        const client = await pool.connect();
-        try {
-            // Check if user is admin
-            const adminCheck = await client.query(
-                "SELECT is_admin FROM profiles WHERE user_id = $1",
-                [userId]
-            );
-
-            if (!adminCheck.rows[0]?.is_admin) {
-                return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-            }
-
-            // Get total users
-            const totalUsersQuery = "SELECT COUNT(*) as count FROM profiles";
-            const totalUsers = await client.query(totalUsersQuery);
-
-            // Get active users (practiced in last 30 days)
             const activeUsersQuery = `
         SELECT COUNT(DISTINCT user_id) as count 
         FROM practice_history 
