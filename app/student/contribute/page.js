@@ -74,7 +74,8 @@ export default function StudentContribute() {
 
     async function enrichQuestion() {
         if (!topicId) return alert("Please select a Topic first.");
-        if (!patternId) return alert("Please select a Pattern first.");
+        // Pattern is now optional
+
         if (manualMode === "text" && !manualText) return alert("Please enter question text.");
         if (manualMode === "image" && !manualImage) return alert("Please upload an image.");
 
@@ -92,7 +93,7 @@ export default function StudentContribute() {
                     text: manualMode === "text" ? manualText : null,
                     image: manualMode === "image" ? manualImage : null,
                     topicName: topicObj?.name,
-                    patternName: patternObj?.pattern,
+                    patternName: patternObj?.pattern || "General Statistics Concept", // Default if no pattern selected
                     difficulty
                 })
             });
