@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 
-export default function StudentContribute() {
+export default function StudentShare() {
     const [userId, setUserId] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -44,7 +44,6 @@ export default function StudentContribute() {
 
     async function loadAllPatterns() {
         try {
-            // Load patterns from all topics
             const allPatterns = [];
             for (const topic of topics) {
                 const res = await fetch("/api/student/get-patterns", {
@@ -100,24 +99,21 @@ export default function StudentContribute() {
             const data = await res.json();
             if (data.error) throw new Error(data.error);
 
-            // Check if valid question
             if (!data.is_valid_question) {
                 alert(data.message || "This doesn't appear to be a valid statistics question.");
                 setProcessing(false);
                 return;
             }
 
-            // Find matching topic and pattern IDs (exact matching - Gemini returns exact strings)
             const matchedTopic = topics.find(t => t.name === data.detected_topic);
             const matchedPattern = patterns.find(p => p.pattern === data.detected_pattern);
 
             if (!matchedTopic) {
-                alert(`Topic "${data.detected_topic}" not found in database. This is unexpected - please contact admin.`);
+                alert(`Topic "${data.detected_topic}" not found in database. Please contact admin.`);
                 setProcessing(false);
                 return;
             }
 
-            // Save directly
             await fetch("/api/teacher/save-questions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -141,7 +137,6 @@ export default function StudentContribute() {
 
             alert(`✅ Question shared successfully!\nTopic: ${data.detected_topic}\nPattern: ${data.detected_pattern || 'General'}`);
 
-            // Reset form
             setManualText("");
             setManualImage(null);
             router.push("/student");
@@ -150,20 +145,43 @@ export default function StudentContribute() {
             alert("Error: " + err.message);
         } finally {
             setProcessing(false);
+        }
+    }
+
+    return (
+        <div className="container">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h1 className="page-title" style={{ margin: 0 }}>Share a Question</h1>
+                <button className="btn btn-secondary" onClick={() => router.push("/student")}>
+                    ← Back
+                </button>
+            </div>
+
+            <div className="card">
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                    Found an interesting statistics problem? Share it with the community!
+                    Our AI will automatically classify and solve it for you.
+                </p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', fontStyle: 'italic' }}>
+                    📝 Share one question at a time. Bulk upload coming soon!
+                </p>
+
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <button
+                        className={`btn ${manualMode === 'text' ? '' : 'btn-secondary'}`}
+                        onClick={() => setManualMode('text')}
                     >
                         📝 Text Input
-                    </button >
-                <button
-                    className={`btn ${manualMode === 'image' ? '' : 'btn-secondary'}`}
-                    onClick={() => setManualMode('image')}
-                >
-                    📷 Image Upload
-                </button>
-                </div >
+                    </button>
+                    <button
+                        className={`btn ${manualMode === 'image' ? '' : 'btn-secondary'}`}
+                        onClick={() => setManualMode('image')}
+                    >
+                        📷 Image Upload
+                    </button>
+                </div>
 
-                {/* Inputs */ }
-            {
-                manualMode === 'text' ? (
+                {manualMode === 'text' ? (
                     <div className="form-group">
                         <textarea
                             className="input"
@@ -174,23 +192,22 @@ export default function StudentContribute() {
                         />
                     </div>
                 ) : (
-                <div className="form-group">
-                    <div style={{ border: '2px dashed var(--border)', padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            style={{ marginBottom: '1rem' }}
-                        />
-                        {manualImage && (
-                            <div style={{ marginTop: '1rem' }}>
-                                <img src={manualImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: 'var(--radius-sm)' }} />
-                            </div>
-                        )}
+                    <div className="form-group">
+                        <div style={{ border: '2px dashed var(--border)', padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                style={{ marginBottom: '1rem' }}
+                            />
+                            {manualImage && (
+                                <div style={{ marginTop: '1rem' }}>
+                                    <img src={manualImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: 'var(--radius-sm)' }} />
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )
-            }
+                )}
 
                 <button
                     className="btn"
@@ -204,7 +221,7 @@ export default function StudentContribute() {
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '1rem', textAlign: 'center' }}>
                     AI will validate, classify, and solve your question automatically.
                 </p>
-            </div >
-        </div >
+            </div>
+        </div>
     );
-        }
+}
