@@ -268,7 +268,9 @@ export default function TeacherClient() {
   }
 
   async function enrichQuestion() {
-    if (!topicId || !patternId) return alert("Please select a Topic and Pattern first.");
+    if (!topicId) return alert("Please select a Topic first.");
+    // Pattern is optional for manual entry, we can default to General
+
     if (manualMode === "text" && !manualText) return alert("Please enter question text.");
     if (manualMode === "image" && !manualImage) return alert("Please upload an image.");
 
@@ -286,7 +288,7 @@ export default function TeacherClient() {
           text: manualMode === "text" ? manualText : null,
           image: manualMode === "image" ? manualImage : null,
           topicName: topicObj?.name,
-          patternName: patternObj?.pattern,
+          patternName: patternObj?.pattern || "General Statistics Concept",
           difficulty
         })
       });
@@ -638,6 +640,29 @@ export default function TeacherClient() {
         <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
           Add a question manually or upload an image. AI will help fill in the details!
         </p>
+
+        {!topicId && (
+          <div className="form-group" style={{ marginBottom: '1.5rem', padding: '1rem', background: '#fff7ed', borderRadius: 'var(--radius-sm)', border: '1px solid #ffedd5' }}>
+            <label className="label" style={{ color: '#9a3412' }}>⚠️ Select a Topic to proceed</label>
+            <select
+              className="select"
+              onChange={(e) => {
+                const id = Number(e.target.value);
+                setTopicId(id);
+                const obj = topics.find((t) => t.id === id);
+                setTopicName(obj?.name || "");
+                loadSavedPatterns(id);
+              }}
+            >
+              <option value="">Select topic…</option>
+              {topics.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Toggles */}
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
