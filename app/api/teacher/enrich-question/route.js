@@ -48,7 +48,7 @@ REJECT if:
 If invalid, return:
 {
   "is_valid_question": false,
-  "message": "Explain why this is invalid (e.g., 'Dice don't have heads - did you mean a coin?')"
+  "message": "A polite, constructive explanation of why this is invalid (e.g., 'It seems there might be a mix-up - dice don't have heads. Did you mean a coin?'). Be helpful, not harsh."
 }
 
 STEP 2: If valid, extract and classify.
@@ -99,7 +99,7 @@ REJECT if:
 If invalid, return:
 {
   "is_valid_question": false,
-  "message": "Explain why this is invalid (e.g., 'Dice don't have heads - did you mean a coin?')"
+  "message": "A polite, constructive explanation of why this is invalid (e.g., 'It seems there might be a mix-up - dice don't have heads. Did you mean a coin?'). Be helpful, not harsh."
 }
 
 STEP 2: If valid, refine and classify.
@@ -138,15 +138,15 @@ STEP 1: VALIDATE - Check if this image contains a valid, logically consistent st
 
 REJECT if:
 - Not a statistics question
-- Logically inconsistent (e.g., "probability of heads when rolling a die" - dice don't have heads!)
+- Logically inconsistent (e.g., "drawing a card from a die")
 - Incomplete or unclear
 - Contains contradictions
-- Doesn't match the topic: ${topicName || "General Statistics"}
+- DOES NOT MATCH the selected topic: "${topicName || "General Statistics"}" (e.g., asking about ANOVA when topic is Probability)
 
 If invalid, return:
 {
   "is_valid_question": false,
-  "message": "Explain why this is invalid with specific details"
+  "message": "A polite, professional explanation. If logic is wrong, gently point it out. If topic is wrong, say 'This question appears to be about [Actual Topic], but the selected topic is ${topicName}. Please switch topics or update the question.'"
 }
 
 STEP 2: If valid, extract and solve.
@@ -186,15 +186,15 @@ STEP 1: VALIDATE - Check if this is a valid, logically consistent statistics que
 
 REJECT if:
 - Not a statistics question
-- Logically inconsistent (e.g., "probability of heads when rolling a die" - dice don't have heads!)
+- Logically inconsistent (e.g., "drawing a card from a die")
 - Incomplete or unclear
 - Contains contradictions
-- Doesn't match the topic: ${topicName || "General Statistics"}
+- DOES NOT MATCH the selected topic: "${topicName || "General Statistics"}" (e.g., asking about ANOVA when topic is Probability)
 
 If invalid, return:
 {
   "is_valid_question": false,
-  "message": "Explain why this is invalid with specific details"
+  "message": "A polite, professional explanation. If logic is wrong, gently point it out. If topic is wrong, say 'This question appears to be about [Actual Topic], but the selected topic is ${topicName}. Please switch topics or update the question.'"
 }
 
 STEP 2: If valid, refine and solve.
