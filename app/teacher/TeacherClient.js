@@ -215,9 +215,24 @@ export default function TeacherClient() {
         patternId,
         patternText: patternObj.pattern,
         difficulty,
+        topicApproach,
+        patternApproach,
+      }),
+    });
 
-        const selected = selectedQuestions.map(i => generatedQuestions[i]);
-        if(selected.length === 0) {
+    const data = await res.json();
+    setGeneratedQuestions(data);
+    setSelectedQuestions([]);
+
+    setLoading("");
+  }
+
+  // ---------- SAVE QUESTIONS ----------
+  async function saveQuestions() {
+    if (!patternId) return alert("Choose a pattern before saving.");
+
+    const selected = selectedQuestions.map(i => generatedQuestions[i]);
+    if (selected.length === 0) {
       return alert("Select at least one question before saving.");
     }
 
@@ -235,7 +250,85 @@ export default function TeacherClient() {
     });
 
     alert("Selected questions saved.");
+    setGeneratedQuestions([]);
+    setSelectedQuestions([]);
     setLoading("");
+  }
+
+  // ---------- MANUAL ENTRY HANDLERS ----------
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setManualImage(reader.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function enrichQuestion() {
+    if (!topicId || !patternId) return alert("Please select a Topic and Pattern first.");
+    if (manualMode === "text" && !manualText) return alert("Please enter question text.");
+    if (manualMode === "image" && !manualImage) return alert("Please upload an image.");
+
+    setEnriching(true);
+    setEnrichedData(null);
+
+    try {
+      const topicObj = topics.find(t => t.id === topicId);
+      const patternObj = savedPatterns.find(p => p.id === patternId);
+
+      const res = await fetch("/api/teacher/enrich-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: manualMode === "text" ? manualText : null,
+          image: manualMode === "image" ? manualImage : null,
+          topicName: topicObj?.name,
+          patternName: patternObj?.pattern,
+          difficulty
+        })
+      });
+
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      setEnrichedData(data);
+    } catch (err) {
+      alert("Error processing question: " + err.message);
+    } finally {
+      setEnriching(false);
+    }
+  }
+
+  async function saveManualQuestion() {
+    if (!enrichedData) return;
+
+    setLoading("Saving question...");
+    try {
+      await fetch("/api/teacher/save-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topicId,
+          patternId,
+          difficulty,
+          questions: [enrichedData], // Wrap in array to reuse existing API
+          source: manualMode === "image" ? "image_upload" : "manual_entry",
+          created_by: userId
+        }),
+      });
+
+      alert("Question saved successfully!");
+      setEnrichedData(null);
+      setManualText("");
+      setManualImage(null);
+    } catch (err) {
+      alert("Error saving: " + err.message);
+    } finally {
+      setLoading("");
+    }
   }
 
   // ---------- UI ----------
