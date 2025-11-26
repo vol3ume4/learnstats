@@ -119,7 +119,7 @@ export default function TeacherClient() {
 
   // ---------- SAVE PATTERN APPROACH ----------
   async function savePatternApproach() {
-    if (!patternId) return alert("Select a pattern first.");
+    if (!patternId) return alert("Select a question pattern first.");
 
     await fetch("/api/teacher/save-pattern-approach", {
       method: "POST",
@@ -137,14 +137,14 @@ export default function TeacherClient() {
       setPatternApproach(updated.teacher_preferred_approach || "");
     }
 
-    alert("Pattern-level preferred approach saved.");
+    alert("Question Pattern-level preferred approach saved.");
   }
 
   // ---------- GENERATE PATTERNS ----------
   async function generatePatterns() {
     if (!topicId) return alert("Select a topic first.");
 
-    setLoading("Generating pattern suggestions...");
+    setLoading("Generating question pattern suggestions...");
 
     const res = await fetch("/api/teacher/generate-patterns", {
       method: "POST",
@@ -164,11 +164,11 @@ export default function TeacherClient() {
   // ---------- SAVE PATTERNS ----------
   async function savePatterns() {
     if (selectedPatterns.length === 0) {
-      alert("Select at least one pattern.");
+      alert("Select at least one question pattern.");
       return;
     }
 
-    setLoading("Saving patterns...");
+    setLoading("Saving question patterns...");
 
     await fetch("/api/teacher/save-patterns", {
       method: "POST",
@@ -181,14 +181,14 @@ export default function TeacherClient() {
     });
 
     await loadSavedPatterns(topicId);
-    alert("Patterns saved.");
+    alert("Question Patterns saved.");
 
     setLoading("");
   }
 
   // ---------- GENERATE QUESTIONS ----------
   async function generateQuestions() {
-    if (!patternId) return alert("Select a pattern first.");
+    if (!patternId) return alert("Select a question pattern first.");
 
     setLoading("Generating questions...");
 
@@ -216,7 +216,7 @@ export default function TeacherClient() {
 
   // ---------- SAVE QUESTIONS ----------
   async function saveQuestions() {
-    if (!patternId) return alert("Choose a pattern before saving.");
+    if (!patternId) return alert("Choose a question pattern before saving.");
 
     const selected = selectedQuestions.map(i => generatedQuestions[i]);
     if (selected.length === 0) {
@@ -432,68 +432,243 @@ export default function TeacherClient() {
               <h2 style={{ margin: 0, fontSize: '1.25rem' }}>{topicName}</h2>
             </div>
             <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              {savedPatterns.length} Patterns Available
+              {savedPatterns.length} Question Patterns Available
             </div>
           </div>
 
           {/* ACTION SELECTOR - "I want to..." */}
           <div className="card" style={{ background: 'var(--primary)', color: 'white', marginBottom: '1.5rem' }}>
-            {patternId && (
-              <>
-                <div className="form-group">
-                  <label className="label">2. Difficulty</label>
-                  <select
-                    className="select"
-                    value={difficulty}
-                    onChange={(e) => setDifficulty(e.target.value)}
-                  >
-                    <option>Easy</option>
-                    <option>Medium</option>
-                    <option>Hard</option>
-                  </select>
-                </div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.9rem', opacity: 0.9 }}>
+              I want to...
+            </label>
+            <select
+              className="select"
+              style={{
+                width: '100%',
+                fontSize: '1.1rem',
+                padding: '0.75rem',
+                border: 'none',
+                borderRadius: 'var(--radius-sm)',
+                cursor: 'pointer',
+                background: 'white',
+                color: '#111827' // Enforce dark text for the select box itself
+              }}
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+            >
+              <option value="view_patterns" style={{ color: 'black' }}>📂 View & Manage Question Patterns</option>
+              <option value="generate_patterns" style={{ color: 'black' }}>🤖 Generate New Question Patterns with AI</option>
+              <option value="add_pattern_manual" style={{ color: 'black' }}>✍️ Add a Question Pattern Manually</option>
+              <option value="generate_questions" style={{ color: 'black' }}>⚡ Generate Questions with AI</option>
+              <option value="add_question_manual" style={{ color: 'black' }}>📝 Add a Question Manually</option>
+            </select>
+          </div>
 
-                <button onClick={generateQuestions} className="btn" disabled={!!loading} style={{ width: '100%', marginTop: '0.5rem' }}>
-                  {loading ? "Generating..." : "⚡ Generate Questions"}
-                </button>
-              </>
-            )}
+          {/* --- VIEW 1: VIEW PATTERNS --- */}
+          {activeTab === 'view_patterns' && (
+            <div className="card">
+              <h3 className="section-title">Existing Question Patterns</h3>
 
-            {generatedQuestions.length > 0 && (
-              <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-                <h4 style={{ marginBottom: '1rem' }}>Review Generated Questions</h4>
-                <div className="flex-col">
-                  {generatedQuestions.map((q, i) => {
-                    const checked = selectedQuestions.includes(i);
-                    return (
-                      <div key={i} style={{
-                        padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
-                        background: checked ? '#eff6ff' : 'transparent', borderColor: checked ? 'var(--primary)' : 'var(--border)'
-                      }}>
-                        <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => setSelectedQuestions(checked ? selectedQuestions.filter(x => x !== i) : [...selectedQuestions, i])}
-                            style={{ marginTop: '0.25rem' }}
-                          />
-                          <div>
-                            <strong>{q.question_text}</strong>
-                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                              Answer: {q.correct_answer}
-                            </div>
-                          </div>
-                        </label>
-                      </div>
-                    );
-                  })}
-                </div>
-                <button onClick={saveQuestions} className="btn" style={{ marginTop: '1.5rem', width: '100%' }}>
-                  💾 Save Selected Questions
+              {/* Teaching Approach */}
+              <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--background)', borderRadius: 'var(--radius-md)' }}>
+                <label className="label">Topic Teaching Approach</label>
+                <textarea
+                  className="input"
+                  value={topicApproach}
+                  onChange={(e) => setTopicApproach(e.target.value)}
+                  placeholder="Share your preferred teaching approach for this topic..."
+                  style={{ minHeight: "60px", resize: "vertical", marginBottom: '0.5rem', background: 'white' }}
+                />
+                <button onClick={saveTopicApproach} className="btn btn-secondary" style={{ fontSize: '0.85rem' }}>
+                  💾 Save Approach
                 </button>
               </div>
-            )}
-          </div>
+
+              {savedPatterns.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
+                  <p>No question patterns found for this topic yet.</p>
+                  <button onClick={() => setActiveTab('generate_patterns')} className="btn" style={{ marginTop: '1rem' }}>
+                    Generate First Question Patterns
+                  </button>
+                </div>
+              ) : (
+                <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-main)' }}>
+                  {savedPatterns.map((p) => (
+                    <li key={p.id} style={{ marginBottom: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontWeight: '500' }}>{p.pattern}</span>
+                        {p.gemini_generated ? (
+                          <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0284c7' }}>AI</span>
+                        ) : (
+                          <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: '#f3f4f6', color: '#4b5563' }}>Manual</span>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {/* --- VIEW 2: GENERATE PATTERNS --- */}
+          {activeTab === 'generate_patterns' && (
+            <div className="card">
+              <h3 className="section-title">Generate Question Patterns with AI</h3>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                AI will analyze the topic <strong>"{topicName}"</strong> and suggest common question patterns found in textbooks.
+              </p>
+
+              <button onClick={generatePatterns} className="btn" disabled={!!loading} style={{ width: '100%', padding: '1rem' }}>
+                {loading ? "Generating..." : "🚀 Generate Suggestions"}
+              </button>
+
+              {generatedPatterns.length > 0 && (
+                <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                  <h4 style={{ marginBottom: '1rem' }}>Select Question Patterns to Keep</h4>
+                  <div className="flex-col">
+                    {generatedPatterns.map((p, i) => (
+                      <label key={i} style={{ display: 'flex', gap: '0.75rem', padding: '0.5rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          onChange={(e) => {
+                            if (e.target.checked) setSelectedPatterns([...selectedPatterns, p.pattern]);
+                            else setSelectedPatterns(selectedPatterns.filter((x) => x !== p.pattern));
+                          }}
+                        />
+                        <span>{p.pattern}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <button onClick={savePatterns} className="btn" style={{ marginTop: '1.5rem', width: '100%' }}>
+                    💾 Save Selected Question Patterns
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* --- VIEW 3: MANUAL PATTERN --- */}
+          {activeTab === 'add_pattern_manual' && (
+            <div className="card">
+              <h3 className="section-title">Add Question Pattern Manually</h3>
+              <div className="form-group">
+                <label className="label">Question Pattern Name</label>
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="e.g., Calculate probability of X > k"
+                  id="manual-pattern-input"
+                />
+              </div>
+              <button
+                className="btn"
+                onClick={async () => {
+                  const input = document.getElementById('manual-pattern-input');
+                  const val = input.value.trim();
+                  if (!val) return;
+                  setLoading("Adding...");
+                  try {
+                    await fetch("/api/teacher/add-pattern", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ topicId, pattern: val, userId }),
+                    });
+                    input.value = "";
+                    await loadSavedPatterns(topicId);
+                    alert("Question Pattern added successfully.");
+                    setActiveTab('view_patterns'); // Go back to list
+                  } catch (err) {
+                    alert("Error adding question pattern");
+                  }
+                  setLoading("");
+                }}
+                disabled={!!loading}
+              >
+                {loading ? "Adding..." : "Add Question Pattern"}
+              </button>
+            </div>
+          )}
+
+          {/* --- VIEW 4: GENERATE QUESTIONS --- */}
+          {activeTab === 'generate_questions' && (
+            <div className="card">
+              <h3 className="section-title">Generate Questions</h3>
+
+              <div className="form-group">
+                <label className="label">1. Select Question Pattern Context</label>
+                <select
+                  className="select"
+                  onChange={(e) => {
+                    const id = Number(e.target.value);
+                    setPatternId(id);
+                    const pObj = savedPatterns.find((p) => p.id === id);
+                    setPatternApproach(pObj?.teacher_preferred_approach || "");
+                  }}
+                  value={patternId || ""}
+                >
+                  <option value="">Select a question pattern...</option>
+                  {savedPatterns.map((p) => (
+                    <option key={p.id} value={p.id}>{p.pattern}</option>
+                  ))}
+                </select>
+              </div>
+
+              {patternId && (
+                <>
+                  <div className="form-group">
+                    <label className="label">2. Difficulty</label>
+                    <select
+                      className="select"
+                      value={difficulty}
+                      onChange={(e) => setDifficulty(e.target.value)}
+                    >
+                      <option>Easy</option>
+                      <option>Medium</option>
+                      <option>Hard</option>
+                    </select>
+                  </div>
+
+                  <button onClick={generateQuestions} className="btn" disabled={!!loading} style={{ width: '100%', marginTop: '0.5rem' }}>
+                    {loading ? "Generating..." : "⚡ Generate Questions"}
+                  </button>
+                </>
+              )}
+
+              {generatedQuestions.length > 0 && (
+                <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                  <h4 style={{ marginBottom: '1rem' }}>Review Generated Questions</h4>
+                  <div className="flex-col">
+                    {generatedQuestions.map((q, i) => {
+                      const checked = selectedQuestions.includes(i);
+                      return (
+                        <div key={i} style={{
+                          padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
+                          background: checked ? '#eff6ff' : 'transparent', borderColor: checked ? 'var(--primary)' : 'var(--border)'
+                        }}>
+                          <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer' }}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => setSelectedQuestions(checked ? selectedQuestions.filter(x => x !== i) : [...selectedQuestions, i])}
+                              style={{ marginTop: '0.25rem' }}
+                            />
+                            <div>
+                              <strong>{q.question_text}</strong>
+                              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                                Answer: {q.correct_answer}
+                              </div>
+                            </div>
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <button onClick={saveQuestions} className="btn" style={{ marginTop: '1.5rem', width: '100%' }}>
+                    💾 Save Selected Questions
+                  </button>
+                </div>
+              )}
+            </div>
           )}
 
           {/* --- VIEW 5: MANUAL QUESTION --- */}
