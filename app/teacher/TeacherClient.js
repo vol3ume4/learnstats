@@ -460,16 +460,21 @@ export default function TeacherClient() {
 
         {patternId && (
           <div className="form-group">
-            <label className="label">Pattern Preferred Approach</label>
+            <label className="label">Recommended Approach for This Pattern (Optional)</label>
+            <div style={{ padding: '0.75rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              <strong>⚠️ This is shared guidance</strong> visible to ALL teachers and students for this specific pattern.
+              <br />Only update if you want to add specific tips for solving this type of problem.
+            </div>
             <textarea
               className="input"
               value={patternApproach}
               onChange={(e) => setPatternApproach(e.target.value)}
-              style={{ minHeight: "80px", resize: "vertical" }}
+              placeholder="e.g., 'For this pattern, remind students to check if n*p > 5 before using normal approximation. Common mistake: forgetting to apply continuity correction.'"
+              style={{ minHeight: "100px", resize: "vertical" }}
             />
             <div style={{ marginTop: '0.5rem' }}>
               <button onClick={savePatternApproach} className="btn btn-secondary">
-                Save Pattern Approach
+                💾 Save Pattern Approach
               </button>
             </div>
           </div>
