@@ -370,6 +370,166 @@ export default function StudentClient() {
                   </button>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* CONDITIONAL RENDER: Discovery Mode vs. Practice Mode */}
+      {!topicId ? (
+        /* --- DISCOVERY MODE: Topic Accordion --- */
+        <div className="card">
+          <h3 className="section-title">Select a Topic to Start</h3>
+
+          <div className="topic-accordion" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {[
+              { title: "1. Foundations & Data", keywords: ["Scales", "Data", "Descriptive"] },
+              { title: "2. Probability Core", keywords: ["Probability Basics", "Conditional", "Bayes"] },
+              { title: "3. Probability Distributions", keywords: ["Binomial", "Poisson", "Normal", "Uniform", "t-Distribution", "F-Distribution", "Geometric", "Exponential"] },
+              { title: "4. Inference & Hypothesis Testing", keywords: ["Sampling", "Confidence", "z-test", "t-test", "ANOVA", "Chi-Square", "Regression", "Hypothesis"] }
+            ].map((group) => {
+              const groupTopics = topics.filter(t => group.keywords.some(k => t.name.includes(k)));
+              if (groupTopics.length === 0) return null;
+              const isExpanded = expandedGroup === group.title;
+
+              return (
+                <div key={group.title} style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
+                  <button
+                    onClick={() => setExpandedGroup(isExpanded ? null : group.title)}
+                    style={{
+                      width: '100%', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      background: isExpanded ? 'var(--background)' : 'white', border: 'none', cursor: 'pointer', fontWeight: '600', color: 'var(--foreground)'
+                    }}
+                  >
+                    <span>{group.title}</span>
+                    <span>{isExpanded ? '−' : '+'}</span>
+                  </button>
+
+                  {isExpanded && (
+                    <div style={{ background: 'white', borderTop: '1px solid var(--border)' }}>
+                      {groupTopics.map(t => (
+                        <button
+                          key={t.id}
+                          onClick={async () => {
+                            setTopicId(t.id);
+                            setPatternId(null);
+                            setCurrentQuestion(null);
+                            setEvaluation("");
+                            setStreak(0);
+                            await loadPatterns(t.id);
+                          }}
+                          style={{
+                            width: '100%', padding: '0.75rem 1.5rem', textAlign: 'left', background: 'white', color: 'var(--text-secondary)',
+                            border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s'
+                          }}
+                          onMouseOver={(e) => e.currentTarget.style.background = 'var(--background)'}
+                          onMouseOut={(e) => e.currentTarget.style.background = 'white'}
+                        >
+                          {t.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        /* --- PRACTICE MODE: The Cockpit --- */
+        <div className="card" style={{
+          position: 'sticky',
+          top: '1rem',
+          zIndex: 100,
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          border: '1px solid var(--primary)',
+          background: '#fff'
+        }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+
+            {/* Left: Topic & Back */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <button
+                onClick={() => setTopicId(null)}
+                className="btn btn-secondary"
+                style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem' }}
+                title="Change Topic"
+              >
+                ← Back
+              </button>
+              <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)' }}>
+                {topics.find(t => t.id === topicId)?.name}
+              </div>
+            </div>
+
+            {/* Right: Controls */}
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', flex: 1, justifyContent: 'flex-end' }}>
+              <select
+                className="select"
+                style={{ width: 'auto', minWidth: '200px', margin: 0 }}
+                value={patternId || ""}
+                onChange={(e) => {
+                  setPatternId(Number(e.target.value));
+                  setCurrentQuestion(null);
+                  setEvaluation("");
+                  setStreak(0);
+                }}
+              >
+                <option value="">Select Pattern...</option>
+                {patterns.map((p) => (
+                  <option key={p.id} value={p.id}>{p.pattern}</option>
+                ))}
+              </select>
+
+              <select
+                className="select"
+                style={{ width: 'auto', margin: 0 }}
+                value={difficulty}
+                onChange={(e) => {
+                  setDifficulty(e.target.value);
+                  setStreak(0);
+                }}
+              >
+                <option>Easy</option>
+                <option>Medium</option>
+                <option>Hard</option>
+              </select>
+
+              <button
+                onClick={getNextQuestion}
+                className="btn"
+                disabled={!patternId || !!loading}
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                {loading ? "Loading..." : "Get Question"}
+              </button>
+            </div>
+          </div>
+
+          {/* Streak Mini-Bar */}
+          {patternId && (
+            <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>Streak:</span>
+              <div style={{ display: 'flex', gap: '0.25rem' }}>
+                {Array.from({ length: streakGoal }).map((_, i) => (
+                  <div key={i} style={{
+                    width: '16px', height: '16px', borderRadius: '50%',
+                    background: i < streak ? 'var(--success)' : '#e2e8f0',
+                    transition: 'all 0.3s'
+                  }} />
+                ))}
+              </div>
+              {streak >= streakGoal && <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>🔥 On Fire!</span>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {currentQuestion && (
+        <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
+          <h3 className="section-title">Question</h3>
+
+          <div style={{
             background: "var(--background)",
             padding: "1.5rem",
             borderRadius: "var(--radius-md)",
