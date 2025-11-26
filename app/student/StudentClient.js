@@ -505,7 +505,49 @@ export default function StudentClient() {
             fontSize: "1.1rem",
             lineHeight: "1.6"
           }}>
-            {currentQuestion.question_text}
+            {currentQuestion.source === 'student_contribution' && (
+              <div style={{
+                display: 'inline-block',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '999px',
+                background: '#dbeafe',
+                color: '#1e40af',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                marginBottom: '1rem'
+              }}>
+                👤 Community Question
+              </div>
+            )}
+            {currentQuestion.source === 'image_upload' && (
+              <div style={{
+                display: 'inline-block',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '999px',
+                background: '#f3e8ff',
+                color: '#6b21a8',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                marginBottom: '1rem'
+              }}>
+                📷 From Image
+              </div>
+            )}
+            {currentQuestion.source === 'manual_entry' && (
+              <div style={{
+                display: 'inline-block',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '999px',
+                background: '#fef3c7',
+                color: '#92400e',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                marginBottom: '1rem'
+              }}>
+                ✍️ Teacher Added
+              </div>
+            )}
+            <div>{currentQuestion.question_text}</div>
           </div>
 
           {!evaluation && (
