@@ -392,11 +392,42 @@ export default function StudentClient() {
             }}
           >
             <option>Select a topic...</option>
-            {topics.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
+
+            {/* Group: Foundations */}
+            <optgroup label="1. Foundations & Data">
+              {topics.filter(t => ["Scales of Measurement", "Data Visualization", "Descriptive Statistics"].some(k => t.name.includes(k))).map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </optgroup>
+
+            {/* Group: Probability */}
+            <optgroup label="2. Probability Core">
+              {topics.filter(t => ["Probability Basics", "Conditional Probability", "Bayes"].some(k => t.name.includes(k))).map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </optgroup>
+
+            {/* Group: Distributions */}
+            <optgroup label="3. Probability Distributions">
+              {topics.filter(t => ["Binomial", "Poisson", "Normal", "Uniform", "t-Distribution", "Geometric", "Exponential"].some(k => t.name.includes(k))).map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </optgroup>
+
+            {/* Group: Inference */}
+            <optgroup label="4. Inference & Hypothesis Testing">
+              {topics.filter(t => ["Sampling", "Confidence", "z-test", "t-test", "ANOVA", "Chi-Square", "Regression", "Hypothesis"].some(k => t.name.includes(k))).map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </optgroup>
+
+            {/* Catch-all for anything else */}
+            <optgroup label="Other Topics">
+              {topics.filter(t => !["Scales", "Data", "Descriptive", "Probability", "Bayes", "Binomial", "Poisson", "Normal", "Uniform", "t-Distribution", "Geometric", "Exponential", "Sampling", "Confidence", "z-test", "t-test", "ANOVA", "Chi-Square", "Regression", "Hypothesis"].some(k => t.name.includes(k))).map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </optgroup>
+
           </select>
         </div>
 
