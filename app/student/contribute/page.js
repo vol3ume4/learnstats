@@ -8,19 +8,14 @@ export default function StudentContribute() {
     const [userId, setUserId] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // Topics for selection
     const [topics, setTopics] = useState([]);
-    const [topicId, setTopicId] = useState("");
     const [patterns, setPatterns] = useState([]);
-    const [patternId, setPatternId] = useState("");
-    const [difficulty, setDifficulty] = useState("Medium");
 
     // Manual Entry State
     const [manualMode, setManualMode] = useState("text");
     const [manualText, setManualText] = useState("");
     const [manualImage, setManualImage] = useState(null);
-    const [enrichedData, setEnrichedData] = useState(null);
-    const [enriching, setEnriching] = useState(false);
+    const [processing, setProcessing] = useState(false);
 
     const router = useRouter();
 
@@ -47,19 +42,30 @@ export default function StudentContribute() {
         }
     }
 
-    async function loadPatterns(tid) {
+    async function loadAllPatterns() {
         try {
-            const res = await fetch("/api/student/get-patterns", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ topicId: tid })
-            });
-            const data = await res.json();
-            setPatterns(data);
+            // Load patterns from all topics
+            const allPatterns = [];
+            for (const topic of topics) {
+                const res = await fetch("/api/student/get-patterns", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ topicId: topic.id })
+                });
+                const data = await res.json();
+                allPatterns.push(...data);
+            }
+            setPatterns(allPatterns);
         } catch (err) {
             console.error("Error loading patterns:", err);
         }
     }
+
+    useEffect(() => {
+        if (topics.length > 0) {
+            loadAllPatterns();
+        }
+    }, [topics]);
 
     function handleImageUpload(e) {
         const file = e.target.files[0];
@@ -72,77 +78,78 @@ export default function StudentContribute() {
         reader.readAsDataURL(file);
     }
 
-    async function enrichQuestion() {
-        if (!topicId) return alert("Please select a Topic first.");
-        // Pattern is now optional
-
+    async function processAndShare() {
         if (manualMode === "text" && !manualText) return alert("Please enter question text.");
         if (manualMode === "image" && !manualImage) return alert("Please upload an image.");
 
-        setEnriching(true);
-        setEnrichedData(null);
+        setProcessing(true);
 
         try {
-            const topicObj = topics.find(t => t.id === Number(topicId));
-            const patternObj = patterns.find(p => p.id === Number(patternId));
-
             const res = await fetch("/api/teacher/enrich-question", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     text: manualMode === "text" ? manualText : null,
                     image: manualMode === "image" ? manualImage : null,
-                    topicName: topicObj?.name,
-                    patternName: patternObj?.pattern || "General Statistics Concept",
-                    existingPatterns: patterns.map(p => p.pattern), // Send names for classification
-                    difficulty
+                    existingTopics: topics.map(t => t.name),
+                    existingPatterns: patterns.map(p => p.pattern),
+                    mode: "student"
                 })
             });
 
             const data = await res.json();
             if (data.error) throw new Error(data.error);
 
-            setEnrichedData(data);
-
-            // Auto-select pattern if detected
-            if (data.detected_pattern) {
-                const matchedPattern = patterns.find(p => p.pattern.toLowerCase() === data.detected_pattern.toLowerCase());
-                if (matchedPattern) {
-                    setPatternId(matchedPattern.id);
-                }
+            // Check if valid question
+            if (!data.is_valid_question) {
+                alert(data.message || "This doesn't appear to be a valid statistics question.");
+                setProcessing(false);
+                return;
             }
-        } catch (err) {
-            alert("Error processing question: " + err.message);
-        } finally {
-            setEnriching(false);
-        }
-    }
 
-    async function saveContribution() {
-        if (!enrichedData) return;
+            // Find matching topic and pattern IDs
+            const matchedTopic = topics.find(t => t.name.toLowerCase() === data.detected_topic.toLowerCase());
+            const matchedPattern = patterns.find(p => p.pattern.toLowerCase() === data.detected_pattern.toLowerCase());
 
-        setLoading(true);
-        try {
+            if (!matchedTopic) {
+                alert(`Topic "${data.detected_topic}" not found. Please contact admin to add this topic.`);
+                setProcessing(false);
+                return;
+            }
+
+            // Save directly
             await fetch("/api/teacher/save-questions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    topicId: Number(topicId),
-                    patternId: Number(patternId),
-                    difficulty,
-                    questions: [enrichedData],
+                    topicId: matchedTopic.id,
+                    patternId: matchedPattern?.id || null,
+                    difficulty: "Medium",
+                    questions: [{
+                        question_text: data.question_text,
+                        correct_answer: data.correct_answer,
+                        hint_stats: data.hint_stats,
+                        hint_python: data.hint_python,
+                        solution_stats: data.solution_stats,
+                        solution_python: data.solution_python
+                    }],
                     source: "student_contribution",
                     created_by: userId,
                     is_verified: true
                 }),
             });
 
-            alert("Question shared successfully! It's now available for practice.");
+            alert(`✅ Question shared successfully!\nTopic: ${data.detected_topic}\nPattern: ${data.detected_pattern}`);
+
+            // Reset form
+            setManualText("");
+            setManualImage(null);
             router.push("/student");
+
         } catch (err) {
-            alert("Error saving: " + err.message);
+            alert("Error: " + err.message);
         } finally {
-            setLoading(false);
+            setProcessing(false);
         }
     }
 
@@ -157,45 +164,9 @@ export default function StudentContribute() {
 
             <div className="card">
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-                    Found an interesting problem? Share it with the community!
-                    Upload an image or paste the text, and our AI will help solve it.
+                    Found an interesting statistics problem? Share it with the community!
+                    Our AI will automatically classify and solve it for you.
                 </p>
-
-                <div className="form-group">
-                    <label className="label">Topic</label>
-                    <select
-                        className="select"
-                        value={topicId}
-                        onChange={(e) => {
-                            const id = e.target.value;
-                            setTopicId(id);
-                            setPatternId("");
-                            if (id) loadPatterns(id);
-                            else setPatterns([]);
-                        }}
-                    >
-                        <option value="">Select Topic...</option>
-                        {topics.map(t => (
-                            <option key={t.id} value={t.id}>{t.name}</option>
-                        ))}
-                    </select>
-                </div>
-
-                {topicId && (
-                    <div className="form-group">
-                        <label className="label">Pattern</label>
-                        <select
-                            className="select"
-                            value={patternId}
-                            onChange={(e) => setPatternId(e.target.value)}
-                        >
-                            <option value="">Select Pattern...</option>
-                            {patterns.map(p => (
-                                <option key={p.id} value={p.id}>{p.pattern}</option>
-                            ))}
-                        </select>
-                    </div>
-                )}
 
                 {/* Toggles */}
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -218,7 +189,7 @@ export default function StudentContribute() {
                     <div className="form-group">
                         <textarea
                             className="input"
-                            placeholder="Type or paste your question here..."
+                            placeholder="Type or paste your statistics question here..."
                             value={manualText}
                             onChange={(e) => setManualText(e.target.value)}
                             style={{ minHeight: '120px' }}
@@ -244,81 +215,16 @@ export default function StudentContribute() {
 
                 <button
                     className="btn"
-                    onClick={enrichQuestion}
-                    disabled={enriching || (manualMode === 'text' ? !manualText : !manualImage)}
+                    onClick={processAndShare}
+                    disabled={processing || (manualMode === 'text' ? !manualText : !manualImage)}
+                    style={{ width: '100%', fontSize: '1.1rem', padding: '1rem' }}
                 >
-                    {enriching ? "✨ Analyzing..." : "✨ Analyze & Solve"}
+                    {processing ? "🤖 Processing & Sharing..." : "🚀 Share with Community"}
                 </button>
 
-                {/* Review Section */}
-                {enrichedData && (
-                    <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
-                        <h4 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Review & Share</h4>
-
-                        <div className="form-group">
-                            <label className="label">Question Text</label>
-                            <textarea
-                                className="input"
-                                value={enrichedData.question_text}
-                                onChange={(e) => setEnrichedData({ ...enrichedData, question_text: e.target.value })}
-                                style={{ minHeight: '100px' }}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label className="label">Answer</label>
-                            <input
-                                className="input"
-                                value={enrichedData.correct_answer}
-                                onChange={(e) => setEnrichedData({ ...enrichedData, correct_answer: e.target.value })}
-                            />
-                        </div>
-
-                        <div className="grid-2">
-                            <div className="form-group">
-                                <label className="label">Hint (Stats)</label>
-                                <textarea
-                                    className="input"
-                                    value={enrichedData.hint_stats}
-                                    onChange={(e) => setEnrichedData({ ...enrichedData, hint_stats: e.target.value })}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="label">Hint (Python)</label>
-                                <textarea
-                                    className="input"
-                                    value={enrichedData.hint_python}
-                                    onChange={(e) => setEnrichedData({ ...enrichedData, hint_python: e.target.value })}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid-2">
-                            <div className="form-group">
-                                <label className="label">Solution (Stats)</label>
-                                <textarea
-                                    className="input"
-                                    value={enrichedData.solution_stats}
-                                    onChange={(e) => setEnrichedData({ ...enrichedData, solution_stats: e.target.value })}
-                                    style={{ minHeight: '100px' }}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="label">Solution (Python)</label>
-                                <textarea
-                                    className="input"
-                                    value={enrichedData.solution_python}
-                                    onChange={(e) => setEnrichedData({ ...enrichedData, solution_python: e.target.value })}
-                                    style={{ minHeight: '150px', fontFamily: 'monospace' }}
-                                />
-                            </div>
-                        </div>
-
-                        <button className="btn" onClick={saveContribution} disabled={loading}>
-                            {loading ? "Sharing..." : "🚀 Share with Community"}
-                        </button>
-                    </div>
-                )}
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '1rem', textAlign: 'center' }}>
+                    AI will validate, classify, and solve your question automatically.
+                </p>
             </div>
         </div>
     );
