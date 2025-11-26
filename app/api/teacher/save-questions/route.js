@@ -21,7 +21,14 @@ export async function POST(request) {
     }
 
     for (const q of questions) {
-      await client.query(
+      console.log("Attempting to save question:", {
+        topicId,
+        patternId,
+        question_text: q.question_text.substring(0, 50),
+        source
+      });
+
+      const result = await client.query(
         `
         INSERT INTO questions 
         (topic_id, pattern_id, difficulty,
@@ -33,10 +40,11 @@ export async function POST(request) {
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
         ON CONFLICT (topic_id, pattern_id, question_text) 
         DO NOTHING
+        RETURNING id
         `,
         [
           topicId,
-          patternId || null, // Allow null if schema permits
+          patternId || null,
           difficulty,
 
           cleanText(q.question_text),
@@ -52,9 +60,15 @@ export async function POST(request) {
 
           source || 'ai_generated',
           created_by || null,
-          is_verified !== undefined ? is_verified : true // Default to true for now
+          is_verified !== undefined ? is_verified : true
         ]
       );
+
+      if (result.rowCount === 0) {
+        console.log("Question was a duplicate, skipped");
+      } else {
+        console.log("Question saved successfully with ID:", result.rows[0]?.id);
+      }
     }
 
     return Response.json({ success: true });

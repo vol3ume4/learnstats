@@ -134,7 +134,7 @@ export default function StudentShare() {
                 return;
             }
 
-            await fetch("/api/teacher/save-questions", {
+            const saveRes = await fetch("/api/teacher/save-questions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -155,6 +155,11 @@ export default function StudentShare() {
                 }),
             });
 
+            const saveData = await saveRes.json();
+            if (!saveData.success) {
+                throw new Error("Failed to save question");
+            }
+
             alert(`✅ Question shared successfully!\nTopic: ${data.detected_topic}\nPattern: ${data.detected_pattern || 'General'}`);
 
             setManualText("");
@@ -162,6 +167,7 @@ export default function StudentShare() {
             router.push("/student");
 
         } catch (err) {
+            console.error("Share error:", err);
             alert("Error: " + err.message);
         } finally {
             setProcessing(false);
@@ -178,12 +184,8 @@ export default function StudentShare() {
             </div>
 
             <div className="card">
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
                     Found an interesting statistics problem? Share it with the community!
-                    Our AI will automatically classify and solve it for you.
-                </p>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', fontStyle: 'italic' }}>
-                    📝 Share one question at a time. Bulk upload coming soon!
                 </p>
 
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -242,7 +244,7 @@ export default function StudentShare() {
                 </button>
 
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '1rem', textAlign: 'center' }}>
-                    AI will validate, classify, and solve your question automatically.
+                    📝 Share one question at a time. Bulk upload coming soon!
                 </p>
             </div>
         </div>
