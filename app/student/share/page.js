@@ -154,6 +154,30 @@ export default function StudentShare() {
                     is_verified: true
                 }),
             });
+
+            const saveData = await saveRes.json();
+            if (!saveData.success) {
+                throw new Error("Failed to save question");
+            }
+
+            const message = `✅ Question Shared Successfully!
+
+📚 Topic: ${data.detected_topic}
+🎯 Pattern: ${data.detected_pattern || 'General'}
+
+📝 Refined Question:
+${data.question_text}
+
+✔️ Status: Saved to database`;
+
+            alert(message);
+
+            setManualText("");
+            setManualImage(null);
+            router.push("/student");
+
+        } catch (err) {
+            console.error("Share error:", err);
             alert("Error: " + err.message);
         } finally {
             setProcessing(false);
