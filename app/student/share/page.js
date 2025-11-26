@@ -6,12 +6,8 @@ import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 
 export default function StudentShare() {
     const [userId, setUserId] = useState(null);
-    const [loading, setLoading] = useState(false);
-
     const [topics, setTopics] = useState([]);
     const [patterns, setPatterns] = useState([]);
-
-    // Manual Entry State
     const [manualMode, setManualMode] = useState("text");
     const [manualText, setManualText] = useState("");
     const [manualImage, setManualImage] = useState(null);
@@ -67,7 +63,6 @@ export default function StudentShare() {
     }, [topics]);
 
     useEffect(() => {
-        // Add paste event listener for screenshots
         const handlePaste = (e) => {
             const items = e.clipboardData?.items;
             if (!items) return;
@@ -78,7 +73,7 @@ export default function StudentShare() {
                     const reader = new FileReader();
                     reader.onloadend = () => {
                         setManualImage(reader.result);
-                        setManualMode('image'); // Auto-switch to image mode
+                        setManualMode('image');
                     };
                     reader.readAsDataURL(blob);
                     e.preventDefault();
@@ -202,7 +197,7 @@ export default function StudentShare() {
                         className={`btn ${manualMode === 'image' ? '' : 'btn-secondary'}`}
                         onClick={() => setManualMode('image')}
                     >
-                        📷 Image Upload
+                        📷 Image / Screenshot
                     </button>
                 </div>
 
@@ -214,12 +209,28 @@ export default function StudentShare() {
                             value={manualText}
                             onChange={(e) => setManualText(e.target.value)}
                             style={{ minHeight: '120px' }}
+                        />
+                    </div>
+                ) : (
+                    <div className="form-group">
+                        <div style={{ border: '2px dashed var(--border)', padding: '2rem', textAlign: 'center', borderRadius: 'var(--radius-md)' }}>
+                            <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                                📋 <strong>Paste a screenshot</strong> (Ctrl+V / Cmd+V) or upload a file
+                            </p>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                style={{ marginBottom: '1rem' }}
+                            />
+                            {manualImage && (
+                                <div style={{ marginTop: '1rem' }}>
+                                    <img src={manualImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: 'var(--radius-sm)' }} />
                                 </div>
+                            )}
+                        </div>
+                    </div>
                 )}
-            </div>
-        </div>
-    )
-}
 
                 <button
                     className="btn"
@@ -233,7 +244,7 @@ export default function StudentShare() {
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '1rem', textAlign: 'center' }}>
                     AI will validate, classify, and solve your question automatically.
                 </p>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 }
