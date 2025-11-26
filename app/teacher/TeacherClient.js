@@ -289,7 +289,8 @@ export default function TeacherClient() {
           image: manualMode === "image" ? manualImage : null,
           topicName: topicObj?.name,
           patternName: patternObj?.pattern || "General Statistics Concept",
-          difficulty
+          difficulty,
+          mode: "teacher"
         })
       });
 
