@@ -35,31 +35,39 @@ export async function POST(request) {
 
             if (image) {
                 prompt = `
-You are an expert statistics tutor.
+You are an expert statistics tutor with strict quality standards.
 
-STEP 1: Check if this image contains a valid statistics question. If not (e.g., random text, doodles), return:
+STEP 1: VALIDATE - Check if this image contains a valid, logically consistent statistics question.
+
+REJECT if:
+- Not a statistics question
+- Logically inconsistent (e.g., "probability of heads when rolling a die" - dice don't have heads!)
+- Incomplete or unclear
+- Contains contradictions
+
+If invalid, return:
 {
   "is_valid_question": false,
-  "message": "This doesn't appear to be a statistics question. Please upload a clear question."
+  "message": "Explain why this is invalid (e.g., 'Dice don't have heads - did you mean a coin?')"
 }
 
-STEP 2: If valid, extract and classify the question.
+STEP 2: If valid, extract and classify.
 
-CRITICAL INSTRUCTIONS - YOU MUST FOLLOW THESE EXACTLY:
-1. Select detected_topic by copying ONE EXACT string from this list:
+CRITICAL INSTRUCTIONS:
+1. Select detected_topic from this EXACT list:
 - ${topicsList}
 
-2. Select detected_pattern by copying ONE EXACT string from this list (DO NOT use "General" or any other value):
+2. Select detected_pattern from this EXACT list (DO NOT use "General"):
 - ${patternsList}
 
-3. If you cannot confidently match, choose the closest one from the lists above.
+3. Refine the question to fix typos and improve clarity, but ONLY if the logic is sound.
 
 Output JSON:
 {
   "is_valid_question": true,
   "question_text": "...",
-  "detected_topic": "EXACT topic name from the list above",
-  "detected_pattern": "EXACT pattern name from the list above",
+  "detected_topic": "EXACT topic name from list",
+  "detected_pattern": "EXACT pattern name from list",
   "correct_answer": "...",
   "hint_stats": "...",
   "hint_python": "...",
@@ -78,32 +86,39 @@ Output JSON:
 
             } else {
                 prompt = `
-You are an expert statistics tutor.
+You are an expert statistics tutor with strict quality standards.
 
-STEP 1: Check if this is a valid statistics question: "${text}"
-If not (e.g., "test", "hello", random text), return:
+STEP 1: VALIDATE - Check if this is a valid, logically consistent statistics question: "${text}"
+
+REJECT if:
+- Not a statistics question
+- Logically inconsistent (e.g., "probability of heads when rolling a die" - dice don't have heads!)
+- Incomplete or unclear
+- Contains contradictions
+
+If invalid, return:
 {
   "is_valid_question": false,
-  "message": "This doesn't appear to be a statistics question. Please enter a proper question."
+  "message": "Explain why this is invalid (e.g., 'Dice don't have heads - did you mean a coin?')"
 }
 
 STEP 2: If valid, refine and classify.
 
-CRITICAL INSTRUCTIONS - YOU MUST FOLLOW THESE EXACTLY:
-1. Select detected_topic by copying ONE EXACT string from this list:
+CRITICAL INSTRUCTIONS:
+1. Select detected_topic from this EXACT list:
 - ${topicsList}
 
-2. Select detected_pattern by copying ONE EXACT string from this list (DO NOT use "General" or any other value):
+2. Select detected_pattern from this EXACT list (DO NOT use "General"):
 - ${patternsList}
 
-3. If you cannot confidently match, choose the closest one from the lists above.
+3. Refine the question to fix typos and improve clarity, but ONLY if the logic is sound.
 
 Output JSON:
 {
   "is_valid_question": true,
   "question_text": "...",
-  "detected_topic": "EXACT topic name from the list above",
-  "detected_pattern": "EXACT pattern name from the list above",
+  "detected_topic": "EXACT topic name from list",
+  "detected_pattern": "EXACT pattern name from list",
   "correct_answer": "...",
   "hint_stats": "...",
   "hint_python": "...",
