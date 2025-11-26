@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
+import TeacherHelp from "./TeacherHelp";
 
 export default function TeacherClient() {
   // ---------- ALL HOOKS AT TOP ----------
@@ -250,16 +251,19 @@ export default function TeacherClient() {
     <div className="container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 className="page-title" style={{ margin: 0, textAlign: 'left' }}>Teacher Mode</h1>
-        <button
-          className="btn btn-secondary"
-          onClick={async () => {
-            await supabase.auth.signOut();
-            router.push("/login");
-          }}
-          style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
-        >
-          Sign Out
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <TeacherHelp />
+          <button
+            className="btn btn-secondary"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              router.push("/login");
+            }}
+            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
 
       {loading && (
@@ -297,18 +301,22 @@ export default function TeacherClient() {
 
         {topicId && (
           <>
-            <h3 className="section-title" style={{ marginTop: "1.5rem" }}>2. Topic Preferred Approach</h3>
+            <h3 className="section-title" style={{ marginTop: "1.5rem" }}>2. Recommended Teaching Method (Optional)</h3>
+            <div style={{ padding: '0.75rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', marginBottom: '1rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              <strong>⚠️ This is shared guidance</strong> visible to ALL teachers and students for this topic.
+              <br />Only update if you want to improve the recommended teaching approach for everyone.
+            </div>
             <div className="form-group">
               <textarea
                 className="input"
                 value={topicApproach}
                 onChange={(e) => setTopicApproach(e.target.value)}
-                placeholder="Describe preferred method for this topic"
-                style={{ minHeight: "80px", resize: "vertical" }}
+                placeholder="e.g., 'Start with real-world examples like coin flips, then introduce the formula. Emphasize the difference between theoretical and experimental probability.'"
+                style={{ minHeight: "100px", resize: "vertical" }}
               />
             </div>
             <button onClick={saveTopicApproach} className="btn btn-secondary">
-              Save Topic Approach
+              💾 Save Teaching Method
             </button>
           </>
         )}
@@ -338,14 +346,22 @@ export default function TeacherClient() {
 
       <div className="card">
         <h3 className="section-title">3. Generate Pattern Suggestions</h3>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+          💡 <strong>If you want AI to suggest practice patterns</strong> for this topic, click below.
+          Review existing patterns first to avoid duplicates!
+        </p>
         <div className="form-group">
-          <button onClick={generatePatterns} className="btn" disabled={!!loading}>Generate Patterns</button>
+          <button onClick={generatePatterns} className="btn" disabled={!!loading}>🤖 Generate Patterns with AI</button>
         </div>
 
       </div>
 
       <div className="card">
         <h3 className="section-title">Manual Pattern Entry</h3>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+          ✍️ <strong>If you want to add a custom pattern</strong>, enter it below.
+          Check existing patterns above to avoid duplicates!
+        </p>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <input
             type="text"

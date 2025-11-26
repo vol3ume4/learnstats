@@ -1,0 +1,147 @@
+"use client";
+
+import { useState } from "react";
+
+export default function TeacherHelp() {
+    const [showHelp, setShowHelp] = useState(false);
+
+    return (
+        <>
+            <button
+                className="btn btn-secondary"
+                onClick={() => setShowHelp(true)}
+                style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+            >
+                ❓ How to Use
+            </button>
+
+            {showHelp && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000,
+                        padding: '1rem'
+                    }}
+                    onClick={() => setShowHelp(false)}
+                >
+                    <div
+                        className="card"
+                        style={{
+                            maxWidth: '700px',
+                            maxHeight: '90vh',
+                            overflow: 'auto',
+                            position: 'relative'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h2 style={{ margin: 0, fontSize: '1.5rem' }}>👨‍🏫 Teacher Mode Guide</h2>
+                            <button
+                                onClick={() => setShowHelp(false)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    fontSize: '1.5rem',
+                                    cursor: 'pointer',
+                                    color: 'var(--text-secondary)'
+                                }}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div style={{ lineHeight: '1.6' }}>
+                            <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
+                                🎯 What is Teacher Mode?
+                            </h3>
+                            <p style={{ color: 'var(--text-secondary)' }}>
+                                Teacher Mode lets you create learning content for students. You can define teaching approaches,
+                                create practice patterns, and generate questions using AI.
+                            </p>
+
+                            <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
+                                📋 The 4-Step Workflow
+                            </h3>
+
+                            <div style={{ marginLeft: '1rem' }}>
+                                <h4 style={{ fontSize: '1rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
+                                    <strong>Step 1: Select a Topic</strong>
+                                </h4>
+                                <p style={{ color: 'var(--text-secondary)', marginLeft: '1rem' }}>
+                                    Choose the statistical topic you want to create content for (e.g., Binomial Distribution, Normal Distribution).
+                                </p>
+
+                                <h4 style={{ fontSize: '1rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
+                                    <strong>Step 2: Set Teaching Method (Optional)</strong>
+                                </h4>
+                                <p style={{ color: 'var(--text-secondary)', marginLeft: '1rem' }}>
+                                    <strong>⚠️ Important:</strong> This is <strong>shared guidance</strong> visible to ALL teachers and students.
+                                    <br />
+                                    Describe the recommended approach for teaching this topic (e.g., "Start with real-world examples, then introduce formulas").
+                                    <br />
+                                    <em>Only update this if you want to improve the shared teaching method for everyone.</em>
+                                </p>
+
+                                <h4 style={{ fontSize: '1rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
+                                    <strong>Step 3: Create Patterns</strong>
+                                </h4>
+                                <p style={{ color: 'var(--text-secondary)', marginLeft: '1rem' }}>
+                                    You have two options:
+                                </p>
+                                <ul style={{ color: 'var(--text-secondary)', marginLeft: '2rem' }}>
+                                    <li><strong>AI Generate:</strong> Click "Generate Patterns" to let AI suggest practice patterns based on the topic</li>
+                                    <li><strong>Manual Entry:</strong> Add your own custom patterns if you have specific practice scenarios in mind</li>
+                                </ul>
+                                <p style={{ color: 'var(--text-secondary)', marginLeft: '1rem' }}>
+                                    <strong>💡 Tip:</strong> Check existing patterns first to avoid duplicates!
+                                </p>
+
+                                <h4 style={{ fontSize: '1rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
+                                    <strong>Step 4: Generate Questions</strong>
+                                </h4>
+                                <p style={{ color: 'var(--text-secondary)', marginLeft: '1rem' }}>
+                                    Select patterns and difficulty level, then generate practice questions for students.
+                                </p>
+                            </div>
+
+                            <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
+                                🤖 About AI Generation
+                            </h3>
+                            <p style={{ color: 'var(--text-secondary)' }}>
+                                AI-generated patterns and questions are marked with an <span style={{ fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0284c7' }}>AI</span> badge.
+                                <br />
+                                You can review, edit, or regenerate them as needed.
+                            </p>
+
+                            <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
+                                ✅ Best Practices
+                            </h3>
+                            <ul style={{ color: 'var(--text-secondary)' }}>
+                                <li>Review existing patterns before adding new ones</li>
+                                <li>Use AI generation for quick content creation</li>
+                                <li>Add manual patterns for specific scenarios AI might miss</li>
+                                <li>Only update "Teaching Method" if you're improving shared guidance</li>
+                                <li>Generate a mix of Easy, Medium, and Hard questions</li>
+                            </ul>
+
+                            <div style={{ marginTop: '2rem', padding: '1rem', background: 'var(--background)', borderRadius: 'var(--radius-md)' }}>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                    <strong>Need help?</strong> Your content helps students learn statistics in a practical, hands-on way.
+                                    Thank you for contributing! 🙏
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+}
