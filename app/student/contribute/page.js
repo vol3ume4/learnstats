@@ -93,7 +93,8 @@ export default function StudentContribute() {
                     text: manualMode === "text" ? manualText : null,
                     image: manualMode === "image" ? manualImage : null,
                     topicName: topicObj?.name,
-                    patternName: patternObj?.pattern || "General Statistics Concept", // Default if no pattern selected
+                    patternName: patternObj?.pattern || "General Statistics Concept",
+                    existingPatterns: patterns.map(p => p.pattern), // Send names for classification
                     difficulty
                 })
             });
@@ -102,6 +103,14 @@ export default function StudentContribute() {
             if (data.error) throw new Error(data.error);
 
             setEnrichedData(data);
+
+            // Auto-select pattern if detected
+            if (data.detected_pattern) {
+                const matchedPattern = patterns.find(p => p.pattern.toLowerCase() === data.detected_pattern.toLowerCase());
+                if (matchedPattern) {
+                    setPatternId(matchedPattern.id);
+                }
+            }
         } catch (err) {
             alert("Error processing question: " + err.message);
         } finally {
