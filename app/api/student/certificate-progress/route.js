@@ -35,7 +35,7 @@ export async function POST(request) {
                     pattern_id,
                     difficulty,
                     current_streak
-                FROM user_streaks
+                FROM streaks
                 WHERE user_id = $1
             `;
             const streaksResult = await client.query(streaksQuery, [userId]);
