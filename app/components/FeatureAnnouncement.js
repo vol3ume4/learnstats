@@ -47,13 +47,13 @@ export default function FeatureAnnouncement() {
                         New: Earn Certificates!
                     </h2>
                     <p style={{ color: '#6B7280', fontSize: '1rem', lineHeight: '1.5' }}>
-                        We've upgraded your learning experience. Now you can track your mastery and earn certificates.
+                        We've upgraded your learning experience. Now you can track your progress and earn certificates.
                     </p>
                 </div>
 
                 <div style={{ background: '#F3F4F6', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
                     <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#374151', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        <li><strong>Master Patterns:</strong> Complete Easy (3), Medium (4), and Hard (5) streaks.</li>
+                        <li><strong>Complete Patterns:</strong> Finish Easy (3), Medium (4), and Hard (5) streaks.</li>
                         <li><strong>Track Progress:</strong> See your journey in the new Dashboard.</li>
                         <li><strong>Unlock Bundles:</strong> Complete all topics to earn Certificate Bundles.</li>
                     </ul>

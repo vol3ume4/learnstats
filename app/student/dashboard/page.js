@@ -106,7 +106,7 @@ export default function DashboardPage() {
                 <div>
                     <h1 className="page-title" style={{ margin: 0 }}>📊 My Progress & Certificates</h1>
                     <p style={{ margin: '0.5rem 0 0 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                        Master patterns (3-4-5 streaks) to unlock certificates.
+                        Complete patterns (3-4-5 streaks) to unlock certificates.
                     </p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>

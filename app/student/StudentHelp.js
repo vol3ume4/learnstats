@@ -79,7 +79,7 @@ export default function StudentHelp() {
                                 </p>
                             </div>
 
-                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>🔥 Mastering a Pattern</h3>
+                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>🔥 Completing a Pattern</h3>
 
                             <div style={{ marginBottom: '1.5rem' }}>
                                 <strong style={{ color: 'var(--primary)' }}>Streak System & Unlocking</strong>
@@ -89,7 +89,7 @@ export default function StudentHelp() {
                                 <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', paddingLeft: '1.5rem' }}>
                                     <li><strong>Easy:</strong> Always unlocked. Get 3 correct → Unlock Medium 🎉</li>
                                     <li><strong>Medium:</strong> 🔒 Unlocks after 3-streak on Easy. Get 4 correct → Unlock Hard 🎉</li>
-                                    <li><strong>Hard:</strong> 🔒 Unlocks after 4-streak on Medium. Get 5 correct → Pattern Mastered ⭐</li>
+                                    <li><strong>Hard:</strong> 🔒 Unlocks after 4-streak on Medium. Get 5 correct → Pattern Completed ⭐</li>
                                 </ul>
                                 <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
                                     💡 Once unlocked, difficulties stay unlocked forever! Your progress is saved.
