@@ -407,8 +407,7 @@ export default function TeacherClient() {
 
   return (
     <div className="container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 className="page-title" style={{ margin: 0, textAlign: 'left' }}>Teacher Studio</h1>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '2rem' }}>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <TeacherHelp />
           <button
