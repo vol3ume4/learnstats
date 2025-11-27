@@ -37,7 +37,39 @@ export async function POST(request) {
             newStreak = 0;
         }
 
-        return Response.json({ streak: newStreak });
+        // Check if streak goal is met and unlock next difficulty
+        const STREAK_GOALS = { 'Easy': 3, 'Medium': 4, 'Hard': 5 };
+        const NEXT_DIFFICULTY = { 'Easy': 'Medium', 'Medium': 'Hard', 'Hard': null };
+
+        let unlockedDifficulty = null;
+
+        if (newStreak >= STREAK_GOALS[difficulty]) {
+            const nextDiff = NEXT_DIFFICULTY[difficulty];
+            if (nextDiff) {
+                // Check if already unlocked
+                const checkRes = await client.query(
+                    `SELECT 1 FROM difficulty_unlocks 
+               WHERE user_id = $1 AND topic_id = $2 AND pattern_id = $3 AND difficulty = $4`,
+                    [userId, topicId, patternId, nextDiff]
+                );
+
+                if (checkRes.rows.length === 0) {
+                    // Unlock next difficulty
+                    await client.query(
+                        `INSERT INTO difficulty_unlocks (user_id, topic_id, pattern_id, difficulty)
+                 VALUES ($1, $2, $3, $4)
+                 ON CONFLICT DO NOTHING`,
+                        [userId, topicId, patternId, nextDiff]
+                    );
+                    unlockedDifficulty = nextDiff;
+                }
+            }
+        }
+
+        return Response.json({
+            streak: newStreak,
+            unlockedDifficulty
+        });
 
     } catch (err) {
         console.error("Update Streak Error:", err);

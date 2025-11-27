@@ -37,6 +37,8 @@ export default function StudentClient() {
 
   // Streak tracking
   const [streak, setStreak] = useState(0);
+  const [unlockedDifficulties, setUnlockedDifficulties] = useState(['Easy']); // Default: Easy always unlocked
+
 
   const router = useRouter();
   const authCheckRan = useRef(false);
@@ -225,6 +227,12 @@ export default function StudentClient() {
     const streakData = await streakRes.json();
     setStreak(streakData.streak);
 
+    // Check if new difficulty was unlocked
+    if (streakData.unlockedDifficulty) {
+      setUnlockedDifficulties([...unlockedDifficulties, streakData.unlockedDifficulty]);
+      alert(`🎉 Congratulations! You've unlocked ${streakData.unlockedDifficulty} difficulty!`);
+    }
+
     setLoading("");
   }
 
@@ -289,6 +297,28 @@ export default function StudentClient() {
     } catch (err) {
       console.error("Error loading streak:", err);
       setStreak(0);
+    }
+  }
+
+  // ---------- LOAD UNLOCKED DIFFICULTIES ----------
+  async function loadUnlockedDifficulties() {
+    if (!userId || !topicId || !patternId) return;
+
+    try {
+      const res = await fetch("/api/student/get-unlocked-difficulties", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          topicId,
+          patternId
+        })
+      });
+      const data = await res.json();
+      setUnlockedDifficulties(data.unlocked || ['Easy']);
+    } catch (err) {
+      console.error("Error loading unlocked difficulties:", err);
+      setUnlockedDifficulties(['Easy']);
     }
   }
 
@@ -527,6 +557,7 @@ export default function StudentClient() {
                   setCurrentQuestion(null);
                   setEvaluation("");
                   loadStreak();
+                  loadUnlockedDifficulties();
                 }}
               >
                 <option value="">Select Question Pattern...</option>
@@ -546,9 +577,13 @@ export default function StudentClient() {
                   loadStreak();
                 }}
               >
-                <option>Easy</option>
-                <option>Medium</option>
-                <option>Hard</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium" disabled={!unlockedDifficulties.includes('Medium')}>
+                  Medium {!unlockedDifficulties.includes('Medium') ? '🔒 (Get 3-streak on Easy)' : ''}
+                </option>
+                <option value="Hard" disabled={!unlockedDifficulties.includes('Hard')}>
+                  Hard {!unlockedDifficulties.includes('Hard') ? '🔒 (Get 4-streak on Medium)' : ''}
+                </option>
               </select>
 
               <button
