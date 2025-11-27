@@ -70,51 +70,6 @@ export default function TeacherHelp() {
                             <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
                                 📋 The 4-Step Workflow
                             </h3>
-
-                            <div style={{ marginLeft: '1rem' }}>
-                                <h4 style={{ fontSize: '1rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
-                                    <strong>Step 1: Select a Topic</strong>
-                                </h4>
-                                <p style={{ color: 'var(--text-secondary)', marginLeft: '1rem' }}>
-                                    Choose the statistical topic you want to create content for (e.g., Binomial Distribution, Normal Distribution).
-                                </p>
-
-                                <h4 style={{ fontSize: '1rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
-                                    <strong>Step 2: Set Teaching Method (Optional)</strong>
-                                </h4>
-                                <p style={{ color: 'var(--text-secondary)', marginLeft: '1rem' }}>
-                                    <strong>⚠️ Important:</strong> This is <strong>shared guidance</strong> visible to ALL teachers and students.
-                                    <br />
-                                    Describe the recommended approach for teaching this topic (e.g., "Start with real-world examples, then introduce formulas").
-                                    <br />
-                                    <em>Only update this if you want to improve the shared teaching method for everyone.</em>
-                                </p>
-
-                                <h4 style={{ fontSize: '1rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
-                                    <strong>Step 3: Create Patterns</strong>
-                                </h4>
-                                <p style={{ color: 'var(--text-secondary)', marginLeft: '1rem' }}>
-                                    You have two options:
-                                </p>
-                                <ul style={{ color: 'var(--text-secondary)', marginLeft: '2rem' }}>
-                                    <li><strong>AI Generate:</strong> Click "Generate Patterns" to let AI suggest practice patterns based on the topic</li>
-                                    <li><strong>Manual Entry:</strong> Add your own custom patterns if you have specific practice scenarios in mind</li>
-                                </ul>
-                                <p style={{ color: 'var(--text-secondary)', marginLeft: '1rem' }}>
-                                    <strong>💡 Tip:</strong> Check existing patterns first to avoid duplicates!
-                                </p>
-
-                                <h4 style={{ fontSize: '1rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
-                                    <strong>Step 4: Generate Questions</strong>
-                                </h4>
-                                <p style={{ color: 'var(--text-secondary)', marginLeft: '1rem' }}>
-                                    Select patterns and difficulty level, then generate practice questions for students.
-                                </p>
-                            </div>
-
-                            <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
-                                🤖 About AI Generation
-                            </h3>
                             <p style={{ color: 'var(--text-secondary)' }}>
                                 AI-generated patterns and questions are marked with an <span style={{ fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0284c7' }}>AI</span> badge.
                                 <br />
