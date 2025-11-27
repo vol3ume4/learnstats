@@ -3,6 +3,7 @@ import client from "@/lib/db";
 export async function POST(request) {
     try {
         const { topicId, patternId, difficulty } = await request.json();
+        console.log(`[get-questions] Request: Topic=${topicId}, Pattern=${patternId}, Diff=${difficulty}`);
 
         if (!topicId || !patternId || !difficulty) {
             return Response.json({ error: "Missing required fields" }, { status: 400 });

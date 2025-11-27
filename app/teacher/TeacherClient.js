@@ -597,6 +597,7 @@ export default function TeacherClient() {
                     const id = Number(e.target.value);
                     setPatternId(id);
                     setViewQuestionsList([]); // Clear previous list
+                    setHasFetched(false); // Reset fetch state
                   }}
                   value={patternId || ""}
                 >
@@ -616,6 +617,7 @@ export default function TeacherClient() {
                     onChange={(e) => {
                       setDifficulty(e.target.value);
                       setViewQuestionsList([]); // Clear previous list
+                      setHasFetched(false); // Reset fetch state
                     }}
                   >
                     <option>Easy</option>
@@ -673,7 +675,7 @@ export default function TeacherClient() {
                 </div>
               )}
 
-              {patternId && viewQuestionsList.length === 0 && !loading && (
+              {patternId && hasFetched && viewQuestionsList.length === 0 && !loading && (
                 <p style={{ color: 'var(--text-secondary)' }}>No questions found for this selection. Try generating some!</p>
               )}
             </div>
