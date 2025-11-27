@@ -408,26 +408,34 @@ export default function TeacherClient() {
   }
   return (
     <div className="container">
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)' }}>
+      {/* LEVEL 1: Top Bar (Brand & Mode) */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
         {/* Left: playfullySerious Logo */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
-          <img
-            src="/logo-horizontal.png"
-            alt="playfullySerious"
-            style={{ height: '50px', cursor: 'pointer', objectFit: 'contain' }}
-            onClick={() => window.open('https://playfullyserious.com', '_blank')}
-          />
+        <img
+          src="/logo-horizontal.png"
+          alt="playfullySerious"
+          style={{ height: '40px', cursor: 'pointer', objectFit: 'contain' }}
+          onClick={() => window.open('https://playfullyserious.com', '_blank')}
+        />
+        {/* Right: Mode Indicator */}
+        <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--primary)' }}>
+          Teacher Mode
         </div>
+      </div>
 
-        {/* Center: LearnStats Title */}
-        <div style={{ textAlign: 'center', flex: 1 }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary)' }}>LearnStats</div>
+      {/* LEVEL 2: App Bar (Title & Actions) */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)', position: 'relative' }}>
+
+        {/* Center: LearnStats Title (Absolute Centered) */}
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', textAlign: 'center' }}>
+          <a href="https://learnstats.vercel.app" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--primary)', lineHeight: '1.2' }}>LearnStats</div>
+          </a>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Teacher Studio</div>
         </div>
 
-        {/* Right: Navigation Buttons */}
-        <div style={{ display: 'flex', gap: '0.75rem', flex: 1, justifyContent: 'flex-end' }}>
+        {/* Right: Navigation Buttons (Pushed to end) */}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <TeacherHelp />
           <button
             className="btn btn-secondary"
