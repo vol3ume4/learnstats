@@ -34,6 +34,7 @@ export default function TeacherClient() {
   // Question Management State
   const [viewQuestionsList, setViewQuestionsList] = useState([]);
   const [editingQuestion, setEditingQuestion] = useState(null);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const [loading, setLoading] = useState("");
 
@@ -251,6 +252,7 @@ export default function TeacherClient() {
     if (!topicId || !patternId || !difficulty) return;
 
     setLoading("Fetching questions...");
+    setHasFetched(true);
     try {
       const res = await fetch("/api/teacher/get-questions", {
         method: "POST",
