@@ -62,56 +62,52 @@ export default function StudentHelp() {
                             <h3 style={{ color: 'var(--primary)', marginTop: '1.5rem', marginBottom: '0.75rem' }}>🎯 Learning Workflow</h3>
 
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>1. Select a Topic</strong>
+                                <strong style={{ color: 'var(--primary)' }}>1. Select a Topic & Question Pattern</strong>
                                 <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Choose the statistical concept you want to practice (e.g., "Binomial Distribution", "Hypothesis Testing").
+                                    Choose a topic (e.g., "Binomial Distribution") and a specific question pattern to practice.
                                 </p>
                             </div>
 
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>2. Choose a Pattern</strong>
+                                <strong style={{ color: 'var(--primary)' }}>2. Practice Loop</strong>
                                 <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Each topic has specific problem patterns. Pick one to focus on (e.g., "Calculate Exact Probability", "One-Sample t-Test").
+                                    Click "Get Question" to fetch a random, unattempted question.
+                                    <br />
+                                    The question remains active until you <strong>Submit Answer</strong>.
+                                    <br />
+                                    If you click "Next Question" without submitting, it is treated as a skip and may appear again later.
                                 </p>
                             </div>
 
+                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>🔥 Mastering a Pattern</h3>
+
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>3. Set Difficulty</strong>
+                                <strong style={{ color: 'var(--primary)' }}>Streak System</strong>
                                 <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Choose Easy, Medium, or Hard based on your comfort level.
+                                    Build a streak by answering correctly in a row without using hints.
                                 </p>
-                            </div>
-
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>4. Get a Question</strong>
-                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Click "Get Question" to receive a practice problem tailored to your selections.
-                                </p>
-                            </div>
-
-                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>💡 Solving Questions</h3>
-
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>Try it yourself first!</strong>
-                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Type your answer in the input box and click "Submit Answer" to get instant feedback.
-                                </p>
-                            </div>
-
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>Need help?</strong>
                                 <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', paddingLeft: '1.5rem' }}>
-                                    <li><strong>Hint (Stats):</strong> Get a conceptual hint about the statistical approach</li>
-                                    <li><strong>Hint (Python):</strong> See Python code hints for implementation</li>
-                                    <li><strong>Show Full Solution:</strong> View the complete solution with both statistical reasoning and Python code</li>
+                                    <li><strong>Easy:</strong> 3 correct in a row</li>
+                                    <li><strong>Medium:</strong> 4 correct in a row</li>
+                                    <li><strong>Hard:</strong> 5 correct in a row</li>
                                 </ul>
+                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
+                                    Hitting these targets marks the pattern as "Practiced" (⭐) on your dashboard.
+                                </p>
                             </div>
 
+                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>📊 Dashboard & Sharing</h3>
+
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>Track your learning</strong>
+                                <strong style={{ color: 'var(--primary)' }}>Your Stats</strong>
                                 <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    After submitting, add personal remarks to note what you learned or struggled with. This helps reinforce your understanding!
+                                    Check "My Dashboard" to see:
                                 </p>
+                                <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', paddingLeft: '1.5rem' }}>
+                                    <li><strong>Topics Explored:</strong> Breadth of your study.</li>
+                                    <li><strong>Questions Practiced:</strong> Total distinct questions attempted.</li>
+                                    <li><strong>Questions Shared:</strong> Count of questions you contributed to the community.</li>
+                                </ul>
                             </div>
 
                             <div style={{ background: '#eff6ff', padding: '1rem', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--primary)' }}>
