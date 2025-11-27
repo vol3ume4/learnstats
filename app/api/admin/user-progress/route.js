@@ -26,8 +26,9 @@ export async function POST(request) {
             }
 
             // 1. Get all users
+            // Note: email might not be in profiles table depending on setup
             const usersQuery = `
-                SELECT id, email, created_at, last_sign_in_at 
+                SELECT id, created_at 
                 FROM profiles 
                 ORDER BY created_at DESC
             `;
@@ -102,7 +103,7 @@ export async function POST(request) {
 
                 return {
                     id: user.id,
-                    email: user.email,
+                    email: user.email || "User " + user.id.substring(0, 6),
                     joinedAt: user.created_at,
                     completedPatternsCount: totalCompletedPatterns,
                     topics: topicStats

@@ -63,9 +63,15 @@ export default function AdminPage() {
                 body: JSON.stringify({ userId: uid })
             });
             const data = await res.json();
-            setUserProgress(data);
+            if (Array.isArray(data)) {
+                setUserProgress(data);
+            } else {
+                console.error("Invalid user progress data:", data);
+                setUserProgress([]);
+            }
         } catch (error) {
             console.error("Error loading user progress:", error);
+            setUserProgress([]);
         }
     }
 
