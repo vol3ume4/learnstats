@@ -82,17 +82,33 @@ export default function StudentHelp() {
                             <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>🔥 Mastering a Pattern</h3>
 
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>Streak System</strong>
+                                <strong style={{ color: 'var(--primary)' }}>Streak System & Unlocking</strong>
                                 <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Build a streak by answering correctly in a row without using hints.
+                                    Build a streak by answering correctly in a row <strong>without using hints</strong>.
                                 </p>
                                 <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', paddingLeft: '1.5rem' }}>
-                                    <li><strong>Easy:</strong> 3 correct in a row</li>
-                                    <li><strong>Medium:</strong> 4 correct in a row</li>
-                                    <li><strong>Hard:</strong> 5 correct in a row</li>
+                                    <li><strong>Easy:</strong> Always unlocked. Get 3 correct → Unlock Medium 🎉</li>
+                                    <li><strong>Medium:</strong> 🔒 Unlocks after 3-streak on Easy. Get 4 correct → Unlock Hard 🎉</li>
+                                    <li><strong>Hard:</strong> 🔒 Unlocks after 4-streak on Medium. Get 5 correct → Pattern Mastered ⭐</li>
+                                </ul>
+                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                                    💡 Once unlocked, difficulties stay unlocked forever! Your progress is saved.
+                                </p>
+                            </div>
+
+                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>👍 Rate Questions</h3>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <strong style={{ color: 'var(--primary)' }}>Help Improve the Question Pool</strong>
+                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
+                                    After submitting an answer, you can rate the question:
+                                </p>
+                                <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', paddingLeft: '1.5rem' }}>
+                                    <li><strong>👍 Helpful:</strong> Great question! It will appear more often to help others.</li>
+                                    <li><strong>🚩 Flag for Review:</strong> Something's wrong? It will be reviewed and improved.</li>
                                 </ul>
                                 <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Hitting these targets marks the pattern as "Practiced" (⭐) on your dashboard.
+                                    Your feedback shapes the learning experience for everyone!
                                 </p>
                             </div>
 
@@ -113,7 +129,7 @@ export default function StudentHelp() {
                             <div style={{ background: '#eff6ff', padding: '1rem', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--primary)' }}>
                                 <strong style={{ color: '#1e40af' }}>💪 Pro Tip:</strong>
                                 <p style={{ marginTop: '0.5rem', color: '#1e40af', marginBottom: 0 }}>
-                                    Try to solve without hints first. Use hints strategically when you're stuck. Always review the full solution to understand the complete approach!
+                                    Start with Easy to build confidence, then unlock harder levels. Don't use hints if you want to maintain your streak and unlock the next difficulty!
                                 </p>
                             </div>
                         </div>
