@@ -327,7 +327,7 @@ export default function StudentClient() {
           </button>
           <button
             className="btn btn-secondary"
-            onClick={() => router.push("/student/practice-log")}
+            onClick={() => router.push("/student/dashboard")}
             style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
           >
             📊 My Dashboard
