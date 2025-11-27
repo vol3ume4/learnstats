@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 import StudentHelp from "./StudentHelp";
+import FeatureAnnouncement from "@/app/components/FeatureAnnouncement";
 
 export default function StudentClient() {
   // ---------- ALL HOOKS AT TOP ----------
