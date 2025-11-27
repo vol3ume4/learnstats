@@ -9,32 +9,58 @@ export default function DashboardPage() {
     const [userId, setUserId] = useState(null);
     const [certificateProgress, setCertificateProgress] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [expandedBundles, setExpandedBundles] = useState({});
     const router = useRouter();
 
     useEffect(() => {
         async function loadUser() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                router.push("/login");
-                return;
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    router.push("/login");
+                    return;
+                }
+                setUserId(user.id);
+                await loadCertificateProgress(user.id);
+            } catch (err) {
+                console.error("Error loading user:", err);
+                setError("Failed to load user data");
+                setLoading(false);
             }
-            setUserId(user.id);
-            loadCertificateProgress(user.id);
         }
         loadUser();
     }, [router]);
 
     async function loadCertificateProgress(uid) {
-        setLoading(true);
-        const res = await fetch("/api/student/certificate-progress", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: uid })
-        });
-        const data = await res.json();
-        setCertificateProgress(data);
-        setLoading(false);
+        try {
+            setLoading(true);
+            setError(null);
+            const res = await fetch("/api/student/certificate-progress", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: uid })
+            });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            setCertificateProgress(data);
+        } catch (err) {
+            console.error("Error loading certificate progress:", err);
+            setError(err.message || "Failed to load progress data");
+            // Set empty data so UI doesn't break
+            setCertificateProgress({ topics: [] });
+        } finally {
+            setLoading(false);
+        }
     }
 
     function toggleBundle(bundleId) {
@@ -98,6 +124,20 @@ export default function DashboardPage() {
                     </button>
                 </div>
             </div>
+
+            {/* Error Display */}
+            {error && (
+                <div className="alert alert-error" style={{ marginBottom: '2rem' }}>
+                    <strong>Error:</strong> {error}
+                    <button
+                        onClick={() => loadCertificateProgress(userId)}
+                        style={{ marginLeft: '1rem', padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                        className="btn btn-secondary"
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
 
             {/* Certificate Bundles */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
