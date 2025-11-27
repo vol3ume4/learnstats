@@ -31,6 +31,7 @@ export default function StudentClient() {
   const [usedHintStats, setUsedHintStats] = useState(false);
   const [usedHintPython, setUsedHintPython] = useState(false);
   const [studentRemark, setStudentRemark] = useState("");
+  const [userReaction, setUserReaction] = useState(null); // 'like' or 'flag'
   const [loading, setLoading] = useState("");
   const [savedDrafts, setSavedDrafts] = useState([]);
 
@@ -147,6 +148,7 @@ export default function StudentClient() {
     setUsedHintPython(false);
     setStudentRemark("");
     setAttemptId(null);
+    setUserReaction(null);
   }
 
   // ---------- GET NEXT ----------
@@ -235,6 +237,27 @@ export default function StudentClient() {
 
     const data = await res.json();
     if (data.success) alert("Remark saved.");
+  }
+
+  // ---------- HANDLE REACTION ----------
+  async function handleReaction(reactionType) {
+    if (!currentQuestion || !userId) return;
+
+    setUserReaction(reactionType);
+
+    try {
+      await fetch("/api/student/add-reaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          questionId: currentQuestion.id,
+          reactionType
+        })
+      });
+    } catch (err) {
+      console.error("Error adding reaction:", err);
+    }
   }
 
   // ---------- DRAFT FUNCTIONS ----------
@@ -673,11 +696,43 @@ export default function StudentClient() {
                 </div>
               )}
 
-              <div className="form-group">
+              {/* Reaction Buttons */}
+              <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                <div style={{ marginBottom: '0.75rem', fontWeight: '500' }}>Rate this question:</div>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <button
+                    onClick={() => handleReaction('like')}
+                    className="btn btn-secondary"
+                    style={{
+                      background: userReaction === 'like' ? 'var(--primary)' : 'white',
+                      color: userReaction === 'like' ? 'white' : 'var(--foreground)',
+                      borderColor: userReaction === 'like' ? 'var(--primary)' : 'var(--border)'
+                    }}
+                  >
+                    👍 Helpful
+                  </button>
+                  <button
+                    onClick={() => handleReaction('flag')}
+                    className="btn btn-secondary"
+                    style={{
+                      background: userReaction === 'flag' ? '#ef4444' : 'white',
+                      color: userReaction === 'flag' ? 'white' : 'var(--foreground)',
+                      borderColor: userReaction === 'flag' ? '#ef4444' : 'var(--border)'
+                    }}
+                  >
+                    🚩 Flag for Review
+                  </button>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                  💡 Your feedback helps improve the question pool! Liked questions appear more often.
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginTop: '1.5rem' }}>
                 <label className="label">Add a personal remark (optional):</label>
                 <textarea
                   className="input"
-                  placeholder="Note down what you learned..."
+                  placeholder="Add your feedback or notes here..."
                   value={studentRemark}
                   onChange={(e) => setStudentRemark(e.target.value)}
                   style={{ minHeight: "80px", resize: "vertical" }}
