@@ -209,12 +209,21 @@ export default function StudentClient() {
     setEvaluation(data);
     setAttemptId(data.attemptId);
 
-    // Update streak
-    if (data.correct) {
-      setStreak(streak + 1);
-    } else {
-      setStreak(0);
-    }
+    // Update streak in database
+    const streakRes = await fetch("/api/student/update-streak", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        topicId,
+        patternId,
+        difficulty,
+        isCorrect: data.correct,
+        usedHints: usedHintStats || usedHintPython
+      })
+    });
+    const streakData = await streakRes.json();
+    setStreak(streakData.streak);
 
     setLoading("");
   }
@@ -257,6 +266,29 @@ export default function StudentClient() {
       });
     } catch (err) {
       console.error("Error adding reaction:", err);
+    }
+  }
+
+  // ---------- LOAD STREAK ----------
+  async function loadStreak() {
+    if (!userId || !topicId || !patternId || !difficulty) return;
+
+    try {
+      const res = await fetch("/api/student/get-streak", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          topicId,
+          patternId,
+          difficulty
+        })
+      });
+      const data = await res.json();
+      setStreak(data.streak || 0);
+    } catch (err) {
+      console.error("Error loading streak:", err);
+      setStreak(0);
     }
   }
 
@@ -494,7 +526,7 @@ export default function StudentClient() {
                   setPatternId(Number(e.target.value));
                   setCurrentQuestion(null);
                   setEvaluation("");
-                  setStreak(0);
+                  loadStreak();
                 }}
               >
                 <option value="">Select Question Pattern...</option>
@@ -509,7 +541,9 @@ export default function StudentClient() {
                 value={difficulty}
                 onChange={(e) => {
                   setDifficulty(e.target.value);
-                  setStreak(0);
+                  setCurrentQuestion(null);
+                  setEvaluation("");
+                  loadStreak();
                 }}
               >
                 <option>Easy</option>
@@ -545,234 +579,237 @@ export default function StudentClient() {
             </div>
           )}
         </div>
-      )}
+      )
+      }
 
-      {currentQuestion && (
-        <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
-          <h3 className="section-title">Question</h3>
+      {
+        currentQuestion && (
+          <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
+            <h3 className="section-title">Question</h3>
 
-          <div style={{
-            background: "var(--background)",
-            padding: "1.5rem",
-            borderRadius: "var(--radius-md)",
-            marginBottom: "1.5rem",
-            whiteSpace: "pre-wrap",
-            fontSize: "1.1rem",
-            lineHeight: "1.6"
-          }}>
-            {currentQuestion.source === 'student_contribution' && (
-              <div style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '999px',
-                background: '#dbeafe',
-                color: '#1e40af',
-                fontSize: '0.75rem',
-                fontWeight: 'bold',
-                marginBottom: '1rem'
-              }}>
-                👤 Community Question
-              </div>
-            )}
-            {currentQuestion.source === 'image_upload' && (
-              <div style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '999px',
-                background: '#f3e8ff',
-                color: '#6b21a8',
-                fontSize: '0.75rem',
-                fontWeight: 'bold',
-                marginBottom: '1rem'
-              }}>
-                📷 From Image
-              </div>
-            )}
-            {currentQuestion.source === 'manual_entry' && (
-              <div style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '999px',
-                background: '#fef3c7',
-                color: '#92400e',
-                fontSize: '0.75rem',
-                fontWeight: 'bold',
-                marginBottom: '1rem'
-              }}>
-                ✍️ Teacher Added
-              </div>
-            )}
-            <div>{currentQuestion.question_text}</div>
-          </div>
-
-          {!evaluation && (
-            <div className="flex-col">
-              <input
-                className="input"
-                type="text"
-                placeholder="Type your answer here..."
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-              />
-
-              <div className="flex-row" style={{ marginTop: '0.5rem', gap: '0.5rem' }}>
-                <button onClick={saveDraft} className="btn btn-secondary" disabled={!!loading}>
-                  💾 Save for Later
-                </button>
-                <button onClick={submitAnswer} className="btn" disabled={!!loading}>
-                  Submit Answer
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-            <div className="flex-row" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
-              <button
-                className={`btn ${showHintStats ? 'btn-secondary' : 'btn-outline'}`}
-                onClick={() => {
-                  setShowHintStats(!showHintStats);
-                  setUsedHintStats(true);
-                }}
-                style={{ fontSize: '0.9rem' }}
-              >
-                {showHintStats ? "Hide Hint (Stats)" : "Show Hint (Stats)"}
-              </button>
-
-              <button
-                className={`btn ${showHintPython ? 'btn-secondary' : 'btn-outline'}`}
-                onClick={() => {
-                  setShowHintPython(!showHintPython);
-                  setUsedHintPython(true);
-                }}
-                style={{ fontSize: '0.9rem' }}
-              >
-                {showHintPython ? "Hide Hint (Python)" : "Show Hint (Python)"}
-              </button>
-
-              <button
-                className="btn btn-secondary"
-                onClick={() => setShowSolution(true)}
-                style={{ fontSize: '0.9rem', marginLeft: 'auto' }}
-              >
-                Show Full Solution
-              </button>
-
-              <button
-                className="btn"
-                onClick={getNextQuestion}
-                style={{ fontSize: '0.9rem' }}
-              >
-                Next Question →
-              </button>
-            </div>
-          </div>
-
-          {showHintStats && currentQuestion.hint_stats && (
-            <div className="alert alert-info" style={{ marginTop: '1rem' }}>
-              <strong>Hint (Stats):</strong>
-              <br />
-              {currentQuestion.hint_stats}
-            </div>
-          )}
-
-          {showHintPython && currentQuestion.hint_python && (
-            <div className="alert alert-success" style={{ marginTop: '1rem', background: '#f0fdf4', borderColor: '#bbf7d0', color: '#166534' }}>
-              <strong>Hint (Python):</strong>
-              <br />
-              {currentQuestion.hint_python}
-            </div>
-          )}
-
-          {evaluation && (
-            <div style={{ marginTop: "2rem" }}>
-              {evaluation.correct !== undefined && (
-                <div className={evaluation.correct ? "alert alert-success" : "alert alert-error"}>
-                  <strong>Correct: </strong>
-                  {evaluation.correct ? "Yes" : "No"}
-                  <br />
-                  <strong>Remark: </strong>
-                  {evaluation.remark}
-                </div>
-              )}
-
-              {/* Reaction Buttons */}
-              <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-                <div style={{ marginBottom: '0.75rem', fontWeight: '500' }}>Rate this question:</div>
-                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                  <button
-                    onClick={() => handleReaction('like')}
-                    className="btn btn-secondary"
-                    style={{
-                      background: userReaction === 'like' ? 'var(--primary)' : 'white',
-                      color: userReaction === 'like' ? 'white' : 'var(--foreground)',
-                      borderColor: userReaction === 'like' ? 'var(--primary)' : 'var(--border)'
-                    }}
-                  >
-                    👍 Helpful
-                  </button>
-                  <button
-                    onClick={() => handleReaction('flag')}
-                    className="btn btn-secondary"
-                    style={{
-                      background: userReaction === 'flag' ? '#ef4444' : 'white',
-                      color: userReaction === 'flag' ? 'white' : 'var(--foreground)',
-                      borderColor: userReaction === 'flag' ? '#ef4444' : 'var(--border)'
-                    }}
-                  >
-                    🚩 Flag for Review
-                  </button>
-                </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
-                  💡 Your feedback helps improve the question pool! Liked questions appear more often.
-                </div>
-              </div>
-
-              <div className="form-group" style={{ marginTop: '1.5rem' }}>
-                <label className="label">Add a personal remark (optional):</label>
-                <textarea
-                  className="input"
-                  placeholder="Add your feedback or notes here..."
-                  value={studentRemark}
-                  onChange={(e) => setStudentRemark(e.target.value)}
-                  style={{ minHeight: "80px", resize: "vertical" }}
-                />
-                <div style={{ marginTop: '0.5rem' }}>
-                  <button onClick={saveRemark} className="btn btn-secondary">
-                    Save Remark
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {showSolution && (
             <div style={{
-              marginTop: "2rem",
-              background: "#f8fafc",
+              background: "var(--background)",
               padding: "1.5rem",
               borderRadius: "var(--radius-md)",
-              border: "1px solid var(--border)"
+              marginBottom: "1.5rem",
+              whiteSpace: "pre-wrap",
+              fontSize: "1.1rem",
+              lineHeight: "1.6"
             }}>
-              <h4 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Full Solution</h4>
+              {currentQuestion.source === 'student_contribution' && (
+                <div style={{
+                  display: 'inline-block',
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '999px',
+                  background: '#dbeafe',
+                  color: '#1e40af',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  marginBottom: '1rem'
+                }}>
+                  👤 Community Question
+                </div>
+              )}
+              {currentQuestion.source === 'image_upload' && (
+                <div style={{
+                  display: 'inline-block',
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '999px',
+                  background: '#f3e8ff',
+                  color: '#6b21a8',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  marginBottom: '1rem'
+                }}>
+                  📷 From Image
+                </div>
+              )}
+              {currentQuestion.source === 'manual_entry' && (
+                <div style={{
+                  display: 'inline-block',
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '999px',
+                  background: '#fef3c7',
+                  color: '#92400e',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  marginBottom: '1rem'
+                }}>
+                  ✍️ Teacher Added
+                </div>
+              )}
+              <div>{currentQuestion.question_text}</div>
+            </div>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <strong>Statistical Approach:</strong>
-                <div style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', color: 'var(--text-secondary)' }}>
-                  {currentQuestion.solution_stats || "Not provided."}
+            {!evaluation && (
+              <div className="flex-col">
+                <input
+                  className="input"
+                  type="text"
+                  placeholder="Type your answer here..."
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                />
+
+                <div className="flex-row" style={{ marginTop: '0.5rem', gap: '0.5rem' }}>
+                  <button onClick={saveDraft} className="btn btn-secondary" disabled={!!loading}>
+                    💾 Save for Later
+                  </button>
+                  <button onClick={submitAnswer} className="btn" disabled={!!loading}>
+                    Submit Answer
+                  </button>
                 </div>
               </div>
+            )}
 
-              <div>
-                <strong>Python Implementation:</strong>
-                <div style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', fontFamily: 'monospace', background: '#1e293b', color: '#e2e8f0', padding: '1rem', borderRadius: 'var(--radius-sm)' }}>
-                  {currentQuestion.solution_python || "Not provided."}
-                </div>
+            <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+              <div className="flex-row" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
+                <button
+                  className={`btn ${showHintStats ? 'btn-secondary' : 'btn-outline'}`}
+                  onClick={() => {
+                    setShowHintStats(!showHintStats);
+                    setUsedHintStats(true);
+                  }}
+                  style={{ fontSize: '0.9rem' }}
+                >
+                  {showHintStats ? "Hide Hint (Stats)" : "Show Hint (Stats)"}
+                </button>
+
+                <button
+                  className={`btn ${showHintPython ? 'btn-secondary' : 'btn-outline'}`}
+                  onClick={() => {
+                    setShowHintPython(!showHintPython);
+                    setUsedHintPython(true);
+                  }}
+                  style={{ fontSize: '0.9rem' }}
+                >
+                  {showHintPython ? "Hide Hint (Python)" : "Show Hint (Python)"}
+                </button>
+
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowSolution(true)}
+                  style={{ fontSize: '0.9rem', marginLeft: 'auto' }}
+                >
+                  Show Full Solution
+                </button>
+
+                <button
+                  className="btn"
+                  onClick={getNextQuestion}
+                  style={{ fontSize: '0.9rem' }}
+                >
+                  Next Question →
+                </button>
               </div>
             </div>
-          )}
-        </div>
-      )}
-    </div>
+
+            {showHintStats && currentQuestion.hint_stats && (
+              <div className="alert alert-info" style={{ marginTop: '1rem' }}>
+                <strong>Hint (Stats):</strong>
+                <br />
+                {currentQuestion.hint_stats}
+              </div>
+            )}
+
+            {showHintPython && currentQuestion.hint_python && (
+              <div className="alert alert-success" style={{ marginTop: '1rem', background: '#f0fdf4', borderColor: '#bbf7d0', color: '#166534' }}>
+                <strong>Hint (Python):</strong>
+                <br />
+                {currentQuestion.hint_python}
+              </div>
+            )}
+
+            {evaluation && (
+              <div style={{ marginTop: "2rem" }}>
+                {evaluation.correct !== undefined && (
+                  <div className={evaluation.correct ? "alert alert-success" : "alert alert-error"}>
+                    <strong>Correct: </strong>
+                    {evaluation.correct ? "Yes" : "No"}
+                    <br />
+                    <strong>Remark: </strong>
+                    {evaluation.remark}
+                  </div>
+                )}
+
+                {/* Reaction Buttons */}
+                <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                  <div style={{ marginBottom: '0.75rem', fontWeight: '500' }}>Rate this question:</div>
+                  <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                    <button
+                      onClick={() => handleReaction('like')}
+                      className="btn btn-secondary"
+                      style={{
+                        background: userReaction === 'like' ? 'var(--primary)' : 'white',
+                        color: userReaction === 'like' ? 'white' : 'var(--foreground)',
+                        borderColor: userReaction === 'like' ? 'var(--primary)' : 'var(--border)'
+                      }}
+                    >
+                      👍 Helpful
+                    </button>
+                    <button
+                      onClick={() => handleReaction('flag')}
+                      className="btn btn-secondary"
+                      style={{
+                        background: userReaction === 'flag' ? '#ef4444' : 'white',
+                        color: userReaction === 'flag' ? 'white' : 'var(--foreground)',
+                        borderColor: userReaction === 'flag' ? '#ef4444' : 'var(--border)'
+                      }}
+                    >
+                      🚩 Flag for Review
+                    </button>
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                    💡 Your feedback helps improve the question pool! Liked questions appear more often.
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginTop: '1.5rem' }}>
+                  <label className="label">Add a personal remark (optional):</label>
+                  <textarea
+                    className="input"
+                    placeholder="Add your feedback or notes here..."
+                    value={studentRemark}
+                    onChange={(e) => setStudentRemark(e.target.value)}
+                    style={{ minHeight: "80px", resize: "vertical" }}
+                  />
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <button onClick={saveRemark} className="btn btn-secondary">
+                      Save Remark
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showSolution && (
+              <div style={{
+                marginTop: "2rem",
+                background: "#f8fafc",
+                padding: "1.5rem",
+                borderRadius: "var(--radius-md)",
+                border: "1px solid var(--border)"
+              }}>
+                <h4 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Full Solution</h4>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <strong>Statistical Approach:</strong>
+                  <div style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', color: 'var(--text-secondary)' }}>
+                    {currentQuestion.solution_stats || "Not provided."}
+                  </div>
+                </div>
+
+                <div>
+                  <strong>Python Implementation:</strong>
+                  <div style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', fontFamily: 'monospace', background: '#1e293b', color: '#e2e8f0', padding: '1rem', borderRadius: 'var(--radius-sm)' }}>
+                    {currentQuestion.solution_python || "Not provided."}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      }
+    </div >
   );
 }
