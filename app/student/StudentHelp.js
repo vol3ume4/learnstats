@@ -96,6 +96,20 @@ export default function StudentHelp() {
                                 </p>
                             </div>
 
+                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>🏆 Earning Certificates</h3>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <strong style={{ color: 'var(--primary)' }}>Certificate Bundles</strong>
+                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
+                                    Complete all patterns in a topic bundle to earn certificates:
+                                </p>
+                                <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', paddingLeft: '1.5rem' }}>
+                                    <li><strong>Pattern Completion:</strong> Achieve 3-4-5 streaks (Easy, Medium, Hard) for each pattern</li>
+                                    <li><strong>Bundle Progress:</strong> Track your completion percentage in the Dashboard</li>
+                                    <li><strong>Final Certificate:</strong> Complete all bundles to earn the Complete Certificate in Statistics</li>
+                                </ul>
+                            </div>
+
                             <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>👍 Rate Questions</h3>
 
                             <div style={{ marginBottom: '1.5rem' }}>
@@ -112,24 +126,24 @@ export default function StudentHelp() {
                                 </p>
                             </div>
 
-                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>📊 Dashboard & Sharing</h3>
+                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>📊 Dashboard & Progress</h3>
 
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>Your Stats</strong>
+                                <strong style={{ color: 'var(--primary)' }}>Track Your Journey</strong>
                                 <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
                                     Check "My Dashboard" to see:
                                 </p>
                                 <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', paddingLeft: '1.5rem' }}>
-                                    <li><strong>Topics Explored:</strong> Breadth of your study.</li>
-                                    <li><strong>Questions Practiced:</strong> Total distinct questions attempted.</li>
-                                    <li><strong>Questions Shared:</strong> Count of questions you contributed to the community.</li>
+                                    <li><strong>Certificate Progress:</strong> View completion status for each bundle</li>
+                                    <li><strong>Pattern Details:</strong> See your streak progress (E:3, M:4, H:5) for each pattern</li>
+                                    <li><strong>Completed Patterns:</strong> Celebrate your achievements with ✓ checkmarks</li>
                                 </ul>
                             </div>
 
                             <div style={{ background: '#eff6ff', padding: '1rem', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--primary)' }}>
                                 <strong style={{ color: '#1e40af' }}>💪 Pro Tip:</strong>
                                 <p style={{ marginTop: '0.5rem', color: '#1e40af', marginBottom: 0 }}>
-                                    Start with Easy to build confidence, then unlock harder levels. Don't use hints if you want to maintain your streak and unlock the next difficulty!
+                                    Start with Easy to build confidence, then unlock harder levels. Avoid using hints to maintain your streak and unlock the next difficulty. Complete all three difficulties to mark a pattern as done!
                                 </p>
                             </div>
                         </div>
