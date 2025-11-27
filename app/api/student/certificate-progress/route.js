@@ -40,6 +40,16 @@ export async function POST(request) {
             `;
             const streaksResult = await client.query(streaksQuery, [userId]);
 
+            // Also get patterns user has practiced (even without streaks)
+            const practiceQuery = `
+                SELECT DISTINCT 
+                    topic_id,
+                    pattern_id
+                FROM practice_history
+                WHERE user_id = $1
+            `;
+            const practiceResult = await client.query(practiceQuery, [userId]);
+
             // Build a map of user's progress
             const progressMap = {};
             streaksResult.rows.forEach(row => {
@@ -48,6 +58,13 @@ export async function POST(request) {
                     progressMap[key] = {};
                 }
                 progressMap[key][row.difficulty] = row.current_streak;
+            });
+
+            // Mark patterns that have been practiced
+            const practicedPatterns = new Set();
+            practiceResult.rows.forEach(row => {
+                const key = `${row.topic_id}-${row.pattern_id}`;
+                practicedPatterns.add(key);
             });
 
             // Group patterns by topic
@@ -72,7 +89,7 @@ export async function POST(request) {
                 const hardStreak = progress['Hard'] || 0;
 
                 const isCompleted = easyStreak >= 3 && mediumStreak >= 4 && hardStreak >= 5;
-                const hasProgress = easyStreak > 0 || mediumStreak > 0 || hardStreak > 0;
+                const hasProgress = easyStreak > 0 || mediumStreak > 0 || hardStreak > 0 || practicedPatterns.has(key);
 
                 topicsData[row.topic_id].patterns.push({
                     id: row.pattern_id,
