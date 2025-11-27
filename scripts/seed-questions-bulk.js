@@ -10,7 +10,7 @@ const client = new Client({
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-const TARGET_COUNT = 30;
+const TARGET_COUNT = 5;
 const BATCH_SIZE = 5;
 const DIFFICULTIES = ["Easy", "Medium", "Hard"];
 

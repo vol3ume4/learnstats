@@ -18,7 +18,7 @@ export async function POST(request) {
           SELECT question_id FROM practice_history
           WHERE user_id = $3
         )
-      ORDER BY q.id
+      ORDER BY RANDOM()
       LIMIT 1
       `,
       [patternId, difficulty, userId]
