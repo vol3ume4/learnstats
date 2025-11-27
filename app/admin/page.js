@@ -9,6 +9,8 @@ export default function AdminPage() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [userProgress, setUserProgress] = useState([]);
+    const [expandedUsers, setExpandedUsers] = useState({});
     const router = useRouter();
 
     useEffect(() => {
@@ -43,11 +45,28 @@ export default function AdminPage() {
             const data = await res.json();
             setStats(data);
             setIsAdmin(true);
+
+            // Load user progress if admin
+            loadUserProgress(uid);
         } catch (error) {
             console.error("Error loading admin stats:", error);
             setIsAdmin(false);
         }
         setLoading(false);
+    }
+
+    async function loadUserProgress(uid) {
+        try {
+            const res = await fetch("/api/admin/user-progress", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: uid })
+            });
+            const data = await res.json();
+            setUserProgress(data);
+        } catch (error) {
+            console.error("Error loading user progress:", error);
+        }
     }
 
     if (loading) {
@@ -238,6 +257,104 @@ export default function AdminPage() {
                             </span>
                         </div>
                     ))}
+                </div>
+            </div>
+            {/* User Progress Tracking */}
+            <div className="card" style={{ marginTop: '2rem' }}>
+                <h3 className="section-title">User Progress Tracking</h3>
+                <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left' }}>
+                                <th style={{ padding: '0.75rem' }}>User</th>
+                                <th style={{ padding: '0.75rem' }}>Joined</th>
+                                <th style={{ padding: '0.75rem', textAlign: 'center' }}>Completed Patterns</th>
+                                <th style={{ padding: '0.75rem' }}>Active Topics</th>
+                                <th style={{ padding: '0.75rem' }}></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {userProgress?.map((user) => (
+                                <>
+                                    <tr key={user.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                        <td style={{ padding: '0.75rem' }}>
+                                            <div style={{ fontWeight: '500' }}>{user.email}</div>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ID: {user.id.substring(0, 8)}...</div>
+                                        </td>
+                                        <td style={{ padding: '0.75rem' }}>
+                                            {new Date(user.joinedAt).toLocaleDateString()}
+                                        </td>
+                                        <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                            <span style={{
+                                                background: user.completedPatternsCount > 0 ? 'var(--success)' : 'var(--background)',
+                                                color: user.completedPatternsCount > 0 ? 'white' : 'var(--text-secondary)',
+                                                padding: '0.25rem 0.75rem',
+                                                borderRadius: '1rem',
+                                                fontWeight: 'bold'
+                                            }}>
+                                                {user.completedPatternsCount}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '0.75rem' }}>
+                                            {user.topics.length > 0 ? (
+                                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                                    {user.topics.slice(0, 2).map((t, i) => (
+                                                        <span key={i} style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', fontSize: '0.8rem' }}>
+                                                            {t.name} ({t.completed}/{t.total})
+                                                        </span>
+                                                    ))}
+                                                    {user.topics.length > 2 && (
+                                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>+{user.topics.length - 2} more</span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>No progress</span>
+                                            )}
+                                        </td>
+                                        <td style={{ padding: '0.75rem', textAlign: 'right' }}>
+                                            <button
+                                                onClick={() => setExpandedUsers(prev => ({ ...prev, [user.id]: !prev[user.id] }))}
+                                                className="btn btn-secondary"
+                                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                                            >
+                                                {expandedUsers[user.id] ? 'Hide Details' : 'View Details'}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {expandedUsers[user.id] && (
+                                        <tr style={{ background: '#f9fafb' }}>
+                                            <td colSpan={5} style={{ padding: '1rem' }}>
+                                                <div style={{ fontWeight: '600', marginBottom: '0.5rem' }}>Detailed Progress:</div>
+                                                {user.topics.length > 0 ? (
+                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+                                                        {user.topics.map((t, i) => (
+                                                            <div key={i} style={{ background: 'white', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                                                                <div style={{ fontWeight: '500', color: 'var(--primary)' }}>{t.name}</div>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem', fontSize: '0.9rem' }}>
+                                                                    <span>Progress:</span>
+                                                                    <span style={{ fontWeight: 'bold' }}>{t.completed} / {t.total} patterns</span>
+                                                                </div>
+                                                                <div style={{ width: '100%', height: '4px', background: '#e5e7eb', marginTop: '0.5rem', borderRadius: '2px' }}>
+                                                                    <div style={{
+                                                                        width: `${(t.completed / t.total) * 100}%`,
+                                                                        height: '100%',
+                                                                        background: 'var(--success)',
+                                                                        borderRadius: '2px'
+                                                                    }} />
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div style={{ color: 'var(--text-secondary)' }}>No active topics found for this user.</div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    )}
+                                </>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
