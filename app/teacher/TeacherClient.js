@@ -409,7 +409,23 @@ export default function TeacherClient() {
 
   return (
     <div className="container">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '2rem' }}>
+      {/* Header with Logo and Navigation */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)' }}>
+        {/* Left: Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <img
+            src="/logo-horizontal.png"
+            alt="playfullySerious"
+            style={{ height: '50px', cursor: 'pointer' }}
+            onClick={() => window.open('https://playfullyserious.com', '_blank')}
+          />
+          <div style={{ borderLeft: '2px solid var(--border)', paddingLeft: '1rem' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary)' }}>LearnStats</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Teacher Studio</div>
+          </div>
+        </div>
+
+        {/* Right: Navigation Buttons */}
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <TeacherHelp />
           <button
