@@ -400,14 +400,7 @@ export default function StudentClient() {
   return (
     <div className="container">
       {/* LEVEL 1: Top Bar (Brand & Mode) */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
-        {/* Left: playfullySerious Logo (Bigger) */}
-        <img
-          src="/logo-horizontal.png"
-          alt="playfullySerious"
-          style={{ height: '60px', cursor: 'pointer', objectFit: 'contain' }}
-          onClick={() => window.open('https://playfullyserious.com', '_blank')}
-        />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
         {/* Right: Mode Indicator */}
         <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--primary)' }}>
           Student Mode
@@ -417,7 +410,7 @@ export default function StudentClient() {
       {/* LEVEL 2: App Bar (Title & Actions) */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)' }}>
 
-        {/* Left: LearnStats Title (Vertically below p/s logo) */}
+        {/* Left: LearnStats Title */}
         <div style={{ textAlign: 'left' }}>
           <a href="https://learnstats.vercel.app" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--primary)', lineHeight: '1.2' }}>LearnStats</div>
