@@ -99,6 +99,16 @@ export default function StudentClient() {
     }
   }, [userId]);
 
+  // ---------- LOAD PROGRESS ON SELECTION ----------
+  useEffect(() => {
+    if (userId && topicId && patternId) {
+      loadUnlockedDifficulties();
+      if (difficulty) {
+        loadStreak();
+      }
+    }
+  }, [userId, topicId, patternId, difficulty]);
+
   async function loadTopics() {
     try {
       const res = await fetch("/api/student/get-topics");
@@ -579,8 +589,6 @@ export default function StudentClient() {
                     setPatternId(Number(e.target.value));
                     setCurrentQuestion(null);
                     setEvaluation("");
-                    loadStreak();
-                    loadUnlockedDifficulties();
                   }}
                 >
                   <option value="">Select Question Pattern...</option>
@@ -597,7 +605,6 @@ export default function StudentClient() {
                     setDifficulty(e.target.value);
                     setCurrentQuestion(null);
                     setEvaluation("");
-                    loadStreak();
                   }}
                 >
                   <option value="Easy">Easy</option>
