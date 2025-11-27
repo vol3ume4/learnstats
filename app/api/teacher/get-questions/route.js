@@ -12,7 +12,7 @@ export async function POST(request) {
         const res = await client.query(
             `SELECT * FROM questions 
        WHERE topic_id = $1 AND pattern_id = $2 AND difficulty = $3
-       ORDER BY created_at DESC`,
+       ORDER BY id DESC`,
             [topicId, patternId, difficulty]
         );
 
