@@ -401,13 +401,15 @@ export default function StudentClient() {
     <div className="container">
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)' }}>
-        {/* Left: p/s Logo */}
-        <img
-          src="/logo-icon.jpg"
-          alt="playfullySerious"
-          style={{ height: '60px', cursor: 'pointer', borderRadius: '50%' }}
-          onClick={() => window.open('https://playfullyserious.com', '_blank')}
-        />
+        {/* Left: playfullySerious Logo */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+          <img
+            src="/logo-horizontal.png"
+            alt="playfullySerious"
+            style={{ height: '50px', cursor: 'pointer', objectFit: 'contain' }}
+            onClick={() => window.open('https://playfullyserious.com', '_blank')}
+          />
+        </div>
 
         {/* Center: LearnStats Title */}
         <div style={{ textAlign: 'center', flex: 1 }}>
@@ -416,7 +418,7 @@ export default function StudentClient() {
         </div>
 
         {/* Right: Navigation Buttons */}
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flex: 1, justifyContent: 'flex-end' }}>
           <StudentHelp />
           <button
             className="btn btn-secondary"
