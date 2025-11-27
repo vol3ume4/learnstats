@@ -91,6 +91,15 @@ export default function DashboardPage() {
                             Questions Practiced
                         </div>
                     </div>
+
+                    <div style={{ padding: '1.5rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary)' }}>
+                            {stats?.sharedQuestions || 0}
+                        </div>
+                        <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                            Questions Shared
+                        </div>
+                    </div>
                 </div>
 
                 <h3 className="section-title" style={{ marginTop: '2rem' }}>🏆 Your Practice Journey</h3>

@@ -37,9 +37,18 @@ export async function POST(request) {
       `;
             const topicsResult = await client.query(topicsQuery, [userId]);
 
+            // Get shared questions count
+            const sharedQuery = `
+                SELECT COUNT(*) as shared_count
+                FROM questions
+                WHERE created_by = $1 AND source = 'student_contribution'
+            `;
+            const sharedResult = await client.query(sharedQuery, [userId]);
+
             return NextResponse.json({
                 totalQuestions: questionsResult.rows[0].total_questions || 0,
                 topicsExplored: topicsResult.rows.length,
+                sharedQuestions: sharedResult.rows[0].shared_count || 0,
                 topics: topicsResult.rows
             });
         } finally {
