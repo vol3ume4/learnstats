@@ -399,20 +399,20 @@ export default function StudentClient() {
   // ---------- UI ----------
   return (
     <div className="container">
-      {/* Header with Logo and Navigation */}
+      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)' }}>
-        {/* Left: Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img
-            src="/logo-horizontal.png"
-            alt="playfullySerious"
-            style={{ height: '50px', cursor: 'pointer' }}
-            onClick={() => window.open('https://playfullyserious.com', '_blank')}
-          />
-          <div style={{ borderLeft: '2px solid var(--border)', paddingLeft: '1rem' }}>
-            <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary)' }}>LearnStats</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Interactive Statistics Practice</div>
-          </div>
+        {/* Left: p/s Logo */}
+        <img
+          src="/logo-icon.jpg"
+          alt="playfullySerious"
+          style={{ height: '60px', cursor: 'pointer', borderRadius: '50%' }}
+          onClick={() => window.open('https://playfullyserious.com', '_blank')}
+        />
+
+        {/* Center: LearnStats Title */}
+        <div style={{ textAlign: 'center', flex: 1 }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary)' }}>LearnStats</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Interactive Statistics Practice</div>
         </div>
 
         {/* Right: Navigation Buttons */}
@@ -450,187 +450,191 @@ export default function StudentClient() {
           <span className="spinner"></span>
           {loading}
         </div>
-      )}
+      )
+      }
 
-      {savedDrafts.length > 0 && (
-        <div className="alert alert-info" style={{ marginBottom: '1.5rem' }}>
-          <strong>📌 You have {savedDrafts.length} saved question{savedDrafts.length > 1 ? 's' : ''}!</strong>
-          <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {savedDrafts.map((draft) => (
-              <div key={draft.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', background: 'white', borderRadius: 'var(--radius-sm)' }}>
-                <span style={{ fontSize: '0.9rem' }}>
-                  {draft.topic_name} → {draft.pattern_name} ({draft.difficulty})
-                </span>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => resumeDraft(draft)} className="btn" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
-                    Resume
-                  </button>
-                  <button onClick={() => deleteDraft(draft.id)} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
-                    Delete
-                  </button>
+      {
+        savedDrafts.length > 0 && (
+          <div className="alert alert-info" style={{ marginBottom: '1.5rem' }}>
+            <strong>📌 You have {savedDrafts.length} saved question{savedDrafts.length > 1 ? 's' : ''}!</strong>
+            <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {savedDrafts.map((draft) => (
+                <div key={draft.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', background: 'white', borderRadius: 'var(--radius-sm)' }}>
+                  <span style={{ fontSize: '0.9rem' }}>
+                    {draft.topic_name} → {draft.pattern_name} ({draft.difficulty})
+                  </span>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={() => resumeDraft(draft)} className="btn" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+                      Resume
+                    </button>
+                    <button onClick={() => deleteDraft(draft.id)} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}>
+                      Delete
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* CONDITIONAL RENDER: Discovery Mode vs. Practice Mode */}
-      {!topicId ? (
-        /* --- DISCOVERY MODE: Topic Accordion --- */
-        <div className="card">
-          <h3 className="section-title">Select a Topic to Start</h3>
+      {
+        !topicId ? (
+          /* --- DISCOVERY MODE: Topic Accordion --- */
+          <div className="card">
+            <h3 className="section-title">Select a Topic to Start</h3>
 
-          <div className="topic-accordion" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {[
-              { title: "1. Foundations & Data", keywords: ["Scales", "Data", "Descriptive"] },
-              { title: "2. Probability Core", keywords: ["Probability Basics", "Conditional", "Bayes"] },
-              { title: "3. Probability Distributions", keywords: ["Binomial", "Poisson", "Normal", "Uniform", "t-Distribution", "F-Distribution", "Geometric", "Exponential"] },
-              { title: "4. Inference & Hypothesis Testing", keywords: ["Sampling", "Confidence", "z-test", "t-test", "ANOVA", "Chi-Square", "Regression", "Hypothesis"] }
-            ].map((group) => {
-              const groupTopics = topics.filter(t => group.keywords.some(k => t.name.includes(k)));
-              if (groupTopics.length === 0) return null;
-              const isExpanded = expandedGroup === group.title;
+            <div className="topic-accordion" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {[
+                { title: "1. Foundations & Data", keywords: ["Scales", "Data", "Descriptive"] },
+                { title: "2. Probability Core", keywords: ["Probability Basics", "Conditional", "Bayes"] },
+                { title: "3. Probability Distributions", keywords: ["Binomial", "Poisson", "Normal", "Uniform", "t-Distribution", "F-Distribution", "Geometric", "Exponential"] },
+                { title: "4. Inference & Hypothesis Testing", keywords: ["Sampling", "Confidence", "z-test", "t-test", "ANOVA", "Chi-Square", "Regression", "Hypothesis"] }
+              ].map((group) => {
+                const groupTopics = topics.filter(t => group.keywords.some(k => t.name.includes(k)));
+                if (groupTopics.length === 0) return null;
+                const isExpanded = expandedGroup === group.title;
 
-              return (
-                <div key={group.title} style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
-                  <button
-                    onClick={() => setExpandedGroup(isExpanded ? null : group.title)}
-                    style={{
-                      width: '100%', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      background: isExpanded ? 'var(--background)' : 'white', border: 'none', cursor: 'pointer', fontWeight: '600', color: 'var(--foreground)'
-                    }}
-                  >
-                    <span>{group.title}</span>
-                    <span>{isExpanded ? '−' : '+'}</span>
-                  </button>
+                return (
+                  <div key={group.title} style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
+                    <button
+                      onClick={() => setExpandedGroup(isExpanded ? null : group.title)}
+                      style={{
+                        width: '100%', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        background: isExpanded ? 'var(--background)' : 'white', border: 'none', cursor: 'pointer', fontWeight: '600', color: 'var(--foreground)'
+                      }}
+                    >
+                      <span>{group.title}</span>
+                      <span>{isExpanded ? '−' : '+'}</span>
+                    </button>
 
-                  {isExpanded && (
-                    <div style={{ background: 'white', borderTop: '1px solid var(--border)' }}>
-                      {groupTopics.map(t => (
-                        <button
-                          key={t.id}
-                          onClick={async () => {
-                            setTopicId(t.id);
-                            setPatternId(null);
-                            setCurrentQuestion(null);
-                            setEvaluation("");
-                            setStreak(0);
-                            await loadPatterns(t.id);
-                          }}
-                          style={{
-                            width: '100%', padding: '0.75rem 1.5rem', textAlign: 'left', background: 'white', color: 'var(--text-secondary)',
-                            border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s'
-                          }}
-                          onMouseOver={(e) => e.currentTarget.style.background = 'var(--background)'}
-                          onMouseOut={(e) => e.currentTarget.style.background = 'white'}
-                        >
-                          {t.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                    {isExpanded && (
+                      <div style={{ background: 'white', borderTop: '1px solid var(--border)' }}>
+                        {groupTopics.map(t => (
+                          <button
+                            key={t.id}
+                            onClick={async () => {
+                              setTopicId(t.id);
+                              setPatternId(null);
+                              setCurrentQuestion(null);
+                              setEvaluation("");
+                              setStreak(0);
+                              await loadPatterns(t.id);
+                            }}
+                            style={{
+                              width: '100%', padding: '0.75rem 1.5rem', textAlign: 'left', background: 'white', color: 'var(--text-secondary)',
+                              border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.background = 'var(--background)'}
+                            onMouseOut={(e) => e.currentTarget.style.background = 'white'}
+                          >
+                            {t.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          /* --- PRACTICE MODE: The Cockpit --- */
+          <div className="card" style={{
+            position: 'sticky',
+            top: '1rem',
+            zIndex: 100,
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            border: '1px solid var(--primary)',
+            background: '#fff'
+          }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+
+              {/* Left: Topic & Back */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <button
+                  onClick={() => setTopicId(null)}
+                  className="btn btn-secondary"
+                  style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem' }}
+                  title="Change Topic"
+                >
+                  ← Back
+                </button>
+                <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)' }}>
+                  {topics.find(t => t.id === topicId)?.name}
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      ) : (
-        /* --- PRACTICE MODE: The Cockpit --- */
-        <div className="card" style={{
-          position: 'sticky',
-          top: '1rem',
-          zIndex: 100,
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          border: '1px solid var(--primary)',
-          background: '#fff'
-        }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+              </div>
 
-            {/* Left: Topic & Back */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <button
-                onClick={() => setTopicId(null)}
-                className="btn btn-secondary"
-                style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem' }}
-                title="Change Topic"
-              >
-                ← Back
-              </button>
-              <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--primary)' }}>
-                {topics.find(t => t.id === topicId)?.name}
+              {/* Right: Controls */}
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', flex: 1, justifyContent: 'flex-end' }}>
+                <select
+                  className="select"
+                  style={{ width: 'auto', minWidth: '200px', margin: 0 }}
+                  value={patternId || ""}
+                  onChange={(e) => {
+                    setPatternId(Number(e.target.value));
+                    setCurrentQuestion(null);
+                    setEvaluation("");
+                    loadStreak();
+                    loadUnlockedDifficulties();
+                  }}
+                >
+                  <option value="">Select Question Pattern...</option>
+                  {patterns.map((p) => (
+                    <option key={p.id} value={p.id}>{p.pattern}</option>
+                  ))}
+                </select>
+
+                <select
+                  className="select"
+                  style={{ width: 'auto', margin: 0 }}
+                  value={difficulty}
+                  onChange={(e) => {
+                    setDifficulty(e.target.value);
+                    setCurrentQuestion(null);
+                    setEvaluation("");
+                    loadStreak();
+                  }}
+                >
+                  <option value="Easy">Easy</option>
+                  <option value="Medium" disabled={!unlockedDifficulties.includes('Medium')}>
+                    Medium {!unlockedDifficulties.includes('Medium') ? '🔒 (Get 3-streak on Easy)' : ''}
+                  </option>
+                  <option value="Hard" disabled={!unlockedDifficulties.includes('Hard')}>
+                    Hard {!unlockedDifficulties.includes('Hard') ? '🔒 (Get 4-streak on Medium)' : ''}
+                  </option>
+                </select>
+
+                <button
+                  onClick={getNextQuestion}
+                  className="btn"
+                  disabled={!patternId || !!loading}
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  {loading ? "Loading..." : "Get Question"}
+                </button>
               </div>
             </div>
 
-            {/* Right: Controls */}
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', flex: 1, justifyContent: 'flex-end' }}>
-              <select
-                className="select"
-                style={{ width: 'auto', minWidth: '200px', margin: 0 }}
-                value={patternId || ""}
-                onChange={(e) => {
-                  setPatternId(Number(e.target.value));
-                  setCurrentQuestion(null);
-                  setEvaluation("");
-                  loadStreak();
-                  loadUnlockedDifficulties();
-                }}
-              >
-                <option value="">Select Question Pattern...</option>
-                {patterns.map((p) => (
-                  <option key={p.id} value={p.id}>{p.pattern}</option>
-                ))}
-              </select>
-
-              <select
-                className="select"
-                style={{ width: 'auto', margin: 0 }}
-                value={difficulty}
-                onChange={(e) => {
-                  setDifficulty(e.target.value);
-                  setCurrentQuestion(null);
-                  setEvaluation("");
-                  loadStreak();
-                }}
-              >
-                <option value="Easy">Easy</option>
-                <option value="Medium" disabled={!unlockedDifficulties.includes('Medium')}>
-                  Medium {!unlockedDifficulties.includes('Medium') ? '🔒 (Get 3-streak on Easy)' : ''}
-                </option>
-                <option value="Hard" disabled={!unlockedDifficulties.includes('Hard')}>
-                  Hard {!unlockedDifficulties.includes('Hard') ? '🔒 (Get 4-streak on Medium)' : ''}
-                </option>
-              </select>
-
-              <button
-                onClick={getNextQuestion}
-                className="btn"
-                disabled={!patternId || !!loading}
-                style={{ whiteSpace: 'nowrap' }}
-              >
-                {loading ? "Loading..." : "Get Question"}
-              </button>
-            </div>
-          </div>
-
-          {/* Streak Mini-Bar */}
-          {patternId && (
-            <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Streak:</span>
-              <div style={{ display: 'flex', gap: '0.25rem' }}>
-                {Array.from({ length: streakGoal }).map((_, i) => (
-                  <div key={i} style={{
-                    width: '16px', height: '16px', borderRadius: '50%',
-                    background: i < streak ? 'var(--success)' : '#e2e8f0',
-                    transition: 'all 0.3s'
-                  }} />
-                ))}
+            {/* Streak Mini-Bar */}
+            {patternId && (
+              <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Streak:</span>
+                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                  {Array.from({ length: streakGoal }).map((_, i) => (
+                    <div key={i} style={{
+                      width: '16px', height: '16px', borderRadius: '50%',
+                      background: i < streak ? 'var(--success)' : '#e2e8f0',
+                      transition: 'all 0.3s'
+                    }} />
+                  ))}
+                </div>
+                {streak >= streakGoal && <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>🔥 On Fire!</span>}
               </div>
-              {streak >= streakGoal && <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>🔥 On Fire!</span>}
-            </div>
-          )}
-        </div>
-      )
+            )}
+          </div>
+        )
       }
 
       {

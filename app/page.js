@@ -50,21 +50,17 @@ export default function Home() {
   return (
     <div className="container" style={{ maxWidth: '600px', paddingTop: '2rem' }}>
       {/* Logo */}
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <img
           src="/logo-vertical.png"
-          alt="playfullySerious"
-          style={{ maxWidth: '300px', width: '100%', cursor: 'pointer' }}
+          alt="playfullySerious LearnStats"
+          style={{ maxWidth: '350px', width: '100%', cursor: 'pointer' }}
           onClick={() => window.open('https://playfullyserious.com', '_blank')}
         />
+        <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: '1rem', fontSize: '1.1rem' }}>
+          Interactive Statistics Practice
+        </p>
       </div>
-
-      <h1 className="page-title" style={{ textAlign: 'center', marginBottom: '1rem' }}>
-        LearnStats
-      </h1>
-      <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '3rem', fontSize: '1.1rem' }}>
-        Interactive Statistics Practice
-      </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <button
