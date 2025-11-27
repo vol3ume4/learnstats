@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
+import { CERTIFICATE_BUNDLES } from "@/lib/certificate-bundles";
 
 export default function DashboardPage() {
     const [userId, setUserId] = useState(null);
-    const [stats, setStats] = useState(null);
+    const [certificateProgress, setCertificateProgress] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [expandedBundles, setExpandedBundles] = useState({});
     const router = useRouter();
 
     useEffect(() => {
@@ -18,21 +20,50 @@ export default function DashboardPage() {
                 return;
             }
             setUserId(user.id);
-            loadStats(user.id);
+            loadCertificateProgress(user.id);
         }
         loadUser();
     }, [router]);
 
-    async function loadStats(uid) {
+    async function loadCertificateProgress(uid) {
         setLoading(true);
-        const res = await fetch("/api/student/dashboard-stats", {
+        const res = await fetch("/api/student/certificate-progress", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId: uid })
         });
         const data = await res.json();
-        setStats(data);
+        setCertificateProgress(data);
         setLoading(false);
+    }
+
+    function toggleBundle(bundleId) {
+        setExpandedBundles(prev => ({
+            ...prev,
+            [bundleId]: !prev[bundleId]
+        }));
+    }
+
+    function calculateBundleProgress(bundle) {
+        if (!certificateProgress?.topics) return { completed: 0, total: 0, percentage: 0 };
+
+        const bundleTopics = certificateProgress.topics.filter(t =>
+            bundle.topics.includes(t.name)
+        );
+
+        let totalPatterns = 0;
+        let completedPatterns = 0;
+
+        bundleTopics.forEach(topic => {
+            topic.patterns.forEach(pattern => {
+                totalPatterns++;
+                if (pattern.completed) completedPatterns++;
+            });
+        });
+
+        const percentage = totalPatterns > 0 ? Math.round((completedPatterns / totalPatterns) * 100) : 0;
+
+        return { completed: completedPatterns, total: totalPatterns, percentage };
     }
 
     if (loading) {
@@ -46,7 +77,7 @@ export default function DashboardPage() {
     return (
         <div className="container">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h1 className="page-title" style={{ margin: 0 }}>My Dashboard</h1>
+                <h1 className="page-title" style={{ margin: 0 }}>📊 My Dashboard</h1>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                     <button
                         className="btn btn-secondary"
@@ -68,79 +99,125 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            <div className="card">
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--text-main)' }}>
-                    👋 Welcome back!
-                </h2>
+            {/* Certificate Bundles */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {CERTIFICATE_BUNDLES.filter(bundle => !bundle.requiresAllBundles).map(bundle => {
+                    const progress = calculateBundleProgress(bundle);
+                    const isExpanded = expandedBundles[bundle.id];
+                    const bundleTopics = certificateProgress?.topics?.filter(t =>
+                        bundle.topics.includes(t.name)
+                    ) || [];
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-                    <div style={{ padding: '1.5rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary)' }}>
-                            {stats?.topicsExplored || 0}
-                        </div>
-                        <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                            Topics Explored
-                        </div>
-                    </div>
+                    // Only show bundles where user has made progress
+                    if (bundleTopics.length === 0) return null;
 
-                    <div style={{ padding: '1.5rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary)' }}>
-                            {stats?.totalQuestions || 0}
-                        </div>
-                        <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                            Questions Practiced
-                        </div>
-                    </div>
-
-                    <div style={{ padding: '1.5rem', background: 'var(--background)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary)' }}>
-                            {stats?.sharedQuestions || 0}
-                        </div>
-                        <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                            Questions Shared
-                        </div>
-                    </div>
-                </div>
-
-                <h3 className="section-title" style={{ marginTop: '2rem' }}>🏆 Your Practice Journey</h3>
-
-                {stats?.topics && stats.topics.length > 0 ? (
-                    <div style={{ marginTop: '1rem' }}>
-                        {stats.topics.map((topic) => (
+                    return (
+                        <div key={bundle.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                            {/* Bundle Header */}
                             <div
-                                key={topic.id}
+                                onClick={() => toggleBundle(bundle.id)}
                                 style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    padding: '1rem',
-                                    marginBottom: '0.75rem',
-                                    background: 'var(--background)',
-                                    borderRadius: 'var(--radius-md)',
-                                    border: '1px solid var(--border)'
+                                    padding: '1.5rem',
+                                    cursor: 'pointer',
+                                    background: progress.percentage === 100 ? '#f0fdf4' : 'white',
+                                    borderBottom: isExpanded ? '1px solid var(--border)' : 'none'
                                 }}
                             >
-                                <span style={{ fontWeight: '500' }}>{topic.name}</span>
-                                <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-                                    {Array.from({ length: parseInt(topic.patterns_practiced) }).map((_, i) => (
-                                        <span key={i} style={{ fontSize: '1.2rem' }}>⭐</span>
-                                    ))}
-                                    <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                        {topic.patterns_practiced} pattern{topic.patterns_practiced > 1 ? 's' : ''}
-                                    </span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                                            <span style={{ fontSize: '1.5rem' }}>{bundle.icon}</span>
+                                            <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--text-main)' }}>
+                                                {bundle.name}
+                                            </h3>
+                                        </div>
+                                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                            {bundle.description}
+                                        </p>
+                                    </div>
+                                    <div style={{ textAlign: 'right', marginLeft: '1rem' }}>
+                                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: progress.percentage === 100 ? 'var(--success)' : 'var(--primary)' }}>
+                                            {progress.percentage}%
+                                        </div>
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                            {progress.completed}/{progress.total} patterns
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        ))}
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '1rem', fontStyle: 'italic' }}>
-                            ⭐ = Patterns you've practiced
+
+                            {/* Bundle Details (Expanded) */}
+                            {isExpanded && (
+                                <div style={{ padding: '1.5rem', background: 'var(--background)' }}>
+                                    {bundleTopics.map(topic => (
+                                        <div key={topic.id} style={{ marginBottom: '1.5rem' }}>
+                                            <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', color: 'var(--text-main)' }}>
+                                                {topic.name}
+                                            </h4>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                {topic.patterns.map(pattern => (
+                                                    <div
+                                                        key={pattern.id}
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.5rem',
+                                                            padding: '0.5rem',
+                                                            background: 'white',
+                                                            borderRadius: 'var(--radius-sm)'
+                                                        }}
+                                                    >
+                                                        <span style={{ fontSize: '1.2rem' }}>
+                                                            {pattern.completed ? '✓' : '○'}
+                                                        </span>
+                                                        <span style={{
+                                                            flex: 1,
+                                                            color: pattern.completed ? 'var(--success)' : 'var(--text-main)',
+                                                            fontWeight: pattern.completed ? '500' : '400'
+                                                        }}>
+                                                            {pattern.name}
+                                                        </span>
+                                                        {pattern.hasProgress && !pattern.completed && (
+                                                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                                                E:{pattern.streaks.easy}/3 M:{pattern.streaks.medium}/4 H:{pattern.streaks.hard}/5
+                                                            </span>
+                                                        )}
+                                                        {pattern.completed && (
+                                                            <span style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: '600' }}>
+                                                                Completed
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ) : (
-                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                        Start practicing to see your journey here!
+                    );
+                })}
+
+                {/* Show message if no progress yet */}
+                {certificateProgress?.topics?.length === 0 && (
+                    <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎯</div>
+                        <h3 style={{ color: 'var(--text-main)', marginBottom: '0.5rem' }}>Start Your Learning Journey!</h3>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                            Begin practicing to track your progress toward certificates.
+                        </p>
+                        <button
+                            className="btn"
+                            onClick={() => router.push("/student")}
+                        >
+                            Start Practicing
+                        </button>
                     </div>
                 )}
+            </div>
 
+            {/* HIDDEN: Practice Log - keeping backend intact */}
+            {false && (
                 <div style={{ marginTop: '2rem', textAlign: 'center' }}>
                     <button
                         className="btn"
@@ -150,7 +227,7 @@ export default function DashboardPage() {
                         📝 View Practice Log
                     </button>
                 </div>
-            </div>
+            )}
         </div>
     );
 }
