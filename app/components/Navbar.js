@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 export default function Navbar() {
     const pathname = usePathname();
 
-    // Don't show navbar on login or signup pages
-    if (pathname === "/login" || pathname === "/signup") {
+    // Don't show navbar on login, signup, student, or teacher pages
+    if (pathname === "/login" || pathname === "/signup" || pathname.startsWith("/student") || pathname.startsWith("/teacher")) {
         return null;
     }
 
