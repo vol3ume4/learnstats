@@ -13,7 +13,7 @@ export async function GET(request) {
 
         // Get classrooms the student is enrolled in
         const { data: enrollments, error: enrollError } = await supabase
-            .from('classroom_students')
+            .from('classroom_enrollments')
             .select(`
                 classroom_id,
                 classrooms (
@@ -43,7 +43,7 @@ export async function GET(request) {
 
                 // Get student count
                 const { count: studentCount } = await supabase
-                    .from('classroom_students')
+                    .from('classroom_enrollments')
                     .select('*', { count: 'exact', head: true })
                     .eq('classroom_id', classroom.id);
 
