@@ -388,11 +388,11 @@ export default function ClassroomDetailClient({ classroomId }) {
                                         <tr key={student.id} style={{ borderBottom: '1px solid var(--border)' }}>
                                             <td style={{ padding: '0.75rem' }}>{student.email}</td>
                                             <td style={{ padding: '0.75rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                                {new Date(student.joinedAt).toLocaleDateString()}
+                                                {new Date(student.joined_at).toLocaleDateString()}
                                             </td>
                                             <td style={{ padding: '0.75rem', textAlign: 'center' }}>
-                                                <span className={`badge ${student.isActive ? 'badge-success' : 'badge-warning'}`}>
-                                                    {student.isActive ? 'Active' : 'Inactive'}
+                                                <span className={`badge ${student.is_active ? 'badge-success' : 'badge-warning'}`}>
+                                                    {student.is_active ? 'Active' : 'Inactive'}
                                                 </span>
                                             </td>
                                             <td style={{ padding: '0.75rem', textAlign: 'center' }}>
@@ -403,16 +403,16 @@ export default function ClassroomDetailClient({ classroomId }) {
                                                             method: 'POST',
                                                             headers: { 'Content-Type': 'application/json' },
                                                             body: JSON.stringify({
-                                                                studentId: student.studentId,
+                                                                studentId: student.student_id,
                                                                 classroomId,
-                                                                isActive: !student.isActive
+                                                                isActive: !student.is_active
                                                             })
                                                         });
                                                         loadData();
                                                     }}
                                                     style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem' }}
                                                 >
-                                                    {student.isActive ? 'Deactivate' : 'Activate'}
+                                                    {student.is_active ? 'Deactivate' : 'Activate'}
                                                 </button>
                                             </td>
                                         </tr>
