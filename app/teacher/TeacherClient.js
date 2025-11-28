@@ -924,7 +924,7 @@ export default function TeacherClient() {
               )}
             </div>
             )
-      }
-          </div >
+        }
+          </div>
         );
 }
