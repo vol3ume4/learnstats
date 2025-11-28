@@ -1,28 +1,16 @@
-const { Client } = require("pg");
-require("dotenv").config({ path: ".env.local" });
+require('dotenv').config({ path: '.env.local' });
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-});
-
-async function checkQuestionsSchema() {
-    try {
-        await client.connect();
-        const res = await client.query(`
-      SELECT column_name, data_type 
-      FROM information_schema.columns 
-      WHERE table_name = 'questions'
-      ORDER BY ordinal_position;
-    `);
-        console.log("=== QUESTIONS TABLE SCHEMA ===");
-        res.rows.forEach(row => {
-            console.log(`${row.column_name}: ${row.data_type}`);
-        });
-    } catch (err) {
-        console.error(err);
-    } finally {
-        await client.end();
-    }
+async function checkSchema() {
+    const res = await pool.query(`
+    SELECT column_name 
+    FROM information_schema.columns 
+    WHERE table_name='questions' 
+    ORDER BY ordinal_position
+  `);
+    console.log('Questions columns:', res.rows.map(r => r.column_name).join(', '));
+    pool.end();
 }
 
-checkQuestionsSchema();
+checkSchema();

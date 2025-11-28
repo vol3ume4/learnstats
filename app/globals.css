@@ -88,13 +88,16 @@
   }
 
   .btn-secondary {
-    background: var(--surface);
-    color: var(--text-main);
-    border-color: var(--border);
+    background: #374151;
+    /* Darker grey for better contrast */
+    color: #f9fafb;
+    /* White text */
+    border-color: #4b5563;
   }
 
   .btn-secondary:hover {
-    background: var(--border);
+    background: #4b5563;
+    color: white;
   }
 
   .btn-outline {
@@ -103,18 +106,40 @@
     border-color: var(--border);
   }
 
-  /* Ensure inputs respect dark mode */
+  .btn-outline:hover {
+    background: var(--surface);
+  }
+
+  /* Ensure inputs and selects respect dark mode */
   .input,
   .select,
   textarea {
-    background: var(--surface);
-    color: var(--text-main);
+    background: #374151;
+    /* Darker for better contrast */
+    color: #f9fafb;
+    /* White text */
     border-color: var(--border);
+  }
+
+  .input::placeholder {
+    color: #9ca3af;
+  }
+
+  /* Select dropdown options */
+  .select option {
+    background: #374151;
+    color: #f9fafb;
   }
 
   /* Topic selection buttons */
   button {
     color: var(--text-main);
+  }
+
+  /* Accordion/collapsible buttons */
+  button[style*="background: white"] {
+    background: var(--surface) !important;
+    color: var(--text-main) !important;
   }
 
   /* Dark mode for alerts */

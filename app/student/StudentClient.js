@@ -431,21 +431,21 @@ export default function StudentClient() {
         </div>
 
         {/* Right: Navigation Buttons */}
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className="student-nav-buttons" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <StudentHelp />
           <button
             className="btn btn-secondary"
             onClick={() => router.push("/student/share")}
-            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', whiteSpace: 'nowrap' }}
+            style={{ fontSize: '0.75rem', padding: '0.4rem 0.75rem', whiteSpace: 'nowrap' }}
           >
-            ➕ Share Question
+            ➕ Share
           </button>
           <button
             className="btn btn-secondary"
             onClick={() => router.push("/student/dashboard")}
-            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', whiteSpace: 'nowrap' }}
+            style={{ fontSize: '0.75rem', padding: '0.4rem 0.75rem', whiteSpace: 'nowrap' }}
           >
-            📊 My Dashboard
+            📊 Dashboard
           </button>
           <button
             className="btn btn-secondary"
@@ -453,9 +453,9 @@ export default function StudentClient() {
               await supabase.auth.signOut();
               router.push("/login");
             }}
-            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', whiteSpace: 'nowrap' }}
+            style={{ fontSize: '0.75rem', padding: '0.4rem 0.75rem', whiteSpace: 'nowrap' }}
           >
-            Sign Out
+            🚪 Sign Out
           </button>
         </div>
       </div>
