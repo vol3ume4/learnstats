@@ -1,4 +1,5 @@
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request) {
     try {
@@ -25,10 +26,24 @@ export async function GET(request) {
 
         if (error) throw error;
 
+        // Create Admin Client for fetching emails (requires Service Role Key)
+        // Note: Ensure SUPABASE_SERVICE_ROLE_KEY is set in your Vercel Environment Variables
+        const adminClient = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL,
+            process.env.SUPABASE_SERVICE_ROLE_KEY,
+            {
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false
+                }
+            }
+        );
+
         // Fetch emails separately using service role
         const students = [];
         for (const enrollment of data) {
-            const { data: { user } } = await supabase.auth.admin.getUserById(enrollment.student_id);
+            // Use adminClient here, NOT the regular supabase client
+            const { data: { user } } = await adminClient.auth.admin.getUserById(enrollment.student_id);
             students.push({
                 id: enrollment.id,
                 student_id: enrollment.student_id,
