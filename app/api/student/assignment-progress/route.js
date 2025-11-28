@@ -41,10 +41,10 @@ export async function GET(request) {
                 const query = `
                     SELECT COUNT(*) as completed_count
                     FROM practice_history
-                    WHERE student_id = $1
+                    WHERE user_id = $1
                     AND pattern_id = $2
                     AND difficulty = $3
-                    AND is_correct = true
+                    AND correct = true
                     AND created_at > $4
                 `;
 
