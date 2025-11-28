@@ -147,13 +147,22 @@ export default function ClassroomManager() {
                                         </p>
                                     )}
                                 </div>
-                                <button
-                                    className="btn btn-secondary"
-                                    onClick={() => deleteClassroom(classroom.id)}
-                                    style={{ fontSize: '0.85rem', padding: '0.4rem 0.75rem' }}
-                                >
-                                    🗑️ Delete
-                                </button>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <a
+                                        href={`/teacher/classroom/${classroom.id}`}
+                                        className="btn"
+                                        style={{ fontSize: '0.85rem', padding: '0.4rem 0.75rem', textDecoration: 'none' }}
+                                    >
+                                        ⚙️ Manage
+                                    </a>
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={() => deleteClassroom(classroom.id)}
+                                        style={{ fontSize: '0.85rem', padding: '0.4rem 0.75rem' }}
+                                    >
+                                        🗑️ Delete
+                                    </button>
+                                </div>
                             </div>
 
                             <div style={{
