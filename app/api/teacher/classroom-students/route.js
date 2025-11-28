@@ -13,24 +13,22 @@ export async function GET(request) {
 
         const { data, error } = await supabase
             .from('classroom_enrollments')
-            .select(`
-                id,
-                student_id,
-                is_active,
-                joined_at,
-                profiles!classroom_enrollments_student_id_fkey(email)
-            `)
+            .select('id, student_id, is_active, enrolled_at')
             .eq('classroom_id', classroomId)
-            .order('joined_at', { ascending: false });
+            .order('enrolled_at', { ascending: false });
 
         if (error) throw error;
 
-        const students = data.map(s => ({
-            id: s.id,
-            studentId: s.student_id,
-            email: s.profiles?.email || 'Unknown',
-            isActive: s.is_active,
-            joinedAt: s.joined_at
+        // Get emails from auth.users
+        const students = await Promise.all(data.map(async (s) => {
+            const { data: userData } = await supabase.auth.admin.getUserById(s.student_id);
+            return {
+                id: s.id,
+                studentId: s.student_id,
+                email: userData?.user?.email || 'Unknown',
+                isActive: s.is_active,
+                joinedAt: s.enrolled_at
+            };
         }));
 
         return Response.json({ students });
