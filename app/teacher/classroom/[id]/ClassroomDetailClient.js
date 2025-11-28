@@ -8,10 +8,13 @@ export default function ClassroomDetailClient({ classroomId }) {
     const router = useRouter();
     const [classroom, setClassroom] = useState(null);
     const [assignments, setAssignments] = useState([]);
+    const [students, setStudents] = useState([]);
+    const [activeTab, setActiveTab] = useState('assignments'); // 'assignments' | 'students'
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [viewingAssignment, setViewingAssignment] = useState(null);
     const [assignmentDetails, setAssignmentDetails] = useState(null);
+    const [editingAssignment, setEditingAssignment] = useState(null);
 
     // Assignment Form State
     const [newAssignment, setNewAssignment] = useState({
@@ -46,6 +49,11 @@ export default function ClassroomDetailClient({ classroomId }) {
             const res = await fetch(`/api/teacher/assignments?classroomId=${classroomId}`);
             const data = await res.json();
             if (data.assignments) setAssignments(data.assignments);
+
+            // Load Students
+            const studentsRes = await fetch(`/api/teacher/classroom-students?classroomId=${classroomId}`);
+            const studentsData = await studentsRes.json();
+            if (studentsData.students) setStudents(studentsData.students);
 
             // Load Content Tree for picker
             const treeRes = await fetch('/api/teacher/get-content-tree');
@@ -274,47 +282,146 @@ export default function ClassroomDetailClient({ classroomId }) {
                 </div>
             </div>
 
-            <h2 className="section-title">Assignments</h2>
+            {/* Tabs */}
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '2px solid var(--border)' }}>
+                <button
+                    onClick={() => setActiveTab('assignments')}
+                    style={{
+                        padding: '0.75rem 1.5rem',
+                        background: 'none',
+                        border: 'none',
+                        borderBottom: activeTab === 'assignments' ? '3px solid var(--primary)' : '3px solid transparent',
+                        color: activeTab === 'assignments' ? 'var(--primary)' : 'var(--text-secondary)',
+                        fontWeight: activeTab === 'assignments' ? '600' : '400',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                    }}
+                >
+                    📚 Assignments ({assignments.length})
+                </button>
+                <button
+                    onClick={() => setActiveTab('students')}
+                    style={{
+                        padding: '0.75rem 1.5rem',
+                        background: 'none',
+                        border: 'none',
+                        borderBottom: activeTab === 'students' ? '3px solid var(--primary)' : '3px solid transparent',
+                        color: activeTab === 'students' ? 'var(--primary)' : 'var(--text-secondary)',
+                        fontWeight: activeTab === 'students' ? '600' : '400',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                    }}
+                >
+                    👥 Students ({students.length})
+                </button>
+            </div>
 
-            {assignments.length === 0 ? (
-                <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-                    <p>No assignments yet. Create one to get started!</p>
-                </div>
-            ) : (
-                <div style={{ display: 'grid', gap: '1rem' }}>
-                    {assignments.map(assignment => (
-                        <div key={assignment.id} className="card">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div style={{ flex: 1 }}>
-                                    <h3 style={{ margin: 0, color: 'var(--primary)' }}>{assignment.title}</h3>
-                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                                        {assignment.description}
-                                    </p>
-                                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', fontSize: '0.85rem' }}>
-                                        <span style={{ background: 'var(--surface)', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
-                                            📅 Due: {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : 'No due date'}
-                                        </span>
-                                        <span style={{ background: 'var(--surface)', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
-                                            📚 {assignment.patternCount} {assignment.patternCount === 1 ? 'Pattern' : 'Patterns'}
-                                        </span>
+            {/* Assignments Tab */}
+            {activeTab === 'assignments' && (
+                <>
+                    <h2 className="section-title">Assignments</h2>
+
+                    {assignments.length === 0 ? (
+                        <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                            <p>No assignments yet. Create one to get started!</p>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'grid', gap: '1rem' }}>
+                            {assignments.map(assignment => (
+                                <div key={assignment.id} className="card">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <h3 style={{ margin: 0, color: 'var(--primary)' }}>{assignment.title}</h3>
+                                            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                                                {assignment.description}
+                                            </p>
+                                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', fontSize: '0.85rem' }}>
+                                                <span style={{ background: 'var(--surface)', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+                                                    📅 Due: {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : 'No due date'}
+                                                </span>
+                                                <span style={{ background: 'var(--surface)', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+                                                    📚 {assignment.patternCount} {assignment.patternCount === 1 ? 'Pattern' : 'Patterns'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
+                                            <span className={`badge ${assignment.is_active ? 'badge-success' : 'badge-warning'}`}>
+                                                {assignment.is_active ? 'Active' : 'Draft'}
+                                            </span>
+                                            <button
+                                                className="btn btn-secondary"
+                                                onClick={() => viewAssignmentDetails(assignment)}
+                                                style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem' }}
+                                            >
+                                                View Details
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
-                                    <span className={`badge ${assignment.is_active ? 'badge-success' : 'badge-warning'}`}>
-                                        {assignment.is_active ? 'Active' : 'Draft'}
-                                    </span>
-                                    <button
-                                        className="btn btn-secondary"
-                                        onClick={() => viewAssignmentDetails(assignment)}
-                                        style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem' }}
-                                    >
-                                        View Details
-                                    </button>
-                                </div>
-                            </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    )}
+                </>
+            )}
+
+            {/* Students Tab */}
+            {activeTab === 'students' && (
+                <>
+                    <h2 className="section-title">Students</h2>
+                    {students.length === 0 ? (
+                        <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                            <p>No students enrolled yet. Share the invite code!</p>
+                        </div>
+                    ) : (
+                        <div className="card">
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                                        <th style={{ padding: '0.75rem', textAlign: 'left' }}>Email</th>
+                                        <th style={{ padding: '0.75rem', textAlign: 'left' }}>Joined</th>
+                                        <th style={{ padding: '0.75rem', textAlign: 'center' }}>Status</th>
+                                        <th style={{ padding: '0.75rem', textAlign: 'center' }}>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {students.map(student => (
+                                        <tr key={student.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                            <td style={{ padding: '0.75rem' }}>{student.email}</td>
+                                            <td style={{ padding: '0.75rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                {new Date(student.joinedAt).toLocaleDateString()}
+                                            </td>
+                                            <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                                <span className={`badge ${student.isActive ? 'badge-success' : 'badge-warning'}`}>
+                                                    {student.isActive ? 'Active' : 'Inactive'}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                                <button
+                                                    className="btn btn-secondary"
+                                                    onClick={async () => {
+                                                        await fetch('/api/teacher/classroom-students', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({
+                                                                studentId: student.studentId,
+                                                                classroomId,
+                                                                isActive: !student.isActive
+                                                            })
+                                                        });
+                                                        loadData();
+                                                    }}
+                                                    style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem' }}
+                                                >
+                                                    {student.isActive ? 'Deactivate' : 'Activate'}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </>
             )}
 
             {/* Create Assignment Modal */}
