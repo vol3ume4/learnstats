@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 import StudentHelp from "./StudentHelp";
 import FeatureAnnouncement from "@/app/components/FeatureAnnouncement";
@@ -42,6 +42,11 @@ export default function StudentClient() {
 
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const assignmentId = searchParams.get('assignmentId');
+  const [activeAssignment, setActiveAssignment] = useState(null);
+  const [assignmentProgress, setAssignmentProgress] = useState(null);
+
   const authCheckRan = useRef(false);
 
   // Streak goals by difficulty
@@ -91,7 +96,7 @@ export default function StudentClient() {
   // ---------- LOAD TOPICS ----------
   useEffect(() => {
     loadTopics();
-  }, []);
+  }, [activeAssignment]);
 
   // ---------- LOAD DRAFTS ----------
   useEffect(() => {
@@ -99,6 +104,56 @@ export default function StudentClient() {
       loadDrafts();
     }
   }, [userId]);
+
+  // ---------- LOAD ASSIGNMENT DETAILS ----------
+  useEffect(() => {
+    if (userId && assignmentId) {
+      loadAssignmentDetails();
+    }
+  }, [userId, assignmentId]);
+
+  async function loadAssignmentDetails() {
+    try {
+      // Get assignment info
+      const { data: assignment, error } = await supabase
+        .from('assignments')
+        .select('*, assignment_patterns(*)')
+        .eq('id', assignmentId)
+        .single();
+
+      if (error) throw error;
+
+      setActiveAssignment(assignment);
+
+      // Mark as started
+      await fetch('/api/student/assignment-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          assignmentId,
+          studentId: userId,
+          action: 'start'
+        })
+      });
+
+      // Load progress
+      loadAssignmentProgress();
+
+    } catch (error) {
+      console.error('Error loading assignment:', error);
+    }
+  }
+
+  async function loadAssignmentProgress() {
+    if (!userId || !assignmentId) return;
+    try {
+      const res = await fetch(`/api/student/assignment-progress?assignmentId=${assignmentId}&studentId=${userId}`);
+      const data = await res.json();
+      setAssignmentProgress(data);
+    } catch (error) {
+      console.error('Error loading progress:', error);
+    }
+  }
 
   // ---------- LOAD PROGRESS ON SELECTION ----------
   useEffect(() => {
@@ -114,7 +169,14 @@ export default function StudentClient() {
     try {
       const res = await fetch("/api/student/get-topics");
       if (!res.ok) throw new Error(`Failed to load topics: ${res.status}`);
-      const data = await res.json();
+      let data = await res.json();
+
+      // Filter if in assignment mode
+      if (activeAssignment && activeAssignment.assignment_patterns) {
+        const assignmentTopicIds = activeAssignment.assignment_patterns.map(ap => ap.topic_id);
+        data = data.filter(t => assignmentTopicIds.includes(t.id));
+      }
+
       setTopics(data);
     } catch (err) {
       console.error("Error loading topics:", err);
@@ -147,7 +209,18 @@ export default function StudentClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ topicId })
     });
-    setPatterns(await res.json());
+    let data = await res.json();
+
+    // Filter if in assignment mode
+    if (activeAssignment && activeAssignment.assignment_patterns) {
+      const assignmentPatternIds = activeAssignment.assignment_patterns
+        .filter(ap => ap.topic_id === topicId)
+        .map(ap => ap.pattern_id);
+
+      data = data.filter(p => assignmentPatternIds.includes(p.id));
+    }
+
+    setPatterns(data);
   }
 
   // ---------- RESET ----------
@@ -242,6 +315,30 @@ export default function StudentClient() {
     if (streakData.unlockedDifficulty) {
       setUnlockedDifficulties([...unlockedDifficulties, streakData.unlockedDifficulty]);
       alert(`🎉 Congratulations! You've unlocked ${streakData.unlockedDifficulty} difficulty!`);
+    }
+
+    // Update assignment progress if active
+    if (activeAssignment) {
+      await loadAssignmentProgress();
+
+      // Check if assignment is now complete
+      const res = await fetch(`/api/student/assignment-progress?assignmentId=${assignmentId}&studentId=${userId}`);
+      const progressData = await res.json();
+
+      if (progressData.summary.isFullyComplete && !assignmentProgress?.summary.isFullyComplete) {
+        // Mark as complete in DB
+        await fetch('/api/student/assignment-progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            assignmentId,
+            studentId: userId,
+            action: 'complete'
+          })
+        });
+        alert('🎉 CONGRATULATIONS! You have completed this assignment!');
+        router.push(`/student/classroom/${activeAssignment.classroom_id}`);
+      }
     }
 
     setLoading("");
@@ -410,6 +507,35 @@ export default function StudentClient() {
   // ---------- UI ----------
   return (
     <div className="container">
+      {activeAssignment && (
+        <div className="alert alert-info" style={{
+          marginBottom: '1rem',
+          borderLeft: '4px solid var(--primary)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div>
+            <strong>📝 Working on Assignment: {activeAssignment.title}</strong>
+            <div style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>
+              {assignmentProgress && (
+                <span>
+                  Progress: {assignmentProgress.summary.progressPercentage}%
+                  ({assignmentProgress.summary.totalCompleted}/{assignmentProgress.summary.totalRequired} patterns completed)
+                </span>
+              )}
+            </div>
+          </div>
+          <button
+            className="btn btn-secondary"
+            onClick={() => router.push(`/student/classroom/${activeAssignment.classroom_id}`)}
+            style={{ fontSize: '0.85rem', padding: '0.25rem 0.75rem' }}
+          >
+            Exit Assignment
+          </button>
+        </div>
+      )}
+
       <FeatureAnnouncement />
 
       {/* LEVEL 1: Top Bar (Brand & Mode) */}
