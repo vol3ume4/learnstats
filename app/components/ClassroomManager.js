@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
 
 export default function ClassroomManager() {
     const [classrooms, setClassrooms] = useState([]);
@@ -10,10 +10,7 @@ export default function ClassroomManager() {
     const [newClassroom, setNewClassroom] = useState({ name: "", description: "" });
     const [userId, setUserId] = useState(null);
 
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
+    const supabase = getSupabaseBrowserClient();
 
     useEffect(() => {
         loadUser();
