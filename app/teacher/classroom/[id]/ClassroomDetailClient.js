@@ -65,22 +65,29 @@ export default function ClassroomDetailClient({ classroomId }) {
     }
 
     function addPattern(topic, pattern) {
-        // Check if already added
-        if (newAssignment.selectedPatterns.some(p => p.patternId === pattern.id)) {
-            return;
-        }
+        // Check if already added - if so, remove it (toggle behavior)
+        const existingIndex = newAssignment.selectedPatterns.findIndex(p => p.patternId === pattern.id);
 
-        setNewAssignment(prev => ({
-            ...prev,
-            selectedPatterns: [...prev.selectedPatterns, {
-                topicId: topic.id,
-                patternId: pattern.id,
-                topicName: topic.name,
-                patternName: pattern.name,
-                difficulty: 'Medium',
-                count: 5
-            }]
-        }));
+        if (existingIndex !== -1) {
+            // Remove it
+            setNewAssignment(prev => ({
+                ...prev,
+                selectedPatterns: prev.selectedPatterns.filter((_, i) => i !== existingIndex)
+            }));
+        } else {
+            // Add it
+            setNewAssignment(prev => ({
+                ...prev,
+                selectedPatterns: [...prev.selectedPatterns, {
+                    topicId: topic.id,
+                    patternId: pattern.id,
+                    topicName: topic.name,
+                    patternName: pattern.name,
+                    difficulty: 'Medium',
+                    count: 5
+                }]
+            }));
+        }
     }
 
     function removePattern(index) {
@@ -243,8 +250,14 @@ export default function ClassroomDetailClient({ classroomId }) {
                                     />
                                 </div>
 
-                                <h3 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>Select Content</h3>
-                                <div style={{ border: '1px solid var(--border)', borderRadius: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+                                <h3 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: 'var(--text)' }}>Select Content</h3>
+                                <div style={{
+                                    border: '1px solid var(--border)',
+                                    borderRadius: '8px',
+                                    maxHeight: '300px',
+                                    overflowY: 'auto',
+                                    background: 'var(--background)'
+                                }}>
                                     {contentTree.map(topic => (
                                         <div key={topic.id}>
                                             <div
@@ -254,30 +267,63 @@ export default function ClassroomDetailClient({ classroomId }) {
                                                     cursor: 'pointer',
                                                     background: 'var(--surface)',
                                                     borderBottom: '1px solid var(--border)',
-                                                    fontWeight: '600'
+                                                    fontWeight: '600',
+                                                    color: 'var(--text)',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.5rem'
                                                 }}
                                             >
-                                                {expandedTopics[topic.id] ? '▼' : '▶'} {topic.name}
+                                                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                                    {expandedTopics[topic.id] ? '▼' : '▶'}
+                                                </span>
+                                                <span>{topic.name}</span>
                                             </div>
                                             {expandedTopics[topic.id] && (
-                                                <div style={{ padding: '0.5rem' }}>
-                                                    {topic.patterns.map(pattern => (
-                                                        <div
-                                                            key={pattern.id}
-                                                            onClick={() => addPattern(topic, pattern)}
-                                                            style={{
-                                                                padding: '0.5rem',
-                                                                cursor: 'pointer',
-                                                                borderRadius: '4px',
-                                                                display: 'flex', justifyContent: 'space-between',
-                                                                background: newAssignment.selectedPatterns.some(p => p.patternId === pattern.id) ? 'rgba(var(--primary-rgb), 0.1)' : 'transparent'
-                                                            }}
-                                                            className="hover-bg"
-                                                        >
-                                                            <span>{pattern.name}</span>
-                                                            {newAssignment.selectedPatterns.some(p => p.patternId === pattern.id) && <span>✓</span>}
-                                                        </div>
-                                                    ))}
+                                                <div style={{ padding: '0.5rem', background: 'var(--background)' }}>
+                                                    {topic.patterns.map(pattern => {
+                                                        const isSelected = newAssignment.selectedPatterns.some(p => p.patternId === pattern.id);
+                                                        return (
+                                                            <div
+                                                                key={pattern.id}
+                                                                onClick={() => addPattern(topic, pattern)}
+                                                                style={{
+                                                                    padding: '0.5rem 0.75rem',
+                                                                    cursor: 'pointer',
+                                                                    borderRadius: '4px',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '0.5rem',
+                                                                    background: isSelected ? 'rgba(var(--primary-rgb), 0.1)' : 'transparent',
+                                                                    transition: 'background 0.2s'
+                                                                }}
+                                                                onMouseEnter={(e) => {
+                                                                    if (!isSelected) e.currentTarget.style.background = 'var(--surface)';
+                                                                }}
+                                                                onMouseLeave={(e) => {
+                                                                    if (!isSelected) e.currentTarget.style.background = 'transparent';
+                                                                }}
+                                                            >
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={isSelected}
+                                                                    readOnly
+                                                                    style={{
+                                                                        cursor: 'pointer',
+                                                                        width: '16px',
+                                                                        height: '16px'
+                                                                    }}
+                                                                />
+                                                                <span style={{
+                                                                    flex: 1,
+                                                                    color: 'var(--text)',
+                                                                    fontSize: '0.95rem'
+                                                                }}>
+                                                                    {pattern.name}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             )}
                                         </div>
