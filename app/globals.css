@@ -64,6 +64,43 @@
   /* Force dark mode for specific elements */
   body {
     color-scheme: dark;
+    background: var(--background);
+    color: var(--text-main);
+  }
+
+  /* Cards and surfaces */
+  .card {
+    background: var(--surface);
+    color: var(--text-main);
+    border-color: var(--border);
+  }
+
+  /* Buttons - ensure visible text */
+  .btn {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .btn:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+  }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text-main);
+    border-color: var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--border);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text-main);
+    border-color: var(--border);
   }
 
   /* Ensure inputs respect dark mode */
@@ -73,6 +110,11 @@
     background: var(--surface);
     color: var(--text-main);
     border-color: var(--border);
+  }
+
+  /* Topic selection buttons */
+  button {
+    color: var(--text-main);
   }
 
   /* Dark mode for alerts */

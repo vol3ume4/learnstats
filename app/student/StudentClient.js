@@ -420,7 +420,7 @@ export default function StudentClient() {
       </div>
 
       {/* LEVEL 2: App Bar (Title & Actions) */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)', flexWrap: 'wrap', gap: '1rem' }}>
 
         {/* Left: LearnStats Title */}
         <div style={{ textAlign: 'left' }}>
@@ -431,19 +431,19 @@ export default function StudentClient() {
         </div>
 
         {/* Right: Navigation Buttons */}
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <StudentHelp />
           <button
             className="btn btn-secondary"
             onClick={() => router.push("/student/share")}
-            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', whiteSpace: 'nowrap' }}
           >
             ➕ Share Question
           </button>
           <button
             className="btn btn-secondary"
             onClick={() => router.push("/student/dashboard")}
-            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', whiteSpace: 'nowrap' }}
           >
             📊 My Dashboard
           </button>
@@ -453,7 +453,7 @@ export default function StudentClient() {
               await supabase.auth.signOut();
               router.push("/login");
             }}
-            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+            style={{ fontSize: '0.875rem', padding: '0.5rem 1rem', whiteSpace: 'nowrap' }}
           >
             Sign Out
           </button>
