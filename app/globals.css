@@ -88,17 +88,17 @@
   }
 
   .btn-secondary {
-    background: #4b5563;
+    background: #4b5563 !important;
     /* Even darker grey (Gray 600) for better contrast */
-    color: #ffffff;
+    color: #ffffff !important;
     /* Pure white text */
-    border-color: #6b7280;
+    border-color: #6b7280 !important;
   }
 
   .btn-secondary:hover {
-    background: #6b7280;
+    background: #6b7280 !important;
     /* Gray 500 on hover */
-    color: #ffffff;
+    color: #ffffff !important;
   }
 
   .btn-outline {
