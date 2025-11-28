@@ -16,7 +16,7 @@ export default function ClassroomDetailClient({ classroomId }) {
         title: "",
         description: "",
         dueDate: "",
-        selectedPatterns: [] // { topicId, patternId, topicName, patternName, difficulty, count }
+        selectedPatterns: [] // { topicId, patternId, topicName, patternName }
     });
 
     // Content Tree State
@@ -64,8 +64,7 @@ export default function ClassroomDetailClient({ classroomId }) {
         }));
     }
 
-    function addPattern(topic, pattern) {
-        // Check if already added - if so, remove it (toggle behavior)
+    function togglePattern(topic, pattern) {
         const existingIndex = newAssignment.selectedPatterns.findIndex(p => p.patternId === pattern.id);
 
         if (existingIndex !== -1) {
@@ -82,10 +81,38 @@ export default function ClassroomDetailClient({ classroomId }) {
                     topicId: topic.id,
                     patternId: pattern.id,
                     topicName: topic.name,
-                    patternName: pattern.name,
-                    difficulty: 'Medium',
-                    count: 5
+                    patternName: pattern.name
                 }]
+            }));
+        }
+    }
+
+    function toggleAllPatternsInTopic(topic) {
+        const topicPatternIds = topic.patterns.map(p => p.id);
+        const allSelected = topicPatternIds.every(id =>
+            newAssignment.selectedPatterns.some(p => p.patternId === id)
+        );
+
+        if (allSelected) {
+            // Remove all patterns from this topic
+            setNewAssignment(prev => ({
+                ...prev,
+                selectedPatterns: prev.selectedPatterns.filter(p => p.topicId !== topic.id)
+            }));
+        } else {
+            // Add all patterns from this topic
+            const newPatterns = topic.patterns
+                .filter(pattern => !newAssignment.selectedPatterns.some(p => p.patternId === pattern.id))
+                .map(pattern => ({
+                    topicId: topic.id,
+                    patternId: pattern.id,
+                    topicName: topic.name,
+                    patternName: pattern.name
+                }));
+
+            setNewAssignment(prev => ({
+                ...prev,
+                selectedPatterns: [...prev.selectedPatterns, ...newPatterns]
             }));
         }
     }
@@ -95,14 +122,6 @@ export default function ClassroomDetailClient({ classroomId }) {
             ...prev,
             selectedPatterns: prev.selectedPatterns.filter((_, i) => i !== index)
         }));
-    }
-
-    function updatePatternConfig(index, field, value) {
-        setNewAssignment(prev => {
-            const updated = [...prev.selectedPatterns];
-            updated[index] = { ...updated[index], [field]: value };
-            return { ...prev, selectedPatterns: updated };
-        });
     }
 
     async function createAssignment() {
@@ -118,6 +137,13 @@ export default function ClassroomDetailClient({ classroomId }) {
         try {
             const { data: { user } } = await supabase.auth.getUser();
 
+            // Expand each pattern into 3 difficulty levels
+            const patternsWithDifficulties = newAssignment.selectedPatterns.flatMap(p => [
+                { ...p, difficulty: 'Easy', count: 3 },
+                { ...p, difficulty: 'Medium', count: 4 },
+                { ...p, difficulty: 'Hard', count: 5 }
+            ]);
+
             const response = await fetch('/api/teacher/assignments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -127,7 +153,7 @@ export default function ClassroomDetailClient({ classroomId }) {
                     title: newAssignment.title,
                     description: newAssignment.description,
                     dueDate: newAssignment.dueDate,
-                    patterns: newAssignment.selectedPatterns
+                    patterns: patternsWithDifficulties
                 })
             });
 
@@ -216,7 +242,10 @@ export default function ClassroomDetailClient({ classroomId }) {
                 }}>
                     <div className="card" style={{ width: '100%', maxWidth: '900px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: 0 }}>
                         <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
-                            <h2 style={{ margin: 0 }}>Create New Assignment</h2>
+                            <h2 style={{ margin: 0, color: 'var(--text)' }}>Create New Assignment</h2>
+                            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                Auto-progression: Easy (3 questions) → Medium (4 questions) → Hard (5 questions)
+                            </p>
                         </div>
 
                         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
@@ -250,7 +279,7 @@ export default function ClassroomDetailClient({ classroomId }) {
                                     />
                                 </div>
 
-                                <h3 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: 'var(--text)' }}>Select Content</h3>
+                                <h3 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: 'var(--text)' }}>Select Patterns</h3>
                                 <div style={{
                                     border: '1px solid var(--border)',
                                     borderRadius: '8px',
@@ -258,120 +287,147 @@ export default function ClassroomDetailClient({ classroomId }) {
                                     overflowY: 'auto',
                                     background: 'var(--background)'
                                 }}>
-                                    {contentTree.map(topic => (
-                                        <div key={topic.id}>
-                                            <div
-                                                onClick={() => toggleTopic(topic.id)}
-                                                style={{
-                                                    padding: '0.75rem',
-                                                    cursor: 'pointer',
-                                                    background: 'var(--surface)',
-                                                    borderBottom: '1px solid var(--border)',
-                                                    fontWeight: '600',
-                                                    color: 'var(--text)',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '0.5rem'
-                                                }}
-                                            >
-                                                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                                    {expandedTopics[topic.id] ? '▼' : '▶'}
-                                                </span>
-                                                <span>{topic.name}</span>
-                                            </div>
-                                            {expandedTopics[topic.id] && (
-                                                <div style={{ padding: '0.5rem', background: 'var(--background)' }}>
-                                                    {topic.patterns.map(pattern => {
-                                                        const isSelected = newAssignment.selectedPatterns.some(p => p.patternId === pattern.id);
-                                                        return (
-                                                            <div
-                                                                key={pattern.id}
-                                                                onClick={() => addPattern(topic, pattern)}
-                                                                style={{
-                                                                    padding: '0.5rem 0.75rem',
-                                                                    cursor: 'pointer',
-                                                                    borderRadius: '4px',
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    gap: '0.5rem',
-                                                                    background: isSelected ? 'rgba(var(--primary-rgb), 0.1)' : 'transparent',
-                                                                    transition: 'background 0.2s'
-                                                                }}
-                                                                onMouseEnter={(e) => {
-                                                                    if (!isSelected) e.currentTarget.style.background = 'var(--surface)';
-                                                                }}
-                                                                onMouseLeave={(e) => {
-                                                                    if (!isSelected) e.currentTarget.style.background = 'transparent';
-                                                                }}
-                                                            >
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={isSelected}
-                                                                    readOnly
-                                                                    style={{
-                                                                        cursor: 'pointer',
-                                                                        width: '16px',
-                                                                        height: '16px'
-                                                                    }}
-                                                                />
-                                                                <span style={{
-                                                                    flex: 1,
-                                                                    color: 'var(--text)',
-                                                                    fontSize: '0.95rem'
-                                                                }}>
-                                                                    {pattern.name}
-                                                                </span>
-                                                            </div>
-                                                        );
-                                                    })}
+                                    {contentTree.map(topic => {
+                                        const topicPatternIds = topic.patterns.map(p => p.id);
+                                        const allTopicPatternsSelected = topicPatternIds.length > 0 && topicPatternIds.every(id =>
+                                            newAssignment.selectedPatterns.some(p => p.patternId === id)
+                                        );
+                                        const someTopicPatternsSelected = topicPatternIds.some(id =>
+                                            newAssignment.selectedPatterns.some(p => p.patternId === id)
+                                        );
+
+                                        return (
+                                            <div key={topic.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                                <div
+                                                    style={{
+                                                        padding: '0.75rem',
+                                                        background: 'var(--surface)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '0.75rem'
+                                                    }}
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={allTopicPatternsSelected}
+                                                        onChange={() => toggleAllPatternsInTopic(topic)}
+                                                        style={{
+                                                            cursor: 'pointer',
+                                                            width: '18px',
+                                                            height: '18px',
+                                                            opacity: someTopicPatternsSelected && !allTopicPatternsSelected ? 0.5 : 1
+                                                        }}
+                                                    />
+                                                    <span
+                                                        onClick={() => toggleTopic(topic.id)}
+                                                        style={{
+                                                            flex: 1,
+                                                            cursor: 'pointer',
+                                                            fontWeight: '600',
+                                                            color: 'var(--text)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.5rem'
+                                                        }}
+                                                    >
+                                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                                            {expandedTopics[topic.id] ? '▼' : '▶'}
+                                                        </span>
+                                                        {topic.name}
+                                                    </span>
                                                 </div>
-                                            )}
-                                        </div>
-                                    ))}
+                                                {expandedTopics[topic.id] && (
+                                                    <div style={{ padding: '0.5rem 0.5rem 0.5rem 2.5rem', background: 'var(--background)' }}>
+                                                        {topic.patterns.map(pattern => {
+                                                            const isSelected = newAssignment.selectedPatterns.some(p => p.patternId === pattern.id);
+                                                            return (
+                                                                <div
+                                                                    key={pattern.id}
+                                                                    onClick={() => togglePattern(topic, pattern)}
+                                                                    style={{
+                                                                        padding: '0.5rem 0.75rem',
+                                                                        cursor: 'pointer',
+                                                                        borderRadius: '4px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '0.75rem',
+                                                                        background: isSelected ? 'rgba(var(--primary-rgb), 0.1)' : 'transparent',
+                                                                        transition: 'background 0.2s',
+                                                                        marginBottom: '0.25rem'
+                                                                    }}
+                                                                    onMouseEnter={(e) => {
+                                                                        if (!isSelected) e.currentTarget.style.background = 'var(--surface)';
+                                                                    }}
+                                                                    onMouseLeave={(e) => {
+                                                                        if (!isSelected) e.currentTarget.style.background = 'transparent';
+                                                                    }}
+                                                                >
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={isSelected}
+                                                                        readOnly
+                                                                        style={{
+                                                                            cursor: 'pointer',
+                                                                            width: '16px',
+                                                                            height: '16px'
+                                                                        }}
+                                                                    />
+                                                                    <span style={{
+                                                                        flex: 1,
+                                                                        color: 'var(--text)',
+                                                                        fontSize: '0.95rem'
+                                                                    }}>
+                                                                        {pattern.name}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
-                            {/* Right Column: Selected Items Configuration */}
+                            {/* Right Column: Selected Items */}
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <h3 style={{ marginTop: 0 }}>Selected Patterns ({newAssignment.selectedPatterns.length})</h3>
+                                <h3 style={{ marginTop: 0, color: 'var(--text)' }}>Selected Patterns ({newAssignment.selectedPatterns.length})</h3>
                                 {newAssignment.selectedPatterns.length === 0 ? (
                                     <div style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>
-                                        Select patterns from the left to add them to this assignment.
+                                        Select patterns from the left. Each pattern will include all three difficulty levels.
                                     </div>
                                 ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', overflowY: 'auto' }}>
                                         {newAssignment.selectedPatterns.map((item, index) => (
-                                            <div key={index} className="card" style={{ padding: '1rem', border: '1px solid var(--border)' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                                    <strong>{item.topicName} - {item.patternName}</strong>
-                                                    <button
-                                                        onClick={() => removePattern(index)}
-                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
-                                                    >
-                                                        ×
-                                                    </button>
+                                            <div key={index} className="card" style={{
+                                                padding: '0.75rem',
+                                                border: '1px solid var(--border)',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center'
+                                            }}>
+                                                <div>
+                                                    <div style={{ fontWeight: '600', color: 'var(--text)', marginBottom: '0.25rem' }}>
+                                                        {item.patternName}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                        {item.topicName} • Easy (3) → Medium (4) → Hard (5)
+                                                    </div>
                                                 </div>
-                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                    <select
-                                                        className="input"
-                                                        style={{ padding: '0.25rem' }}
-                                                        value={item.difficulty}
-                                                        onChange={e => updatePatternConfig(index, 'difficulty', e.target.value)}
-                                                    >
-                                                        <option value="Easy">Easy</option>
-                                                        <option value="Medium">Medium</option>
-                                                        <option value="Hard">Hard</option>
-                                                    </select>
-                                                    <input
-                                                        className="input"
-                                                        type="number"
-                                                        min="1" max="20"
-                                                        style={{ padding: '0.25rem', width: '60px' }}
-                                                        value={item.count}
-                                                        onChange={e => updatePatternConfig(index, 'count', parseInt(e.target.value))}
-                                                    />
-                                                    <span style={{ alignSelf: 'center', fontSize: '0.9rem' }}>questions</span>
-                                                </div>
+                                                <button
+                                                    onClick={() => removePattern(index)}
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        fontSize: '1.5rem',
+                                                        color: 'var(--text-secondary)',
+                                                        padding: '0 0.5rem'
+                                                    }}
+                                                >
+                                                    ×
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
