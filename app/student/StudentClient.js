@@ -441,6 +441,12 @@ export default function StudentClient() {
           <StudentHelp />
           <button
             className="btn btn-secondary"
+            onClick={() => router.push("/student/classrooms")}
+          >
+            🏫 My Classrooms
+          </button>
+          <button
+            className="btn btn-secondary"
             onClick={() => router.push("/student/share")}
           >
             ➕ Share Question
