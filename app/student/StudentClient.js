@@ -420,30 +420,36 @@ export default function StudentClient() {
       </div>
 
       {/* LEVEL 2: App Bar (Title & Actions) */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)', flexWrap: 'wrap', gap: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)', flexWrap: 'wrap', gap: '1rem' }}>
 
         {/* Left: LearnStats Title */}
-        <div style={{ textAlign: 'left' }}>
+        <div style={{ textAlign: 'left', flex: '1 1 auto', minWidth: '200px' }}>
           <a href="https://learnstats.vercel.app" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--primary)', lineHeight: '1.2' }}>LearnStats</div>
           </a>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Interactive Statistics Practice</div>
         </div>
 
-        {/* Right: Navigation Buttons */}
-        <div className="student-nav-buttons" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        {/* Right: Navigation Buttons - Grid on mobile */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+          gap: '0.5rem',
+          maxWidth: '100%',
+          width: 'auto'
+        }}>
           <StudentHelp />
           <button
             className="btn btn-secondary"
             onClick={() => router.push("/student/share")}
-            style={{ fontSize: '0.75rem', padding: '0.4rem 0.75rem', whiteSpace: 'nowrap' }}
+            style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem', whiteSpace: 'nowrap' }}
           >
             ➕ Share
           </button>
           <button
             className="btn btn-secondary"
             onClick={() => router.push("/student/dashboard")}
-            style={{ fontSize: '0.75rem', padding: '0.4rem 0.75rem', whiteSpace: 'nowrap' }}
+            style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem', whiteSpace: 'nowrap' }}
           >
             📊 Dashboard
           </button>
@@ -453,7 +459,7 @@ export default function StudentClient() {
               await supabase.auth.signOut();
               router.push("/login");
             }}
-            style={{ fontSize: '0.75rem', padding: '0.4rem 0.75rem', whiteSpace: 'nowrap' }}
+            style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem', whiteSpace: 'nowrap' }}
           >
             🚪 Sign Out
           </button>
