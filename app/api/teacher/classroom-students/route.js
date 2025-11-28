@@ -27,27 +27,44 @@ export async function GET(request) {
         if (error) throw error;
 
         // Create Admin Client for fetching emails (requires Service Role Key)
-        // Note: Ensure SUPABASE_SERVICE_ROLE_KEY is set in your Vercel Environment Variables
-        const adminClient = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.SUPABASE_SERVICE_ROLE_KEY,
-            {
-                auth: {
-                    autoRefreshToken: false,
-                    persistSession: false
+        let adminClient = null;
+        if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            adminClient = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL,
+                process.env.SUPABASE_SERVICE_ROLE_KEY,
+                {
+                    auth: {
+                        autoRefreshToken: false,
+                        persistSession: false
+                    }
                 }
-            }
-        );
+            );
+        } else {
+            console.warn("SUPABASE_SERVICE_ROLE_KEY is missing. Emails will not be fetched.");
+        }
 
         // Fetch emails separately using service role
         const students = [];
         for (const enrollment of data) {
-            // Use adminClient here, NOT the regular supabase client
-            const { data: { user } } = await adminClient.auth.admin.getUserById(enrollment.student_id);
+            let email = 'Unknown';
+
+            if (adminClient) {
+                try {
+                    const { data: { user }, error: userError } = await adminClient.auth.admin.getUserById(enrollment.student_id);
+                    if (!userError && user) {
+                        email = user.email;
+                    }
+                } catch (err) {
+                    console.error(`Failed to fetch user ${enrollment.student_id}:`, err);
+                }
+            } else {
+                email = 'Email Hidden (Config Error)';
+            }
+
             students.push({
                 id: enrollment.id,
                 student_id: enrollment.student_id,
-                email: user?.email || 'Unknown',
+                email: email,
                 is_active: enrollment.is_active,
                 joined_at: enrollment.enrolled_at
             });
