@@ -16,16 +16,18 @@ export async function GET(request) {
             .from('classroom_enrollments')
             .select(`
                 classroom_id,
-                classrooms (
+                classrooms!inner (
                     id,
                     name,
                     description,
                     teacher_id,
                     invite_code,
-                    created_at
+                    created_at,
+                    is_active
                 )
             `)
-            .eq('student_id', studentId);
+            .eq('student_id', studentId)
+            .eq('classrooms.is_active', true);
 
         if (enrollError) throw enrollError;
 
