@@ -40,12 +40,13 @@ export default function MobileBanner() {
             position: 'sticky',
             top: 0,
             zIndex: 999,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'var(--primary)',
             color: 'white',
             padding: '0.75rem 1rem',
             fontSize: '0.85rem',
             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            animation: 'slideDown 0.3s ease-out'
+            animation: 'slideDown 0.3s ease-out',
+            borderBottom: '1px solid rgba(255,255,255,0.1)'
         }}>
             <div style={{
                 display: 'flex',
@@ -59,7 +60,7 @@ export default function MobileBanner() {
                     <span style={{ fontSize: '1.25rem' }}>💡</span>
                     <div style={{ lineHeight: '1.4' }}>
                         <strong>Best on Desktop</strong>
-                        <div style={{ fontSize: '0.75rem', opacity: 0.9, marginTop: '2px' }}>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.95, marginTop: '2px' }}>
                             For the full experience with math rendering and better navigation
                         </div>
                     </div>
@@ -67,8 +68,8 @@ export default function MobileBanner() {
                 <button
                     onClick={handleDismiss}
                     style={{
-                        background: 'rgba(255,255,255,0.2)',
-                        border: 'none',
+                        background: 'rgba(255,255,255,0.25)',
+                        border: '1px solid rgba(255,255,255,0.3)',
                         color: 'white',
                         padding: '0.25rem 0.75rem',
                         borderRadius: '4px',

@@ -39,15 +39,59 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary: #6366f1;
-    /* Indigo 500 */
-    --primary-hover: #818cf8;
-    /* Indigo 400 */
-    --background: #0a0a0a;
-    --surface: #171717;
+    --primary: #818cf8;
+    /* Indigo 400 - brighter for dark mode */
+    --primary-hover: #a5b4fc;
+    /* Indigo 300 */
+    --background: #111827;
+    /* Gray 900 */
+    --surface: #1f2937;
+    /* Gray 800 */
     --text-main: #f9fafb;
-    --text-secondary: #9ca3af;
-    --border: #262626;
+    /* Gray 50 */
+    --text-secondary: #d1d5db;
+    /* Gray 300 - lighter for better readability */
+    --border: #374151;
+    /* Gray 700 */
+    --error: #f87171;
+    /* Red 400 */
+    --success: #34d399;
+    /* Emerald 400 */
+    --warning: #fbbf24;
+    /* Amber 400 */
+  }
+
+  /* Force dark mode for specific elements */
+  body {
+    color-scheme: dark;
+  }
+
+  /* Ensure inputs respect dark mode */
+  .input,
+  .select,
+  textarea {
+    background: var(--surface);
+    color: var(--text-main);
+    border-color: var(--border);
+  }
+
+  /* Dark mode for alerts */
+  .alert-info {
+    background: #1e3a8a;
+    color: #dbeafe;
+    border-left-color: #3b82f6;
+  }
+
+  .alert-success {
+    background: #064e3b;
+    color: #d1fae5;
+    border-left-color: var(--success);
+  }
+
+  .alert-error {
+    background: #7f1d1d;
+    color: #fee2e2;
+    border-left-color: var(--error);
   }
 }
 
