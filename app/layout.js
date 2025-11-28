@@ -14,7 +14,12 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "LearnStats - Interactive Statistics Practice",
   description: "Master statistics through interactive practice with AI-generated questions",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 import Navbar from "./components/Navbar";
