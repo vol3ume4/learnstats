@@ -21,13 +21,23 @@ export async function GET(request) {
 
         if (patternsError) throw patternsError;
 
+        // Get assignment start time
+        const { data: progress } = await supabase
+            .from('assignment_student_progress')
+            .select('started_at')
+            .eq('assignment_id', assignmentId)
+            .eq('student_id', studentId)
+            .single();
+
+        const startedAt = progress?.started_at || new Date(0).toISOString();
+
         // Calculate progress for each pattern/difficulty
         const progressDetails = await Promise.all(
             assignmentPatterns.map(async (ap) => {
                 const difficulty = ap.difficulty;
                 const requiredCount = ap.required_questions;
 
-                // Check if student has completed this pattern at this difficulty
+                // Count correct answers since assignment started
                 const query = `
                     SELECT COUNT(*) as completed_count
                     FROM practice_history
@@ -35,18 +45,21 @@ export async function GET(request) {
                     AND pattern_id = $2
                     AND difficulty = $3
                     AND is_correct = true
-                    ORDER BY created_at DESC
-                    LIMIT $4
+                    AND created_at > $4
                 `;
 
                 const result = await client.query(query, [
                     studentId,
                     ap.pattern_id,
                     difficulty,
-                    requiredCount
+                    startedAt
                 ]);
 
-                const completedCount = parseInt(result.rows[0]?.completed_count || 0);
+                let completedCount = parseInt(result.rows[0]?.completed_count || 0);
+
+                // Cap at required count
+                if (completedCount > requiredCount) completedCount = requiredCount;
+
                 const isComplete = completedCount >= requiredCount;
 
                 return {
