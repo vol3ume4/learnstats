@@ -44,7 +44,7 @@ export async function GET(request) {
                     WHERE user_id = $1
                     AND pattern_id = $2
                     AND difficulty = $3
-                    AND correct = true
+                    AND is_correct = true
                     AND created_at > $4
                 `;
 
