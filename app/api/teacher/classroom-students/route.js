@@ -12,13 +12,13 @@ export async function GET(request) {
         const supabase = getSupabaseServerClient();
 
         const { data, error } = await supabase
-            .from('classroom_students')
+            .from('classroom_enrollments')
             .select(`
                 id,
                 student_id,
                 is_active,
                 joined_at,
-                profiles!classroom_students_student_id_fkey(email)
+                profiles!classroom_enrollments_student_id_fkey(email)
             `)
             .eq('classroom_id', classroomId)
             .order('joined_at', { ascending: false });
@@ -48,7 +48,7 @@ export async function POST(request) {
         const supabase = getSupabaseServerClient();
 
         const { error } = await supabase
-            .from('classroom_students')
+            .from('classroom_enrollments')
             .update({ is_active: isActive })
             .eq('student_id', studentId)
             .eq('classroom_id', classroomId);
