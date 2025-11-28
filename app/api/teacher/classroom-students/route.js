@@ -11,14 +11,34 @@ export async function GET(request) {
 
         const supabase = getSupabaseServerClient();
 
-        // Use raw SQL to join with auth.users
-        const { data, error } = await supabase.rpc('get_classroom_students', {
-            p_classroom_id: classroomId
-        });
+        // Direct SQL query to join with auth.users
+        const { data, error } = await supabase
+            .from('classroom_enrollments')
+            .select(`
+                id,
+                student_id,
+                is_active,
+                enrolled_at
+            `)
+            .eq('classroom_id', classroomId)
+            .order('enrolled_at', { ascending: false });
 
         if (error) throw error;
 
-        return Response.json({ students: data || [] });
+        // Fetch emails separately using service role
+        const students = [];
+        for (const enrollment of data) {
+            const { data: { user } } = await supabase.auth.admin.getUserById(enrollment.student_id);
+            students.push({
+                id: enrollment.id,
+                student_id: enrollment.student_id,
+                email: user?.email || 'Unknown',
+                is_active: enrollment.is_active,
+                joined_at: enrollment.enrolled_at
+            });
+        }
+
+        return Response.json({ students });
 
     } catch (error) {
         console.error('Error fetching students:', error);
