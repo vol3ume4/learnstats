@@ -81,7 +81,7 @@ export default function ClassroomDetailClient({ classroomId }) {
                     topicId: topic.id,
                     patternId: pattern.id,
                     topicName: topic.name,
-                    patternName: pattern.name
+                    patternName: pattern.pattern  // Changed from pattern.name
                 }]
             }));
         }
@@ -107,7 +107,7 @@ export default function ClassroomDetailClient({ classroomId }) {
                     topicId: topic.id,
                     patternId: pattern.id,
                     topicName: topic.name,
-                    patternName: pattern.name
+                    patternName: pattern.pattern  // Changed from pattern.name
                 }));
 
             setNewAssignment(prev => ({
@@ -377,7 +377,7 @@ export default function ClassroomDetailClient({ classroomId }) {
                                                                         color: 'var(--text)',
                                                                         fontSize: '0.95rem'
                                                                     }}>
-                                                                        {pattern.name}
+                                                                        {pattern.pattern}
                                                                     </span>
                                                                 </div>
                                                             );
