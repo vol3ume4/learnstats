@@ -10,6 +10,8 @@ export default function ClassroomDetailClient({ classroomId }) {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [viewingAssignment, setViewingAssignment] = useState(null);
+    const [assignmentDetails, setAssignmentDetails] = useState(null);
 
     // Assignment Form State
     const [newAssignment, setNewAssignment] = useState({
@@ -173,18 +175,94 @@ export default function ClassroomDetailClient({ classroomId }) {
         }
     }
 
+    async function viewAssignmentDetails(assignment) {
+        try {
+            const { data, error } = await supabase
+                .from('assignment_patterns')
+                .select(`
+                    *,
+                    topics(name),
+                    patterns(pattern)
+                `)
+                .eq('assignment_id', assignment.id);
+
+            if (error) throw error;
+
+            // Group by pattern to show unique patterns with their difficulties
+            const patternMap = {};
+            data.forEach(ap => {
+                const key = ap.pattern_id;
+                if (!patternMap[key]) {
+                    patternMap[key] = {
+                        patternId: ap.pattern_id,
+                        patternName: ap.patterns.pattern,
+                        topicName: ap.topics.name,
+                        difficulties: []
+                    };
+                }
+                patternMap[key].difficulties.push({
+                    difficulty: ap.difficulty,
+                    count: ap.required_questions
+                });
+            });
+
+            setAssignmentDetails(Object.values(patternMap));
+            setViewingAssignment(assignment);
+        } catch (error) {
+            console.error('Error loading assignment details:', error);
+            alert('Failed to load assignment details');
+        }
+    }
+
     if (loading) return <div className="card">Loading...</div>;
     if (!classroom) return <div className="card">Classroom not found</div>;
 
     return (
         <div className="container">
+            {/* LEVEL 1: Top Bar (Brand & Mode) */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--primary)' }}>
+                    Teacher Mode
+                </div>
+            </div>
+
+            {/* LEVEL 2: App Bar (Title & Actions) */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)', flexWrap: 'wrap', gap: '1rem' }}>
+                {/* Left: LearnStats Title */}
+                <div style={{ textAlign: 'left', flex: '1 1 auto', minWidth: '200px' }}>
+                    <a href="https://learnstats.vercel.app" style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--primary)', lineHeight: '1.2' }}>LearnStats</div>
+                    </a>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Teacher Studio</div>
+                </div>
+
+                {/* Right: Navigation Buttons */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                    gap: '0.5rem',
+                    maxWidth: '100%',
+                    width: 'auto'
+                }}>
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => router.push("/teacher")}
+                    >
+                        🏫 My Classrooms
+                    </button>
+                    <button
+                        className="btn btn-secondary"
+                        onClick={async () => {
+                            await supabase.auth.signOut();
+                            router.push("/login");
+                        }}
+                    >
+                        🚪 Sign Out
+                    </button>
+                </div>
+            </div>
+
             <div style={{ marginBottom: '2rem' }}>
-                <button
-                    onClick={() => router.push('/teacher')}
-                    style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', marginBottom: '1rem' }}
-                >
-                    ← Back to Classrooms
-                </button>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                         <h1 className="page-title" style={{ marginBottom: '0.5rem' }}>{classroom.name}</h1>
@@ -206,8 +284,8 @@ export default function ClassroomDetailClient({ classroomId }) {
                 <div style={{ display: 'grid', gap: '1rem' }}>
                     {assignments.map(assignment => (
                         <div key={assignment.id} className="card">
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div style={{ flex: 1 }}>
                                     <h3 style={{ margin: 0, color: 'var(--primary)' }}>{assignment.title}</h3>
                                     <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
                                         {assignment.description}
@@ -217,14 +295,21 @@ export default function ClassroomDetailClient({ classroomId }) {
                                             📅 Due: {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : 'No due date'}
                                         </span>
                                         <span style={{ background: 'var(--surface)', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
-                                            📚 {assignment.patternCount} Patterns
+                                            📚 {assignment.patternCount} {assignment.patternCount === 1 ? 'Pattern' : 'Patterns'}
                                         </span>
                                     </div>
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
                                     <span className={`badge ${assignment.is_active ? 'badge-success' : 'badge-warning'}`}>
                                         {assignment.is_active ? 'Active' : 'Draft'}
                                     </span>
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={() => viewAssignmentDetails(assignment)}
+                                        style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem' }}
+                                    >
+                                        View Details
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -438,6 +523,90 @@ export default function ClassroomDetailClient({ classroomId }) {
                         <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
                             <button className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>Cancel</button>
                             <button className="btn" onClick={createAssignment}>Create Assignment</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* View Assignment Details Modal */}
+            {viewingAssignment && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.8)', zIndex: 1000,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '2rem'
+                }} onClick={() => { setViewingAssignment(null); setAssignmentDetails(null); }}>
+                    <div className="card" style={{
+                        width: '100%',
+                        maxWidth: '700px',
+                        maxHeight: '90vh',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: 0
+                    }} onClick={(e) => e.stopPropagation()}>
+                        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
+                            <h2 style={{ margin: 0, color: 'var(--text)' }}>{viewingAssignment.title}</h2>
+                            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                {viewingAssignment.description}
+                            </p>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', fontSize: '0.85rem' }}>
+                                <span style={{ background: 'var(--surface)', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+                                    📅 Due: {viewingAssignment.due_date ? new Date(viewingAssignment.due_date).toLocaleDateString() : 'No due date'}
+                                </span>
+                                <span style={{ background: 'var(--surface)', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+                                    📚 {assignmentDetails?.length || 0} {assignmentDetails?.length === 1 ? 'Pattern' : 'Patterns'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
+                            <h3 style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--text)' }}>Included Patterns</h3>
+                            {assignmentDetails ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    {assignmentDetails.map((pattern, index) => (
+                                        <div key={index} className="card" style={{
+                                            padding: '1rem',
+                                            border: '1px solid var(--border)',
+                                            background: 'var(--background)'
+                                        }}>
+                                            <div style={{ fontWeight: '600', color: 'var(--text)', marginBottom: '0.5rem' }}>
+                                                {pattern.patternName}
+                                            </div>
+                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+                                                {pattern.topicName}
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                                {pattern.difficulties.sort((a, b) => {
+                                                    const order = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
+                                                    return order[a.difficulty] - order[b.difficulty];
+                                                }).map((diff, i) => (
+                                                    <span key={i} style={{
+                                                        background: diff.difficulty === 'Easy' ? '#dcfce7' :
+                                                            diff.difficulty === 'Medium' ? '#fef3c7' : '#fee2e2',
+                                                        color: diff.difficulty === 'Easy' ? '#166534' :
+                                                            diff.difficulty === 'Medium' ? '#92400e' : '#991b1b',
+                                                        padding: '0.25rem 0.5rem',
+                                                        borderRadius: '4px',
+                                                        fontSize: '0.8rem',
+                                                        fontWeight: '500'
+                                                    }}>
+                                                        {diff.difficulty}: {diff.count} questions
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p style={{ color: 'var(--text-secondary)' }}>Loading...</p>
+                            )}
+                        </div>
+
+                        <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
+                            <button className="btn btn-secondary" onClick={() => { setViewingAssignment(null); setAssignmentDetails(null); }}>
+                                Close
+                            </button>
                         </div>
                     </div>
                 </div>

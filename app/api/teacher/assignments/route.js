@@ -16,7 +16,7 @@ export async function GET(request) {
             .select(`
                 *,
                 assignment_patterns (
-                    count
+                    pattern_id
                 )
             `)
             .eq('classroom_id', classroomId)
@@ -26,10 +26,13 @@ export async function GET(request) {
         if (error) throw error;
 
         // Transform to get pattern count
-        const formattedAssignments = assignments.map(a => ({
-            ...a,
-            patternCount: a.assignment_patterns?.length || 0
-        }));
+        const formattedAssignments = assignments.map(a => {
+            const uniquePatterns = new Set(a.assignment_patterns?.map(p => p.pattern_id));
+            return {
+                ...a,
+                patternCount: uniquePatterns.size
+            };
+        });
 
         return Response.json({ assignments: formattedAssignments });
     } catch (error) {

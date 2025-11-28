@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
+import StudentHelp from "../../StudentHelp";
 
 export default function ClassroomDetailClient({ classroomId }) {
     const router = useRouter();
@@ -96,21 +97,57 @@ export default function ClassroomDetailClient({ classroomId }) {
 
     return (
         <div className="container">
-            <div style={{ marginBottom: '2rem' }}>
-                <button
-                    onClick={() => router.push('/student/classrooms')}
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--primary)',
-                        cursor: 'pointer',
-                        marginBottom: '1rem',
-                        fontSize: '0.95rem'
-                    }}
-                >
-                    ← Back to My Classrooms
-                </button>
+            {/* LEVEL 1: Top Bar (Brand & Mode) */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--primary)' }}>
+                    Student Mode
+                </div>
+            </div>
 
+            {/* LEVEL 2: App Bar (Title & Actions) */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid var(--border)', flexWrap: 'wrap', gap: '1rem' }}>
+                {/* Left: LearnStats Title */}
+                <div style={{ textAlign: 'left', flex: '1 1 auto', minWidth: '200px' }}>
+                    <a href="https://learnstats.vercel.app" style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--primary)', lineHeight: '1.2' }}>LearnStats</div>
+                    </a>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Interactive Statistics Practice</div>
+                </div>
+
+                {/* Right: Navigation Buttons */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                    gap: '0.5rem',
+                    maxWidth: '100%',
+                    width: 'auto'
+                }}>
+                    <StudentHelp />
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => router.push("/student/classrooms")}
+                    >
+                        🏫 My Classrooms
+                    </button>
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => router.push("/student/dashboard")}
+                    >
+                        📊 My Dashboard
+                    </button>
+                    <button
+                        className="btn btn-secondary"
+                        onClick={async () => {
+                            await supabase.auth.signOut();
+                            router.push("/login");
+                        }}
+                    >
+                        🚪 Sign Out
+                    </button>
+                </div>
+            </div>
+
+            <div style={{ marginBottom: '2rem' }}>
                 <h1 className="page-title" style={{ marginBottom: '0.5rem' }}>
                     {classroom.name}
                 </h1>

@@ -46,6 +46,8 @@ export default function StudentClient() {
   const assignmentId = searchParams.get('assignmentId');
   const [activeAssignment, setActiveAssignment] = useState(null);
   const [assignmentProgress, setAssignmentProgress] = useState(null);
+  const [showAssignmentDetails, setShowAssignmentDetails] = useState(false);
+  const [assignmentPatternDetails, setAssignmentPatternDetails] = useState(null);
 
   const authCheckRan = useRef(false);
 
@@ -164,6 +166,46 @@ export default function StudentClient() {
       }
     }
   }, [userId, topicId, patternId, difficulty]);
+
+  async function loadAssignmentPatternDetails() {
+    if (!activeAssignment) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('assignment_patterns')
+        .select(`
+          *,
+          topics(name),
+          patterns(pattern)
+        `)
+        .eq('assignment_id', activeAssignment.id);
+
+      if (error) throw error;
+
+      // Group by pattern to show unique patterns with their difficulties
+      const patternMap = {};
+      data.forEach(ap => {
+        const key = ap.pattern_id;
+        if (!patternMap[key]) {
+          patternMap[key] = {
+            patternId: ap.pattern_id,
+            patternName: ap.patterns.pattern,
+            topicName: ap.topics.name,
+            difficulties: []
+          };
+        }
+        patternMap[key].difficulties.push({
+          difficulty: ap.difficulty,
+          count: ap.required_questions
+        });
+      });
+
+      setAssignmentPatternDetails(Object.values(patternMap));
+      setShowAssignmentDetails(true);
+    } catch (error) {
+      console.error('Error loading assignment details:', error);
+    }
+  }
 
   async function loadTopics() {
     try {
@@ -504,6 +546,17 @@ export default function StudentClient() {
     }
   }
 
+  // ---------- HELPERS ----------
+  const isTopicAssigned = (topicId) => {
+    if (!activeAssignment?.assignment_patterns) return false;
+    return activeAssignment.assignment_patterns.some(ap => ap.topic_id === topicId);
+  };
+
+  const isPatternAssigned = (patternId) => {
+    if (!activeAssignment?.assignment_patterns) return false;
+    return activeAssignment.assignment_patterns.some(ap => ap.pattern_id === patternId);
+  };
+
   // ---------- UI ----------
   return (
     <div className="container">
@@ -513,26 +566,38 @@ export default function StudentClient() {
           borderLeft: '4px solid var(--primary)',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
         }}>
-          <div>
+          <div style={{ flex: 1 }}>
             <strong>📝 Working on Assignment: {activeAssignment.title}</strong>
             <div style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>
               {assignmentProgress && (
                 <span>
-                  Progress: {assignmentProgress.summary.progressPercentage}%
-                  ({assignmentProgress.summary.totalCompleted}/{assignmentProgress.summary.totalRequired} patterns completed)
+                  Progress: {assignmentProgress.summary.progressPercentage}% •
+                  {' '}{assignmentProgress.summary.completedPatternCount}/{assignmentProgress.summary.uniquePatternCount} patterns completed •
+                  {' '}{assignmentProgress.summary.uniqueTopicCount} {assignmentProgress.summary.uniqueTopicCount === 1 ? 'topic' : 'topics'}
                 </span>
               )}
             </div>
           </div>
-          <button
-            className="btn btn-secondary"
-            onClick={() => router.push(`/student/classroom/${activeAssignment.classroom_id}`)}
-            style={{ fontSize: '0.85rem', padding: '0.25rem 0.75rem' }}
-          >
-            Exit Assignment
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              className="btn btn-secondary"
+              onClick={loadAssignmentPatternDetails}
+              style={{ fontSize: '0.85rem', padding: '0.25rem 0.75rem' }}
+            >
+              View Details
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={() => router.push(`/student/classroom/${activeAssignment.classroom_id}`)}
+              style={{ fontSize: '0.85rem', padding: '0.25rem 0.75rem' }}
+            >
+              Exit Assignment
+            </button>
+          </div>
         </div>
       )}
 
@@ -636,57 +701,74 @@ export default function StudentClient() {
             <h3 className="section-title">Select a Topic to Start</h3>
 
             <div className="topic-accordion" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {[
-                { title: "1. Foundations & Data", keywords: ["Scales", "Data", "Descriptive"] },
-                { title: "2. Probability Core", keywords: ["Probability Basics", "Conditional", "Bayes"] },
-                { title: "3. Probability Distributions", keywords: ["Binomial", "Poisson", "Normal", "Uniform", "t-Distribution", "F-Distribution", "Geometric", "Exponential"] },
-                { title: "4. Inference & Hypothesis Testing", keywords: ["Sampling", "Confidence", "z-test", "t-test", "ANOVA", "Chi-Square", "Regression", "Hypothesis"] }
-              ].map((group) => {
-                const groupTopics = topics.filter(t => group.keywords.some(k => t.name.includes(k)));
-                if (groupTopics.length === 0) return null;
-                const isExpanded = expandedGroup === group.title;
+              {(() => {
+                const groups = [
+                  { title: "1. Foundations & Data", keywords: ["Scales", "Data", "Descriptive"] },
+                  { title: "2. Probability Core", keywords: ["Probability Basics", "Conditional", "Bayes"] },
+                  { title: "3. Probability Distributions", keywords: ["Binomial", "Poisson", "Normal", "Uniform", "t-Distribution", "F-Distribution", "Geometric", "Exponential"] },
+                  { title: "4. Inference & Hypothesis Testing", keywords: ["Sampling", "Confidence", "z-test", "t-test", "ANOVA", "Chi-Square", "Regression", "Hypothesis"] }
+                ];
 
-                return (
-                  <div key={group.title} style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
-                    <button
-                      onClick={() => setExpandedGroup(isExpanded ? null : group.title)}
-                      style={{
-                        width: '100%', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        background: isExpanded ? 'var(--background)' : 'white', border: 'none', cursor: 'pointer', fontWeight: '600', color: 'var(--foreground)'
-                      }}
-                    >
-                      <span>{group.title}</span>
-                      <span>{isExpanded ? '−' : '+'}</span>
-                    </button>
+                const allKeywords = groups.flatMap(g => g.keywords);
+                const otherTopics = topics.filter(t => !allKeywords.some(k => t.name.includes(k)));
 
-                    {isExpanded && (
-                      <div style={{ background: 'white', borderTop: '1px solid var(--border)' }}>
-                        {groupTopics.map(t => (
-                          <button
-                            key={t.id}
-                            onClick={async () => {
-                              setTopicId(t.id);
-                              setPatternId(null);
-                              setCurrentQuestion(null);
-                              setEvaluation("");
-                              setStreak(0);
-                              await loadPatterns(t.id);
-                            }}
-                            style={{
-                              width: '100%', padding: '0.75rem 1.5rem', textAlign: 'left', background: 'white', color: 'var(--text-secondary)',
-                              border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s'
-                            }}
-                            onMouseOver={(e) => e.currentTarget.style.background = 'var(--background)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'white'}
-                          >
-                            {t.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                if (otherTopics.length > 0) {
+                  groups.push({ title: "5. Other Topics", keywords: [], customTopics: otherTopics });
+                }
+
+                return groups.map((group) => {
+                  const groupTopics = group.customTopics || topics.filter(t => group.keywords.some(k => t.name.includes(k)));
+
+                  if (groupTopics.length === 0) return null;
+                  const isExpanded = expandedGroup === group.title;
+
+                  return (
+                    <div key={group.title} style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
+                      <button
+                        onClick={() => setExpandedGroup(isExpanded ? null : group.title)}
+                        style={{
+                          width: '100%', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          background: isExpanded ? 'var(--background)' : 'white', border: 'none', cursor: 'pointer', fontWeight: '600', color: 'var(--foreground)'
+                        }}
+                      >
+                        <span>{group.title}</span>
+                        <span>{isExpanded ? '−' : '+'}</span>
+                      </button>
+
+                      {isExpanded && (
+                        <div style={{ background: 'white', borderTop: '1px solid var(--border)' }}>
+                          {groupTopics.map(t => {
+                            const assigned = isTopicAssigned(t.id);
+                            return (
+                              <button
+                                key={t.id}
+                                onClick={async () => {
+                                  setTopicId(t.id);
+                                  setPatternId(null);
+                                  setCurrentQuestion(null);
+                                  setEvaluation("");
+                                  setStreak(0);
+                                  await loadPatterns(t.id);
+                                }}
+                                style={{
+                                  width: '100%', padding: '0.75rem 1.5rem', textAlign: 'left', background: assigned ? '#eff6ff' : 'white', color: 'var(--text-secondary)',
+                                  border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s',
+                                  display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.background = assigned ? '#dbeafe' : 'var(--background)'}
+                                onMouseOut={(e) => e.currentTarget.style.background = assigned ? '#eff6ff' : 'white'}
+                              >
+                                <span>{t.name}</span>
+                                {assigned && <span style={{ fontSize: '0.8rem', background: 'var(--primary)', color: 'white', padding: '2px 6px', borderRadius: '4px' }}>Assigned</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </div>
         ) : (
@@ -729,9 +811,14 @@ export default function StudentClient() {
                   }}
                 >
                   <option value="">Select Question Pattern...</option>
-                  {patterns.map((p) => (
-                    <option key={p.id} value={p.id}>{p.pattern}</option>
-                  ))}
+                  {patterns.map((p) => {
+                    const assigned = isPatternAssigned(p.id);
+                    return (
+                      <option key={p.id} value={p.id}>
+                        {p.pattern} {assigned ? '(Assigned)' : ''}
+                      </option>
+                    );
+                  })}
                 </select>
 
                 <select
@@ -1012,6 +1099,90 @@ export default function StudentClient() {
           </div>
         )
       }
+
+      {/* Assignment Details Modal */}
+      {showAssignmentDetails && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '2rem'
+        }} onClick={() => { setShowAssignmentDetails(false); setAssignmentPatternDetails(null); }}>
+          <div className="card" style={{
+            width: '100%',
+            maxWidth: '700px',
+            maxHeight: '90vh',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: 0
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
+              <h2 style={{ margin: 0, color: 'var(--text)' }}>{activeAssignment?.title}</h2>
+              <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                {activeAssignment?.description}
+              </p>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', fontSize: '0.85rem' }}>
+                <span style={{ background: 'var(--surface)', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+                  📅 Due: {activeAssignment?.due_date ? new Date(activeAssignment.due_date).toLocaleDateString() : 'No due date'}
+                </span>
+                <span style={{ background: 'var(--surface)', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+                  📚 {assignmentPatternDetails?.length || 0} {assignmentPatternDetails?.length === 1 ? 'Pattern' : 'Patterns'}
+                </span>
+              </div>
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
+              <h3 style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--text)' }}>Patterns to Complete</h3>
+              {assignmentPatternDetails ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {assignmentPatternDetails.map((pattern, index) => (
+                    <div key={index} className="card" style={{
+                      padding: '1rem',
+                      border: '1px solid var(--border)',
+                      background: 'var(--background)'
+                    }}>
+                      <div style={{ fontWeight: '600', color: 'var(--text)', marginBottom: '0.5rem' }}>
+                        {pattern.patternName}
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+                        {pattern.topicName}
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {pattern.difficulties.sort((a, b) => {
+                          const order = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
+                          return order[a.difficulty] - order[b.difficulty];
+                        }).map((diff, i) => (
+                          <span key={i} style={{
+                            background: diff.difficulty === 'Easy' ? '#dcfce7' :
+                              diff.difficulty === 'Medium' ? '#fef3c7' : '#fee2e2',
+                            color: diff.difficulty === 'Easy' ? '#166534' :
+                              diff.difficulty === 'Medium' ? '#92400e' : '#991b1b',
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '4px',
+                            fontSize: '0.8rem',
+                            fontWeight: '500'
+                          }}>
+                            {diff.difficulty}: {diff.count} correct answers needed
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ color: 'var(--text-secondary)' }}>Loading...</p>
+              )}
+            </div>
+
+            <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn btn-secondary" onClick={() => { setShowAssignmentDetails(false); setAssignmentPatternDetails(null); }}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div >
   );
 }

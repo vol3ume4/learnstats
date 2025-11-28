@@ -40,11 +40,14 @@ export async function GET(request) {
                     .eq('student_id', studentId)
                     .single();
 
-                // Get pattern count
-                const { count: patternCount } = await supabase
+                // Get unique pattern count
+                const { data: patterns } = await supabase
                     .from('assignment_patterns')
-                    .select('*', { count: 'exact', head: true })
+                    .select('pattern_id')
                     .eq('assignment_id', assignment.id);
+
+                const uniquePatterns = new Set(patterns?.map(p => p.pattern_id));
+                const patternCount = uniquePatterns.size;
 
                 // Calculate status
                 let status = 'not_started';

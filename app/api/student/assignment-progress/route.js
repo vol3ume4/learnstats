@@ -79,13 +79,36 @@ export async function GET(request) {
         const progressPercentage = totalRequired > 0 ? Math.round((totalCompleted / totalRequired) * 100) : 0;
         const isFullyComplete = totalCompleted === totalRequired;
 
+        // Calculate unique patterns and topics
+        const uniquePatterns = new Set(progressDetails.map(p => p.pattern_id));
+        const uniqueTopics = new Set(progressDetails.map(p => p.topic_id));
+
+        // Count completed unique patterns (a pattern is complete when ALL its difficulties are complete)
+        const patternCompletionMap = {};
+        progressDetails.forEach(p => {
+            if (!patternCompletionMap[p.pattern_id]) {
+                patternCompletionMap[p.pattern_id] = { total: 0, completed: 0 };
+            }
+            patternCompletionMap[p.pattern_id].total++;
+            if (p.isComplete) {
+                patternCompletionMap[p.pattern_id].completed++;
+            }
+        });
+
+        const completedPatterns = Object.values(patternCompletionMap).filter(
+            p => p.completed === p.total
+        ).length;
+
         return Response.json({
             progressDetails,
             summary: {
                 totalRequired,
                 totalCompleted,
                 progressPercentage,
-                isFullyComplete
+                isFullyComplete,
+                uniquePatternCount: uniquePatterns.size,
+                completedPatternCount: completedPatterns,
+                uniqueTopicCount: uniqueTopics.size
             }
         });
 
