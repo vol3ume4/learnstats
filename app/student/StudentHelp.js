@@ -10,9 +10,8 @@ export default function StudentHelp() {
             <button
                 onClick={() => setIsOpen(true)}
                 className="btn btn-secondary"
-                style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem', whiteSpace: 'nowrap' }}
             >
-                ❓ Help
+                ❓ How to Use
             </button>
 
             {isOpen && (

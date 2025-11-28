@@ -433,7 +433,7 @@ export default function StudentClient() {
         {/* Right: Navigation Buttons - Grid on mobile */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
           gap: '0.5rem',
           maxWidth: '100%',
           width: 'auto'
@@ -442,16 +442,14 @@ export default function StudentClient() {
           <button
             className="btn btn-secondary"
             onClick={() => router.push("/student/share")}
-            style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem', whiteSpace: 'nowrap' }}
           >
-            ➕ Share
+            ➕ Share Question
           </button>
           <button
             className="btn btn-secondary"
             onClick={() => router.push("/student/dashboard")}
-            style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem', whiteSpace: 'nowrap' }}
           >
-            📊 Dashboard
+            📊 My Dashboard
           </button>
           <button
             className="btn btn-secondary"
@@ -459,7 +457,6 @@ export default function StudentClient() {
               await supabase.auth.signOut();
               router.push("/login");
             }}
-            style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem', whiteSpace: 'nowrap' }}
           >
             🚪 Sign Out
           </button>
