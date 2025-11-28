@@ -2,13 +2,17 @@
 
 "use client";
 
-import { useState } from "react";
-import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl");
+  const supabase = getSupabaseBrowserClient();
 
   async function handleLogin() {
     setLoading(true);
@@ -21,6 +25,11 @@ export default function LoginPage() {
       alert(error.message);
       setLoading(false);
     } else {
+      if (returnUrl) {
+        window.location.href = decodeURIComponent(returnUrl);
+        return;
+      }
+
       // Check if teacher
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -91,3 +100,13 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+
