@@ -58,23 +58,44 @@ export default function StudentHelp() {
                         </div>
 
                         <div style={{ lineHeight: '1.8' }}>
-                            <h3 style={{ color: 'var(--primary)', marginTop: '1.5rem', marginBottom: '0.75rem' }}>🎯 Learning Workflow</h3>
+                            <h3 style={{ color: 'var(--primary)', marginTop: '1.5rem', marginBottom: '0.75rem' }}>🎯 Getting Started</h3>
+                            <p style={{ color: 'var(--text-secondary)' }}>
+                                LearnStats offers two ways to learn: <strong>Classroom Mode</strong> (guided by a teacher) and <strong>Practice Mode</strong> (self-paced).
+                            </p>
 
+                            <h3 style={{ color: 'var(--primary)', marginTop: '1.5rem', marginBottom: '0.75rem' }}>🏫 Classroom Mode</h3>
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>1. Select a Topic & Question Pattern</strong>
+                                <strong style={{ color: 'var(--primary)' }}>1. Join a Classroom</strong>
                                 <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Choose a topic (e.g., "Binomial Distribution") and a specific question pattern to practice.
+                                    Go to "My Classrooms" and enter the <strong>Invite Code</strong> provided by your teacher (e.g., 2HEYKJ6W).
+                                </p>
+                            </div>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <strong style={{ color: 'var(--primary)' }}>2. View Assignments</strong>
+                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
+                                    Once joined, you'll see assignments from your teacher. Each assignment has a due date and a set of required patterns.
+                                </p>
+                            </div>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <strong style={{ color: 'var(--primary)' }}>3. Track Progress</strong>
+                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
+                                    Click "View Details" on an assignment to see exactly what you need to complete.
+                                    <br />
+                                    Your progress bar updates as you complete the required patterns.
                                 </p>
                             </div>
 
+                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>🧩 Practice Mode</h3>
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>2. Practice Loop</strong>
+                                <strong style={{ color: 'var(--primary)' }}>1. Select a Topic</strong>
                                 <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Click "Get Question" to fetch a random, unattempted question.
-                                    <br />
-                                    The question remains active until you <strong>Submit Answer</strong>.
-                                    <br />
-                                    If you click "Next Question" without submitting, it is treated as a skip and may appear again later.
+                                    Choose any topic from the library (e.g., "Binomial Distribution") to practice at your own pace.
+                                </p>
+                            </div>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <strong style={{ color: 'var(--primary)' }}>2. Master Patterns</strong>
+                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
+                                    Select a pattern and start solving questions.
                                 </p>
                             </div>
 
@@ -119,23 +140,6 @@ export default function StudentHelp() {
                                 <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', paddingLeft: '1.5rem' }}>
                                     <li><strong>👍 Helpful:</strong> Great question! It will appear more often to help others.</li>
                                     <li><strong>🚩 Flag for Review:</strong> Something's wrong? It will be reviewed and improved.</li>
-                                </ul>
-                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Your feedback shapes the learning experience for everyone!
-                                </p>
-                            </div>
-
-                            <h3 style={{ color: 'var(--primary)', marginTop: '2rem', marginBottom: '0.75rem' }}>📊 Dashboard & Progress</h3>
-
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>Track Your Journey</strong>
-                                <p style={{ marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
-                                    Check "My Dashboard" to see:
-                                </p>
-                                <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', paddingLeft: '1.5rem' }}>
-                                    <li><strong>Certificate Progress:</strong> View completion status for each bundle</li>
-                                    <li><strong>Pattern Details:</strong> See your streak progress (E:3, M:4, H:5) for each pattern</li>
-                                    <li><strong>Completed Patterns:</strong> Celebrate your achievements with ✓ checkmarks</li>
                                 </ul>
                             </div>
 

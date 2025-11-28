@@ -63,79 +63,69 @@ export default function TeacherHelp() {
                                 🎯 What is Teacher Mode?
                             </h3>
                             <p style={{ color: 'var(--text-secondary)' }}>
-                                Teacher Mode lets you create and manage learning content for students. You can define topics,
-                                create practice patterns, and generate questions using AI to build a comprehensive statistics curriculum.
+                                Teacher Mode is your command center for creating content and managing classrooms. You can build a curriculum,
+                                assign work to students, and track their progress.
                             </p>
 
                             <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
-                                📋 Content Creation Workflow
+                                🏫 Classroom Management
                             </h3>
-
                             <div style={{ marginBottom: '1rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>1. Select a Topic</strong>
+                                <strong style={{ color: 'var(--primary)' }}>1. Create Classrooms</strong>
                                 <p style={{ marginTop: '0.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                                    Choose from existing topics or create new ones. Topics are organized into certificate bundles.
+                                    Create a classroom to group your students. Each classroom gets a unique <strong>Invite Code</strong> (e.g., 2HEYKJ6W).
+                                </p>
+                            </div>
+                            <div style={{ marginBottom: '1rem' }}>
+                                <strong style={{ color: 'var(--primary)' }}>2. Invite Students</strong>
+                                <p style={{ marginTop: '0.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                                    Share the Invite Code or Link with students. They can join instantly from their dashboard.
+                                </p>
+                            </div>
+                            <div style={{ marginBottom: '1rem' }}>
+                                <strong style={{ color: 'var(--primary)' }}>3. Manage Students</strong>
+                                <p style={{ marginTop: '0.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                                    View enrolled students in the "Students" tab. You can activate or deactivate students to control access.
                                 </p>
                             </div>
 
+                            <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
+                                📚 Assignments
+                            </h3>
                             <div style={{ marginBottom: '1rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>2. Define Teaching Approach (Optional)</strong>
+                                <strong style={{ color: 'var(--primary)' }}>1. Create Assignments</strong>
                                 <p style={{ marginTop: '0.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                                    Set the pedagogical approach for the topic. This guides how students learn the material.
+                                    Select specific topics and patterns for students to practice. Set a due date to keep them on track.
+                                </p>
+                            </div>
+                            <div style={{ marginBottom: '1rem' }}>
+                                <strong style={{ color: 'var(--primary)' }}>2. View Details</strong>
+                                <p style={{ marginTop: '0.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                                    Click "View Details" on any assignment to see exactly what patterns and difficulty levels are included.
                                 </p>
                             </div>
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>3. Create Question Patterns</strong>
-                                <p style={{ marginTop: '0.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                                    Add patterns manually or use AI generation. Each pattern represents a type of problem students will practice.
-                                </p>
-                            </div>
-
-                            <div style={{ marginBottom: '1rem' }}>
-                                <strong style={{ color: 'var(--primary)' }}>4. Generate Questions</strong>
-                                <p style={{ marginTop: '0.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                                    For each pattern, generate questions at Easy, Medium, and Hard difficulty levels.
-                                </p>
-                            </div>
+                            <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
+                                🛠️ Content Creation
+                            </h3>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                                Use the "Content Studio" to build your curriculum:
+                            </p>
+                            <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                                <li><strong>Topics:</strong> Organize learning material into logical units.</li>
+                                <li><strong>Patterns:</strong> Define specific problem types for students to master.</li>
+                                <li><strong>AI Generation:</strong> Automatically generate questions for each pattern at Easy, Medium, and Hard levels.</li>
+                            </ul>
 
                             <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fef3c7', borderRadius: 'var(--radius-sm)', borderLeft: '3px solid #f59e0b' }}>
                                 <p style={{ margin: 0, fontSize: '0.85rem', color: '#92400e' }}>
-                                    <strong>AI Badge:</strong> Content marked with <span style={{ fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0284c7' }}>AI</span> was generated automatically. Review and edit as needed.
+                                    <strong>Pro Tip:</strong> Always review AI-generated questions to ensure accuracy before assigning them to students.
                                 </p>
                             </div>
 
-                            <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
-                                🎓 Student Learning Path
-                            </h3>
-                            <p style={{ color: 'var(--text-secondary)' }}>
-                                Students complete patterns by achieving streaks:
-                            </p>
-                            <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                                <li><strong>Easy:</strong> 3 correct answers → Unlocks Medium</li>
-                                <li><strong>Medium:</strong> 4 correct answers → Unlocks Hard</li>
-                                <li><strong>Hard:</strong> 5 correct answers → Pattern Completed ✓</li>
-                            </ul>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                                When all patterns in a topic bundle are completed, students earn a certificate!
-                            </p>
-
-                            <h3 style={{ fontSize: '1.1rem', marginTop: '1.5rem', marginBottom: '0.75rem', color: 'var(--primary)' }}>
-                                ✅ Best Practices
-                            </h3>
-                            <ul style={{ color: 'var(--text-secondary)' }}>
-                                <li>Review existing patterns before adding new ones to avoid duplicates</li>
-                                <li>Use AI generation for quick content creation, then refine manually</li>
-                                <li>Create 3-5 patterns per topic for comprehensive coverage</li>
-                                <li>Generate 5-10 questions per pattern per difficulty level</li>
-                                <li>Ensure questions are clear, accurate, and progressively challenging</li>
-                                <li>Test patterns yourself in Student Mode to verify quality</li>
-                            </ul>
-
                             <div style={{ marginTop: '2rem', padding: '1rem', background: 'var(--background)', borderRadius: 'var(--radius-md)' }}>
                                 <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                    <strong>Need help?</strong> Your content helps students learn statistics in a practical, hands-on way.
-                                    Thank you for contributing! 🙏
+                                    <strong>Need help?</strong> Your feedback helps us improve LearnStats. Thank you for teaching with us! 🙏
                                 </p>
                             </div>
                         </div>
