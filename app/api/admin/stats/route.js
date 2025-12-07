@@ -80,6 +80,33 @@ export async function POST(request) {
       `;
             const newUsers = await client.query(newUsersQuery);
 
+            // Get help request statistics
+            const totalHelpRequestsQuery = `
+        SELECT COUNT(*) as count 
+        FROM student_help_requests
+      `;
+            const totalHelpRequests = await client.query(totalHelpRequestsQuery);
+
+            const savedHelpRequestsQuery = `
+        SELECT COUNT(*) as count 
+        FROM student_help_requests 
+        WHERE was_saved = true
+      `;
+            const savedHelpRequests = await client.query(savedHelpRequestsQuery);
+
+            const helpRequestsByModeQuery = `
+        SELECT input_mode, COUNT(*) as count 
+        FROM student_help_requests 
+        GROUP BY input_mode
+      `;
+            const helpRequestsByMode = await client.query(helpRequestsByModeQuery);
+
+            const totalHelpCount = parseInt(totalHelpRequests.rows[0]?.count || 0);
+            const savedHelpCount = parseInt(savedHelpRequests.rows[0]?.count || 0);
+            const contributionRate = totalHelpCount > 0
+                ? Math.round((savedHelpCount / totalHelpCount) * 100)
+                : 0;
+
             return NextResponse.json({
                 totalUsers: parseInt(totalUsers.rows[0].count),
                 activeUsers: parseInt(activeUsers.rows[0].count),
@@ -88,6 +115,12 @@ export async function POST(request) {
                 topTopics: topTopics.rows,
                 topPatterns: topPatterns.rows,
                 newUsersLast7Days: parseInt(newUsers.rows[0].count),
+                helpRequests: {
+                    total: totalHelpCount,
+                    saved: savedHelpCount,
+                    contributionRate: contributionRate,
+                    byMode: helpRequestsByMode.rows
+                }
             });
         } finally {
             client.release();

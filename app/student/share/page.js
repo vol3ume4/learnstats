@@ -14,6 +14,7 @@ export default function StudentShare() {
     const [processing, setProcessing] = useState(false);
     const [enrichedData, setEnrichedData] = useState(null);
     const [showSolution, setShowSolution] = useState(false);
+    const [helpRequestId, setHelpRequestId] = useState(null);
 
     const router = useRouter();
 
@@ -145,6 +146,24 @@ export default function StudentShare() {
             });
             setShowSolution(true);
 
+            // Log help request (not saved yet)
+            try {
+                await fetch("/api/student/log-help-request", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        userId,
+                        questionText: data.question_text,
+                        inputMode: manualMode,
+                        detectedTopic: data.detected_topic,
+                        detectedPattern: data.detected_pattern,
+                        wasSaved: false
+                    })
+                });
+            } catch (logErr) {
+                console.error("Failed to log help request:", logErr);
+            }
+
         } catch (err) {
             console.error("Processing error:", err);
             alert("Error: " + err.message);
@@ -183,6 +202,24 @@ export default function StudentShare() {
             const saveData = await saveRes.json();
             if (!saveData.success) {
                 throw new Error("Failed to save question");
+            }
+
+            // Log that this question was saved
+            try {
+                await fetch("/api/student/log-help-request", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        userId,
+                        questionText: enrichedData.question_text,
+                        inputMode: manualMode,
+                        detectedTopic: enrichedData.detected_topic,
+                        detectedPattern: enrichedData.detected_pattern,
+                        wasSaved: true
+                    })
+                });
+            } catch (logErr) {
+                console.error("Failed to log save:", logErr);
             }
 
             alert("✅ Question saved to database successfully!");
