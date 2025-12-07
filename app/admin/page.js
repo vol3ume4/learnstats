@@ -165,6 +165,47 @@ export default function AdminPage() {
                 </div>
             </div>
 
+
+            {/* Student Help Requests Section */}
+            <div className="card" style={{ marginBottom: '2rem', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+                <h3 style={{ margin: 0, marginBottom: '1rem' }}>🤔 Student Help Requests</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.15)', padding: '1rem', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>
+                            {stats?.helpRequests?.total || 0}
+                        </div>
+                        <div style={{ fontSize: '0.9rem', opacity: 0.9, marginTop: '0.25rem' }}>
+                            Total Help Requests
+                        </div>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.15)', padding: '1rem', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>
+                            {stats?.helpRequests?.saved || 0}
+                        </div>
+                        <div style={{ fontSize: '0.9rem', opacity: 0.9, marginTop: '0.25rem' }}>
+                            Saved to Database
+                        </div>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.15)', padding: '1rem', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>
+                            {stats?.helpRequests?.contributionRate || 0}%
+                        </div>
+                        <div style={{ fontSize: '0.9rem', opacity: 0.9, marginTop: '0.25rem' }}>
+                            Contribution Rate
+                        </div>
+                    </div>
+                </div>
+                {stats?.helpRequests?.byMode && stats.helpRequests.byMode.length > 0 && (
+                    <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', justifyContent: 'center', fontSize: '0.9rem' }}>
+                        {stats.helpRequests.byMode.map((mode) => (
+                            <div key={mode.input_mode} style={{ background: 'rgba(255,255,255,0.1)', padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)' }}>
+                                <strong>{mode.input_mode === 'text' ? '📝 Text' : '📷 Image'}:</strong> {mode.count}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             {/* Questions by Difficulty */}
             <div className="card">
                 <h3 className="section-title">Questions by Difficulty</h3>
